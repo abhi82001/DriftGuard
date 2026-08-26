@@ -79,6 +79,27 @@ Known limitations:
     fixtures; production knowledge is never corrupted to test failure paths.
   - No API, no persistence, no LLM, no UI.
 
+Hardening (post-review patch, Checkpoint 002 scope only):
+  1. Semantic reference integrity. KnowledgeBase now loads semantic_condition
+     records read-only from knowledge/soc2/semantics/. When a gap signal carries
+     a semantic_condition_id, the semantic-boundary path resolves it via
+     require_semantic_condition(); an unknown ID raises KnowledgeError. The
+     semantic condition is resolved, never evaluated. Semantic records unchanged.
+  2. Duplicate runtime IDs. KnowledgeBase.from_repository() explicitly detects
+     duplicate questionnaire, finding, and semantic-condition IDs across files
+     and raises KnowledgeError naming the duplicated ID, instead of letting dict
+     overwrite or set de-duplication hide the collision.
+  3. Grammar-version compatibility. Before deterministic evaluation the engine
+     checks the questionnaire's declared gap_signal_grammar_version against the
+     supported version (1.0.0). A different or missing version raises the typed
+     UnsupportedGrammarVersionError (subclass of EngineError) rather than
+     attempting evaluation.
+  New tests (all passing): unknown semantic condition fails; known SEMCOND-0001
+     resolves; duplicate questionnaire/finding/semantic IDs detected (temp on-disk
+     fixtures); grammar 1.0.0 supported; unsupported version fails; missing
+     version fails. Backend suite: 20 tests, 0 failures. Production knowledge and
+     the validator result (0 errors, 0 warnings) are unchanged.
+
 Next recommended checkpoint:
   Questionnaire-level evaluation aggregation: evaluate a full answered
   questionnaire, collect per-question deterministic results and the set of
