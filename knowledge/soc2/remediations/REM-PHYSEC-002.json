@@ -1,0 +1,106 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-PHYSEC-002",
+  "name": "Obtain and assess subservice organization assurance, and map complementary controls",
+  "description": "Turn subservice organization reports from filed documents into an assessment: confirm scope and period, read the exceptions, and map every complementary user entity control onto one of the entity's own controls.",
+  "domain": "third_party_risk",
+  "remediation_type": "implement_control",
+  "durability": "structural",
+  "responsible_role": "Vendor Risk or Compliance owner",
+  "addresses_findings": [
+    "FND-PHYSEC-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.4-001"
+  ],
+  "affected_criteria": [
+    "CC6.4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Identify every subservice organization the entity depends on for an in-scope criterion, distinguishing them from vendors that merely process no protected information.",
+      "owner_role": "Compliance owner"
+    },
+    {
+      "step": 2,
+      "action": "Obtain the current assurance report for each, in its signed practitioner form rather than as a compliance badge or summary page.",
+      "owner_role": "Vendor Risk",
+      "produces_evidence": [
+        "EV-PHYSEC-002"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Confirm the report's scope covers the services, regions, and criteria actually relied on.",
+      "owner_role": "Compliance owner",
+      "produces_evidence": [
+        "EV-PHYSEC-002"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Confirm the report period covers the entity's own examination period, and record any uncovered interval explicitly.",
+      "owner_role": "Compliance owner"
+    },
+    {
+      "step": 5,
+      "action": "Read the tests-of-controls section and assess whether any reported exception affects the entity's reliance.",
+      "owner_role": "Security"
+    },
+    {
+      "step": 6,
+      "action": "Map each complementary user entity control to one of the entity's own controls, or record why it does not apply.",
+      "owner_role": "Compliance owner",
+      "produces_evidence": [
+        "EV-PHYSEC-002"
+      ]
+    },
+    {
+      "step": 7,
+      "action": "Identify subservice organizations carved out of that report and decide whether the chained dependency needs its own assessment.",
+      "owner_role": "Vendor Risk"
+    },
+    {
+      "step": 8,
+      "action": "Set a renewal reminder tied to report expiry so the next cycle is prompted rather than remembered.",
+      "owner_role": "Vendor Risk"
+    }
+  ],
+  "implementation_considerations": [
+    "Complementary user entity control lists are long and largely generic; the value is in identifying the few that the entity is genuinely not doing, not in producing a complete matrix for its own sake.",
+    "Large providers publish reports on a fixed annual cycle that rarely aligns to the entity's period. Plan for a coverage interval rather than treating it as an anomaly.",
+    "A bridge letter narrows the communication gap but supplies no assurance. Record it as such rather than as coverage.",
+    "Report access is often gated behind an NDA and a portal; establish who in the entity can obtain it before the deadline approaches."
+  ],
+  "effort": "low",
+  "typical_duration": "Days per provider once access is established; the recurring cost is renewal tracking, not the assessment itself.",
+  "prerequisites": [
+    "A vendor register that distinguishes subservice organizations from other suppliers",
+    "Access to each provider's compliance portal"
+  ],
+  "verification_method": {
+    "how": "For each subservice organization, confirm a current in-scope report is on file, that its period covers the entity's period or the gap is documented, and that every complementary user entity control is mapped to an entity control or assessed as not applicable.",
+    "verifying_evidence": [
+      "EV-PHYSEC-002"
+    ],
+    "automatable": false
+  },
+  "residual_risk_note": "The entity's control is the monitoring, not the provider's controls. Reliance remains, and a provider exception or a downstream carve-out can still leave assurance the entity cannot obtain.",
+  "period_limitation_note": "Assessing a report now does not create assurance for a period during which no assessment was performed. Where the entity's own monitoring control did not operate during an elapsed period, that stands.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Never characterise the subservice organization's control environment on the basis of this assessment. The entity's control is that it obtains, reads, and acts on the report."
+  ]
+}

@@ -1,0 +1,1827 @@
+{
+  "$schema": "../schemas/mapping.schema.json",
+  "record_type": "mapping_set",
+  "mapping_set_id": "MAPSET-CC7",
+  "name": "CC7 System Operations Relationship Set",
+  "description": "Authoritative relationship graph for the CC7 vertical slice. Extends MAPSET-ACCESS-CORE and MAPSET-CC6 without repeating any edge already declared there. Edges are derived from the entity records, so convenience references and the graph cannot diverge.",
+  "relationship_model": {
+    "chain": [
+      "criterion",
+      "control",
+      "evidence",
+      "policy",
+      "questionnaire",
+      "finding",
+      "remediation"
+    ],
+    "traversal_notes": [
+      "CC7 reuses several CC6 entities rather than duplicating them: EV-CONFIG-001, EV-VULN-001, and EV-ENDPOINT-002 carry CC7 edges alongside their CC6 edges, and FND-NETSEC-002 and REM-NETSEC-002 were extended to CC7.1 rather than cloned.",
+      "SOC2-CC7.1-001 predates this slice and its existing edges live in MAPSET-ACCESS-CORE; only its new relationships appear here.",
+      "The relationship vocabulary is identical across all three sets and the validator enforces that identically-named types carry identical definitions."
+    ]
+  },
+  "relationship_types": [
+    {
+      "type": "addresses_criterion",
+      "from_entity": "control",
+      "to_entity": "criterion",
+      "inverse": "criterion_addressed_by",
+      "cardinality": "many_to_many",
+      "answers_question": "Which controls address this criterion?"
+    },
+    {
+      "type": "supported_by_evidence",
+      "from_entity": "control",
+      "to_entity": "evidence",
+      "inverse": "supports_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which evidence supports this control, and which controls does this evidence support?"
+    },
+    {
+      "type": "documented_by_policy",
+      "from_entity": "control",
+      "to_entity": "policy",
+      "inverse": "documents_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which policies support this control?"
+    },
+    {
+      "type": "assessed_by_question",
+      "from_entity": "control",
+      "to_entity": "question",
+      "inverse": "assesses_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which questionnaire questions relate to this control?"
+    },
+    {
+      "type": "indicates_finding",
+      "from_entity": "evidence",
+      "to_entity": "finding",
+      "inverse": "detected_by_evidence",
+      "cardinality": "many_to_many",
+      "answers_question": "What findings can this evidence reveal?"
+    },
+    {
+      "type": "question_indicates_finding",
+      "from_entity": "question",
+      "to_entity": "finding",
+      "inverse": "indicated_by_question",
+      "cardinality": "many_to_many",
+      "answers_question": "Which answers signal a potential gap?"
+    },
+    {
+      "type": "finding_affects_control",
+      "from_entity": "finding",
+      "to_entity": "control",
+      "inverse": "control_affected_by_finding",
+      "cardinality": "many_to_many",
+      "answers_question": "What findings can indicate a gap in this control?"
+    },
+    {
+      "type": "finding_affects_criterion",
+      "from_entity": "finding",
+      "to_entity": "criterion",
+      "inverse": "criterion_affected_by_finding",
+      "cardinality": "many_to_many",
+      "answers_question": "Which criteria are at risk from this finding?"
+    },
+    {
+      "type": "remediated_by",
+      "from_entity": "finding",
+      "to_entity": "remediation",
+      "inverse": "remediates",
+      "cardinality": "many_to_many",
+      "answers_question": "What remediation addresses this finding?"
+    },
+    {
+      "type": "verified_by_evidence",
+      "from_entity": "remediation",
+      "to_entity": "evidence",
+      "inverse": "verifies_remediation",
+      "cardinality": "many_to_many",
+      "answers_question": "How do we confirm the remediation actually landed?"
+    }
+  ],
+  "mappings": [
+    {
+      "mapping_id": "MAP-0234",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerability Identification and Remediation contributes to CC7.2 in addition to its primary criterion CC7.1.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0235",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC8.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerability Identification and Remediation contributes to CC8.1 in addition to its primary criterion CC7.1.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0236",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Configuration Baseline Monitoring and Change Detection is DriftGuard's primary control articulation for CC7.1: Detect changes to system configuration that introduce new vulnerability or weaken an existing control, rather than discovering them at review time or during an examination.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0237",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Baseline Monitoring and Change Detection contributes to CC7.2 in addition to its primary criterion CC7.1.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0238",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC8.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Baseline Monitoring and Change Detection contributes to CC8.1 in addition to its primary criterion CC7.1.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0239",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Configuration Change History and Drift Record is primary evidence for Configuration Baseline Monitoring and Change Detection: Change history and drift record across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0240",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-VULN-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerability Scan Result and Remediation Tracking is supporting evidence for Configuration Baseline Monitoring and Change Detection: Scan results corroborate whether configuration change introduced known vulnerability.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0241",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-NETSEC-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Network and Boundary Security Policy is where the standard Configuration Baseline Monitoring and Change Detection is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0242",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-VULN-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Vulnerability Management Policy is where the standard Configuration Baseline Monitoring and Change Detection is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0243",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q01"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Configuration Baseline Monitoring and Change Detection. Question intent: Establish whether change detection is continuous or review-based, and whether advisory monitoring exists separately from scheduled scanning.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0244",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Monitoring and Anomaly Analysis is DriftGuard's primary control articulation for CC7.2: Collect the telemetry needed to notice abnormal activity across in-scope components, and analyse what is noticed so that anomalies are assessed rather than merely recorded.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0245",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Security Monitoring and Anomaly Analysis contributes to CC7.1 in addition to its primary criterion CC7.2.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0246",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Security Monitoring and Anomaly Analysis contributes to CC7.3 in addition to its primary criterion CC7.2.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0247",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-LOG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Log Source Coverage and Retention Configuration is primary evidence for Security Monitoring and Anomaly Analysis: Log source coverage, retention, and integrity configuration.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0248",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Alert and Event Evaluation Record is primary evidence for Security Monitoring and Anomaly Analysis: Alert population with analysis and disposition across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0249",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Malicious Software Detection and Triage Record is supporting evidence for Security Monitoring and Anomaly Analysis: Endpoint detections are one anomaly source feeding the same analysis process.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0250",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Change History and Drift Record is supporting evidence for Security Monitoring and Anomaly Analysis: Evidences that monitoring configuration held through the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0251",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-LOG-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Logging and Security Monitoring Policy is where the standard Security Monitoring and Anomaly Analysis is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0252",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q02"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Security Monitoring and Anomaly Analysis. Question intent: Establish whether coverage is measured against the asset inventory rather than the logging platform's own source list, and whether retention reaches the examination period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0253",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q03"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Security Monitoring and Anomaly Analysis. Question intent: Establish whether analysis is attributable, time-bounded, and recorded, which is what separates monitoring from collection.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0254",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Event Evaluation and Incident Declaration is DriftGuard's primary control articulation for CC7.3: Apply defined criteria to decide whether a security event has affected, or could affect, the entity's ability to meet its objectives, so that incident declaration is a judgement made against a standard rather than an improvised call.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0255",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Security Event Evaluation and Incident Declaration contributes to CC7.2 in addition to its primary criterion CC7.3.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0256",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.4"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Security Event Evaluation and Incident Declaration contributes to CC7.4 in addition to its primary criterion CC7.3.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0257",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Alert and Event Evaluation Record is primary evidence for Security Event Evaluation and Incident Declaration: Event population with evaluation outcome, including non-incident dispositions.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0258",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is primary evidence for Security Event Evaluation and Incident Declaration: Declared incidents with the basis for declaration.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0259",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-INCIDENT-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Policy is where the standard Security Event Evaluation and Incident Declaration is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0260",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q04"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Security Event Evaluation and Incident Declaration. Question intent: Establish whether declaration is a judgement against a documented standard, and whether non-monitoring intake paths exist.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0261",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.4"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Execution and Communication is DriftGuard's primary control articulation for CC7.4: Ensure that a declared incident is worked through a defined programme covering understanding, containment, remediation, and communication, and that the programme is exercised before it is needed.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0262",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident Response Execution and Communication contributes to CC7.3 in addition to its primary criterion CC7.4.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0263",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.5"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident Response Execution and Communication contributes to CC7.5 in addition to its primary criterion CC7.4.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0264",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is primary evidence for Incident Response Execution and Communication: Incident records showing timeline, containment, participants, and communications.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0265",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Plan Test Record is primary evidence for Incident Response Execution and Communication: Response plan test record and resulting improvement tracking.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0266",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-INCIDENT-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Policy is where the standard Incident Response Execution and Communication is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0267",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q05"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Incident Response Execution and Communication. Question intent: Establish whether the plan is tested within the period and whether the test produces outcomes rather than attendance.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0268",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.5"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Recovery and Post-Incident Remediation is DriftGuard's primary control articulation for CC7.5: Restore affected systems to a known good state after an incident, and ensure the underlying cause is identified and addressed so the same failure does not recur.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0269",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.4"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident Recovery and Post-Incident Remediation contributes to CC7.4 in addition to its primary criterion CC7.5.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0270",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident Recovery and Post-Incident Remediation contributes to CC7.1 in addition to its primary criterion CC7.5.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0271",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is primary evidence for Incident Recovery and Post-Incident Remediation: Recovery actions, post-incident review, and tracked remediation to closure.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0272",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Change History and Drift Record is supporting evidence for Incident Recovery and Post-Incident Remediation: Evidences that configuration was restored to and held at the intended baseline.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0273",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-VULN-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerability Scan Result and Remediation Tracking is supporting evidence for Incident Recovery and Post-Incident Remediation: Where the root cause was an unremediated vulnerability, closure is evidenced here.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0274",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-INCIDENT-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Policy is where the standard Incident Recovery and Post-Incident Remediation is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0275",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q06"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Incident Recovery and Post-Incident Remediation. Question intent: Establish whether review is triggered by a threshold and whether resulting actions are tracked somewhere closure can be demonstrated.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0276",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-003"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Security Incident Record indicates Incident records do not evidence containment, communication, or timeline.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0277",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-004"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the sufficiency check on Security Incident Record indicates No post-incident review or review actions not tracked to closure.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0278",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the relevance check on Security Incident Record indicates No documented criteria for declaring a security event an incident.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0279",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-002"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Incident Response Plan Test Record indicates Incident response plan not tested within the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0280",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-LOG-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-LOG-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Security Log Source Coverage and Retention Configuration indicates Log source coverage or retention below what the period requires.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0281",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-LOG-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-LOG-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the relevance check on Security Log Source Coverage and Retention Configuration indicates Log integrity protection not addressed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0282",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Security Alert and Event Evaluation Record indicates Alerts generated without recorded analysis or escalation criteria.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0283",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the relevance check on Security Alert and Event Evaluation Record indicates No documented criteria for declaring a security event an incident.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0284",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q01"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer relies on periodic review with no continuous detection' signals Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0285",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q02"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-LOG-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'coverage measured against the logging platform's own source list' signals Log source coverage or retention below what the period requires.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0286",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q03"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'no named responder or analysis timeframe' signals Alerts generated without recorded analysis or escalation criteria.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0287",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q04"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'no written declaration criteria' signals No documented criteria for declaring a security event an incident.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0288",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q05"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'no exercise within the examination period' signals Incident response plan not tested within the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0289",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q06"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-004"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'no defined review trigger' signals No post-incident review or review actions not tracked to closure.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0290",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.3-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "No documented criteria for declaring a security event an incident bears on the control design gap assessment of Security Event Evaluation and Incident Declaration.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0291",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "No documented criteria for declaring a security event an incident places CC7.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0292",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Document incident declaration criteria and intake paths addresses No documented criteria for declaring a security event an incident.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0293",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident response plan not tested within the period bears on the missing evidence assessment of Incident Response Execution and Communication.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0294",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.4"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident response plan not tested within the period places CC7.4 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0295",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Exercise the incident response plan on a stated cadence addresses Incident response plan not tested within the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0296",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-003"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.4-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident records do not evidence containment, communication, or timeline bears on the insufficient evidence assessment of Incident Response Execution and Communication.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0297",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-003"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.4"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Incident records do not evidence containment, communication, or timeline places CC7.4 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0298",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-003"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-003"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Capture the incident timeline and communications contemporaneously addresses Incident records do not evidence containment, communication, or timeline.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0299",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-004"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.5-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "No post-incident review or review actions not tracked to closure bears on the control operating gap assessment of Incident Recovery and Post-Incident Remediation.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0300",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-004"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.5"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "No post-incident review or review actions not tracked to closure places CC7.5 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0301",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-INCIDENT-004"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-004"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Run post-incident reviews and track actions in the normal backlog addresses No post-incident review or review actions not tracked to closure.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0302",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Log source coverage or retention below what the period requires bears on the control operating gap assessment of Security Monitoring and Anomaly Analysis.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0303",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Log source coverage or retention below what the period requires places CC7.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0304",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-LOG-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Drive log coverage from the asset inventory and set retention to the period addresses Log source coverage or retention below what the period requires.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0305",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Log integrity protection not addressed bears on the informational observation assessment of Security Monitoring and Anomaly Analysis.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0306",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Log integrity protection not addressed places CC7.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0307",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-LOG-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-LOG-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Protect log integrity or document the accepted position addresses Log integrity protection not addressed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0308",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.2-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Alerts generated without recorded analysis or escalation criteria bears on the insufficient evidence assessment of Security Monitoring and Anomaly Analysis.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0309",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Alerts generated without recorded analysis or escalation criteria places CC7.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0310",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Alerts generated without recorded analysis or escalation criteria places CC7.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0311",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-MONITOR-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Record alert disposition and define the anomaly-to-event threshold addresses Alerts generated without recorded analysis or escalation criteria.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0312",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-002"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Boundary configuration drift not detected across the period bears on the potentially ineffective control assessment of Configuration Baseline Monitoring and Change Detection.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0313",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Boundary configuration drift not detected across the period places CC7.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0314",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is how DriftGuard confirms Document incident declaration criteria and intake paths actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0315",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Alert and Event Evaluation Record is how DriftGuard confirms Document incident declaration criteria and intake paths actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0316",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Incident Response Plan Test Record is how DriftGuard confirms Exercise the incident response plan on a stated cadence actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0317",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-003"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is how DriftGuard confirms Capture the incident timeline and communications contemporaneously actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0318",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-INCIDENT-004"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-INCIDENT-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Incident Record is how DriftGuard confirms Run post-incident reviews and track actions in the normal backlog actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0319",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-LOG-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-LOG-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Log Source Coverage and Retention Configuration is how DriftGuard confirms Drive log coverage from the asset inventory and set retention to the period actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0320",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-LOG-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-LOG-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Log Source Coverage and Retention Configuration is how DriftGuard confirms Protect log integrity or document the accepted position actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0321",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-MONITOR-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-MONITOR-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Security Alert and Event Evaluation Record is how DriftGuard confirms Record alert disposition and define the anomaly-to-event threshold actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0322",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC7.1-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q07"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Vulnerability Identification and Remediation. Question intent: Establish whether scan scope derives from the authoritative asset inventory and whether overdue findings have a governed risk-acceptance path rather than simply remaining open.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0323",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-OPS-001-Q07"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-VULN-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'overdue findings have no documented risk acceptance path' signals Vulnerabilities unresolved beyond the organization's own remediation timeframe.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    }
+  ],
+  "version": "0.2.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "MAP identifiers continue the single sequence begun in MAPSET-ACCESS-CORE and are never renumbered.",
+    "Edge rationales are composed from the source entity records; the substantive judgement lives in the record and is cited here.",
+    "MAP-0322 and MAP-0323 added during the CC7 quality gate to attach the pre-existing SOC2-CC7.1-001 to questionnaire coverage."
+  ]
+}

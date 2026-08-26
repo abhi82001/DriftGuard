@@ -1,0 +1,105 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-IAM-001",
+  "name": "Close authentication path coverage gaps",
+  "description": "Enumerate every route into the in-scope environment, bring each under central authentication policy, and give any route that genuinely cannot be covered a documented, monitored compensating control.",
+  "domain": "access_management",
+  "remediation_type": "redesign_control",
+  "durability": "structural",
+  "responsible_role": "IT / Identity and Access Management owner",
+  "addresses_findings": [
+    "FND-IAM-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.1-001"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.6"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enumerate all authentication paths into the boundary: SSO, direct application logins, VPN, SSH and bastion, cloud console, cloud CLI, API and personal access tokens, break-glass accounts, and vendor support portals.",
+      "owner_role": "IT / IAM owner"
+    },
+    {
+      "step": 2,
+      "action": "Classify each path as covered, coverable, or structurally uncoverable.",
+      "owner_role": "IT / IAM owner"
+    },
+    {
+      "step": 3,
+      "action": "Migrate coverable paths behind the identity provider and enforce the second factor through conditional access policy.",
+      "owner_role": "IT / IAM owner",
+      "produces_evidence": [
+        "EV-IAM-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "For structurally uncoverable paths, implement compensating controls: credential vaulting, short-lived credentials, network restriction, and alerting on use.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Record every exclusion with an owner, rationale, compensating control, and review date.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 6,
+      "action": "Prefer phishing-resistant factors for administrative and privileged access.",
+      "owner_role": "IT / IAM owner"
+    },
+    {
+      "step": 7,
+      "action": "Reconcile the policy document and the system description to the configuration actually enforced.",
+      "owner_role": "Compliance owner"
+    },
+    {
+      "step": 8,
+      "action": "Capture dated configuration snapshots on a schedule so period coverage can be demonstrated, not just current state.",
+      "owner_role": "IT / IAM owner",
+      "produces_evidence": [
+        "EV-IAM-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Path enumeration should be done by someone other than the person who configured the policy; self-review reliably misses the same paths twice.",
+    "Legacy applications that cannot sit behind the identity provider drive the timeline. Decide early whether to retire, wrap, or compensate them.",
+    "Phishing-resistant factors change enrolment logistics and hardware procurement; sequence that ahead of enforcement."
+  ],
+  "effort": "high",
+  "typical_duration": "Weeks to months, driven by migrating legacy applications and token-based access rather than by policy configuration.",
+  "prerequisites": [
+    "A current and accurate system boundary definition",
+    "An identity provider capable of fronting the applications in scope"
+  ],
+  "verification_method": {
+    "how": "Re-enumerate authentication paths independently of the original list and confirm each is either covered by enforced policy or appears on the documented exclusion list with a live compensating control.",
+    "verifying_evidence": [
+      "EV-IAM-001"
+    ],
+    "automatable": false
+  },
+  "paired_remediations": [],
+  "residual_risk_note": "Newly integrated applications and newly issued long-lived tokens reintroduce uncovered paths. Without a control at the point of onboarding, coverage decays.",
+  "period_limitation_note": "Closing a coverage gap now does not change the design conclusion for a period during which the gap existed.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Framed as closing coverage of the criterion's objective. MFA is not a SOC 2 requirement, and an organization may meet CC6.1 through a different design.",
+    "Backfilled with responsible_role and implementation_considerations in the CC6 phase (schema 0.2.0)."
+  ]
+}

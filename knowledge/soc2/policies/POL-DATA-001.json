@@ -1,0 +1,158 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-DATA-001",
+  "name": "Data Classification and Handling Policy",
+  "description": "Defines how information is classified, and what handling, transmission, storage, and movement restrictions apply at each classification level.",
+  "domain": "data_protection",
+  "policy_type": "policy",
+  "purpose": "Give the protection controls a basis for deciding what to protect and how strongly, so that requirements are proportionate rather than uniform or arbitrary.",
+  "scope_guidance": "Should cover information in all states and locations, and should enumerate the routes by which information can leave the environment.",
+  "supported_controls": [
+    "SOC2-CC6.7-001",
+    "SOC2-CC6.1-002"
+  ],
+  "supported_criteria": [
+    "CC6.1",
+    "CC6.5",
+    "CC6.7"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Classification levels with concrete examples of what falls into each",
+      "necessity": "expected",
+      "rationale": "Abstract levels produce inconsistent classification and therefore inconsistent protection.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Handling requirements per level for storage, transmission, and sharing",
+      "necessity": "expected",
+      "rationale": "This is what makes the classification consequential rather than decorative.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Enumeration of routes by which information can leave the environment",
+      "necessity": "expected",
+      "rationale": "Restriction is impossible without first knowing the routes; most entities discover routes they had not considered.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Authorisation required for bulk export or transfer, and who may authorise it",
+      "necessity": "expected",
+      "rationale": "Bulk movement is the highest-impact egress and is frequently unauthorised by process.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Removable media stance, and whether it is technically enforced",
+      "necessity": "expected",
+      "rationale": "A policy statement with no enforcement mechanism evidences intent only.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Requirements for sharing information with third parties",
+      "necessity": "expected",
+      "rationale": "External sharing is a route that internal egress controls often do not cover.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Retention and disposal requirements per classification",
+      "necessity": "recommended",
+      "rationale": "Connects handling to the sanitization control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Requirements for production data in non-production environments",
+      "necessity": "recommended",
+      "rationale": "A common route by which protected information leaves the controlled environment without leaving the entity.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-CRYPTO-002"
+    ]
+  },
+  "communication_expectation": "Communicated to all personnel handling information, and acknowledged at onboarding. Relevant to the CC2 communication criteria as well as to CC6.7.",
+  "common_gaps": [
+    "Classification levels defined but no differentiated handling requirements, so classification changes nothing.",
+    "Egress routes not enumerated, so restriction is asserted rather than designed.",
+    "Removable media prohibited in policy with no endpoint enforcement.",
+    "Production data in non-production environments unaddressed."
+  ],
+  "related_policies": [
+    "POL-CRYPTO-001",
+    "POL-ASSET-001"
+  ],
+  "evidence_examples": [
+    "EV-CRYPTO-002",
+    "EV-ENDPOINT-001"
+  ],
+  "common_findings": [
+    "FND-DATA-001"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.7",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Data loss prevention tooling is not required by SOC 2 and this policy does not assume it. An entity with few egress routes may meet the objective through architecture and access restriction."
+  ]
+}

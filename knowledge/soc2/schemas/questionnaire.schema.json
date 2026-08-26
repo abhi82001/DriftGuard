@@ -1,0 +1,399 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/questionnaire.schema.json",
+  "title": "DriftGuard SOC 2 Questionnaire",
+  "description": "A structured set of questions used for readiness assessment or vendor risk review. Questions link to controls and criteria so that answers can drive gap detection.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "record_type": {
+      "const": "questionnaire"
+    },
+    "questionnaire_id": {
+      "$ref": "common.defs.json#/$defs/questionnaire_id"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "purpose": {
+      "type": "string",
+      "enum": [
+        "readiness_assessment",
+        "vendor_risk_review",
+        "internal_audit",
+        "control_owner_interview",
+        "scoping"
+      ]
+    },
+    "audience": {
+      "type": "string",
+      "enum": [
+        "service_organization",
+        "vendor",
+        "control_owner",
+        "internal_team"
+      ]
+    },
+    "domain": {
+      "type": "string"
+    },
+    "covers_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.defs.json#/$defs/criterion_id"
+      },
+      "uniqueItems": true
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "question_id": {
+            "$ref": "common.defs.json#/$defs/question_id"
+          },
+          "text": {
+            "type": "string"
+          },
+          "intent": {
+            "type": "string",
+            "description": "What the answer is meant to establish. Drives interpretation of free-text answers."
+          },
+          "answer_type": {
+            "type": "string",
+            "enum": [
+              "boolean",
+              "single_select",
+              "multi_select",
+              "text",
+              "numeric",
+              "date",
+              "evidence_upload"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "related_controls": {
+            "type": "array",
+            "items": {
+              "$ref": "common.defs.json#/$defs/control_id"
+            },
+            "uniqueItems": true
+          },
+          "related_criteria": {
+            "type": "array",
+            "items": {
+              "$ref": "common.defs.json#/$defs/criterion_id"
+            },
+            "uniqueItems": true
+          },
+          "expected_evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.defs.json#/$defs/evidence_id"
+            },
+            "uniqueItems": true
+          },
+          "gap_signals": {
+            "type": "array",
+            "description": "Answer patterns that indicate a potential gap and the finding archetype they point to.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string",
+                  "description": "Human-readable statement of the answer pattern. Retained for explainability and as the sole representation where the answer is free text and cannot be evaluated deterministically."
+                },
+                "condition_expr": {
+                  "$ref": "#/$defs/gap_signal_condition",
+                  "description": "Machine-readable form of `condition`. Required where the question's answer_type is single_select or multi_select; must be absent for free-text and other non-enumerated answer types, whose conditions require semantic judgement rather than deterministic evaluation."
+                },
+                "semantic_condition_id": {
+                  "type": "string",
+                  "pattern": "^SEMCOND-[0-9]{4}$",
+                  "description": "Reference to a semantic_condition record decomposing this prose condition. Present only where the condition is free-text and has been decomposed; mutually exclusive with condition_expr."
+                },
+                "indicates_finding": {
+                  "$ref": "common.defs.json#/$defs/finding_id"
+                },
+                "severity": {
+                  "$ref": "common.defs.json#/$defs/severity"
+                },
+                "confidence": {
+                  "$ref": "common.defs.json#/$defs/confidence"
+                }
+              },
+              "required": [
+                "condition",
+                "indicates_finding",
+                "severity"
+              ],
+              "additionalProperties": false,
+              "not": {
+                "required": [
+                  "condition_expr",
+                  "semantic_condition_id"
+                ]
+              }
+            }
+          },
+          "follow_up_if": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string"
+                },
+                "question_id": {
+                  "$ref": "common.defs.json#/$defs/question_id"
+                }
+              },
+              "required": [
+                "condition",
+                "question_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "guidance": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question_id",
+          "text",
+          "intent",
+          "answer_type",
+          "related_criteria",
+          "required"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "scoring_model": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "none",
+            "gap_count",
+            "weighted",
+            "criterion_coverage"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "disclaimer": {
+          "type": "string",
+          "description": "Mandatory: a questionnaire score is a DriftGuard readiness signal, never an audit conclusion."
+        }
+      },
+      "required": [
+        "method",
+        "disclaimer"
+      ],
+      "additionalProperties": false
+    },
+    "sources": {
+      "$ref": "common.defs.json#/$defs/source_id_list"
+    },
+    "authority_tier_dominant": {
+      "$ref": "common.defs.json#/$defs/authority_tier"
+    },
+    "verification_status": {
+      "$ref": "common.defs.json#/$defs/verification_status"
+    },
+    "version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "schema_version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "status": {
+      "$ref": "common.defs.json#/$defs/record_status"
+    },
+    "created": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "last_reviewed": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "superseded_by": {
+      "$ref": "common.defs.json#/$defs/questionnaire_id"
+    },
+    "notes": {
+      "$ref": "common.defs.json#/$defs/notes"
+    },
+    "gap_signal_grammar_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Version of the gap signal condition grammar the condition_expr objects in this record conform to."
+    }
+  },
+  "required": [
+    "record_type",
+    "questionnaire_id",
+    "name",
+    "description",
+    "purpose",
+    "audience",
+    "covers_criteria",
+    "questions",
+    "scoring_model",
+    "sources",
+    "authority_tier_dominant",
+    "verification_status",
+    "version",
+    "schema_version",
+    "status",
+    "created",
+    "last_reviewed",
+    "gap_signal_grammar_version"
+  ],
+  "additionalProperties": false,
+  "x-driftguard-schema-version": "0.2.0",
+  "x-gap-signal-grammar-version": "1.0.0",
+  "$defs": {
+    "gap_signal_condition": {
+      "type": "object",
+      "description": "Deterministic, non-executable condition over a questionnaire answer. Grammar 1.0.0. Contains data only: no expressions, no code, no free text is evaluated. Operators are limited to those the existing condition set actually requires.",
+      "properties": {
+        "operator": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "in",
+            "not_includes_all"
+          ],
+          "description": "equals: answer.value is exactly the operand string. in: answer.value is one of the operand strings. not_includes_all: answer.values does not contain every operand string (fires when at least one listed option was not selected)."
+        },
+        "field": {
+          "type": "string",
+          "enum": [
+            "answer.value",
+            "answer.values"
+          ],
+          "description": "answer.value is the single selected option of a single_select question. answer.values is the selected option list of a multi_select question."
+        },
+        "value": {
+          "type": "string",
+          "description": "Operand for the equals operator. Must be one of the question's declared options."
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Operand for the in and not_includes_all operators. Every entry must be one of the question's declared options."
+        }
+      },
+      "required": [
+        "operator",
+        "field"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "equals"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "required": [
+              "value"
+            ],
+            "properties": {
+              "field": {
+                "const": "answer.value"
+              }
+            },
+            "not": {
+              "required": [
+                "values"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "in"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "required": [
+              "values"
+            ],
+            "properties": {
+              "field": {
+                "const": "answer.value"
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operator": {
+                "const": "not_includes_all"
+              }
+            },
+            "required": [
+              "operator"
+            ]
+          },
+          "then": {
+            "required": [
+              "values"
+            ],
+            "properties": {
+              "field": {
+                "const": "answer.values"
+              }
+            },
+            "not": {
+              "required": [
+                "value"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

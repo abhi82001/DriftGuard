@@ -1,0 +1,107 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ENDPOINT-002",
+  "name": "Make detection triage evidenced and time-bounded",
+  "description": "Give detections a named responder, a committed triage timeframe, and a recorded disposition with its basis, so the acting element of the control produces evidence rather than only the detecting element.",
+  "domain": "endpoint_security",
+  "remediation_type": "improve_evidence",
+  "durability": "structural",
+  "responsible_role": "Security Engineering",
+  "addresses_findings": [
+    "FND-ENDPOINT-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.8-001"
+  ],
+  "affected_criteria": [
+    "CC6.8"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Define severity levels for detections and a triage timeframe for each, set from measured capacity rather than aspiration.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 2,
+      "action": "Assign a named responder or on-call rotation, so responsibility is attributable rather than collective.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Require a recorded disposition with its basis for every detection, replacing bare status changes.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ENDPOINT-002"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Where auto-closure rules are used, document each rule and its rationale so suppression is informed rather than silent.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ENDPOINT-002"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Measure elapsed time from detection to triage against the committed timeframe and report on it.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ENDPOINT-002"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Define the escalation threshold at which a detection becomes an incident, and link the two records.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 7,
+      "action": "Export the unfiltered detection population for evidence, not only closed or true-positive items.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ENDPOINT-002"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Setting an aggressive triage timeframe manufactures its own exceptions. Measure current performance first and commit to something achievable.",
+    "Requiring a written basis on every low-severity detection will be abandoned under volume. Tune detection quality and document suppression rules rather than demanding prose per alert.",
+    "Where triage genuinely happens in an incident or ticketing system, the fix may be reconciling the two records rather than changing any behaviour.",
+    "An unfiltered export is uncomfortable because it reveals the backlog. That visibility is the point, and it is better found internally than in fieldwork."
+  ],
+  "effort": "low",
+  "typical_duration": "Weeks to implement; one period to accumulate the evidence.",
+  "prerequisites": [
+    "A detection platform capable of exporting the full population",
+    "An agreed on-call or responder model"
+  ],
+  "verification_method": {
+    "how": "Export the unfiltered detection population for a completed interval and confirm each item has a responder, a disposition with a basis, and a triage time measurable against the committed timeframe.",
+    "verifying_evidence": [
+      "EV-ENDPOINT-002"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ENDPOINT-001"
+  ],
+  "residual_risk_note": "Evidenced triage demonstrates that alerts were assessed, not that the assessments were correct. Detection tuning quality remains outside what this record proves.",
+  "period_limitation_note": "Triage records cannot be created after the fact. Where detections during an elapsed period have no disposition, the evidence gap for that period stands and this remediation addresses recurrence only.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "This addresses an insufficient-evidence observation. Triage may well have been occurring; what is being remediated is that it left no record."
+  ]
+}

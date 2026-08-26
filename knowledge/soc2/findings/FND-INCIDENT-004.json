@@ -1,0 +1,136 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-INCIDENT-004",
+  "name": "No post-incident review or review actions not tracked to closure",
+  "description": "Incidents were closed without a recorded root-cause review, or a review was held but the actions arising were recorded only in the review document and cannot be shown to have closed.",
+  "domain": "security_operations",
+  "finding_category": "operating_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That incidents meeting the entity's own review threshold have no recorded review, where the incident population has been supplied.",
+      "That review actions have no owner, target date, or closure evidence.",
+      "That actions from a prior review remain open beyond their target date with no risk acceptance."
+    ],
+    "must_not_assert": [
+      "That the incident will recur. The observation concerns whether the cause was addressed, not the likelihood of repetition.",
+      "That a formal post-incident review is required by SOC 2 for every incident. The entity's own threshold governs."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "No review process exists at all, so no incident would ever produce a root-cause assessment."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Reviews are said to have occurred but the records have not been supplied."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.5"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.5-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "CC7.5 concerns recovering from incidents and developing remediation; restoring service without addressing cause leaves the second half unmet.",
+    "pervasiveness": "One low-severity incident without review differs from no review process operating at all.",
+    "compensating_controls": [
+      "SOC2-CC7.1-001",
+      "SOC2-CC7.1-002"
+    ],
+    "detectability": "Detectable by reconciling the incident population against review records and action closure.",
+    "escalates_when": [
+      "A high-severity incident has no review",
+      "Actions repeat across successive reviews, indicating the cycle never closes",
+      "Restoration was never verified"
+    ],
+    "de_escalates_when": [
+      "The incident fell below the entity's own review threshold",
+      "Actions were tracked in the normal engineering backlog and closed",
+      "Root cause was addressed through an existing tracked workstream"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Incidents at or above the review threshold with no linked review record.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Review actions recorded with no owner, target date, or closure evidence.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Root cause identified but no corresponding change to configuration baseline or detection rules.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001",
+        "EV-CONFIG-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes reviews held informally with actions kept in the review document.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-OPS-001-Q06",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly trace an incident through to its review and then to the closure of the resulting actions. Actions held only in a document rather than a tracked backlog are a frequent point of challenge.",
+  "customer_impact": "The condition that allowed an incident affecting the customer's data remains, so the same failure can recur.",
+  "remediations": [
+    "REM-INCIDENT-004"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the incident fell below the entity's own documented review threshold; the threshold is the entity's to set.",
+    "Not a gap where actions were tracked in the normal engineering backlog rather than in an incident-specific list; reconcile across systems before concluding.",
+    "Not a gap where the root cause was already being addressed by an existing workstream and the review references it.",
+    "A period with no declared incidents produces no population here. Report that the control had no operating population, not that it failed."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.5",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

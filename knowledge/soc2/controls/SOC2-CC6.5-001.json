@@ -1,0 +1,157 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.5-001",
+  "control_name": "Secure Decommissioning and Media Sanitization",
+  "criterion": "CC6.5",
+  "secondary_criteria": [
+    "CC6.1",
+    "CC6.4"
+  ],
+  "category": "security",
+  "domain": "asset_management",
+  "objective": "Ensure that protections are not withdrawn from an asset until the data on it can no longer be read or recovered, so that end-of-life equipment and media do not become an uncontrolled disclosure path.",
+  "description": "Assets holding protected information \u2014 endpoints, servers, drives, and removable media \u2014 are sanitized before disposal, return, resale, or transfer out of the entity's control. The sanitization method is chosen for the media type and recorded per asset, along with who performed it and when. Where a third party performs destruction, a certificate identifying the assets is obtained. For cloud-hosted storage the equivalent action is cryptographic erasure or provider-attested deletion, and the entity records which applies. The asset inventory is updated so that disposal is traceable rather than inferred from absence.",
+  "control_type": "preventive",
+  "automation_level": "manual",
+  "frequency": "event_driven",
+  "owner_role": "IT Operations, with Security accountable for the sanitization standard",
+  "applicability": {
+    "always": false,
+    "conditions": [
+      "The entity controls physical assets that hold or have held protected information"
+    ],
+    "not_applicable_when": [
+      "No physical asset within the entity's control ever holds protected information and all storage is provider-managed; the criterion is then met through provider deletion commitments and cryptographic key destruction"
+    ]
+  },
+  "implementation_guidance": [
+    "Record sanitization per asset with a serial or asset tag. A general statement that 'drives are wiped' evidences a policy, not a control.",
+    "Choose the method for the media type and state it. Overwriting, degaussing, physical destruction, and cryptographic erasure are not interchangeable.",
+    "Cryptographic erasure is only valid where key destruction is itself controlled and evidenced; otherwise it is an assertion.",
+    "Obtain itemised certificates from destruction vendors. A certificate that does not identify the assets cannot be reconciled to the inventory.",
+    "Include leased and returned equipment, and personal devices leaving the programme, not only owned assets reaching end of life.",
+    "Close the loop in the asset inventory so a disposed asset has a disposal record rather than simply disappearing."
+  ],
+  "design_considerations": [
+    "Does the process cover every route an asset can leave the entity's control, including lease return and resale?",
+    "Is the sanitization method appropriate to the media, and is that judgement recorded?",
+    "For cloud storage, is there a defined equivalent action rather than an implicit assumption of provider deletion?"
+  ],
+  "operating_considerations": [
+    "Does every asset that left the inventory during the period have a corresponding sanitization or destruction record?",
+    "Were vendor certificates obtained and reconciled to the assets sent?",
+    "Where cryptographic erasure was relied on, was key destruction evidenced?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-ASSET-001",
+      "necessity": "primary",
+      "note": "Per-asset sanitization and destruction records reconciled to inventory departures."
+    },
+    {
+      "evidence_id": "EV-CRYPTO-001",
+      "necessity": "supporting",
+      "note": "Where cryptographic erasure is relied on, key custody and destruction evidence is required."
+    }
+  ],
+  "policy_examples": [
+    "POL-ASSET-001",
+    "POL-DATA-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ASSET-001",
+      "description": "Equipment leaves the entity with recoverable protected information on it.",
+      "inherent_severity": "high"
+    },
+    {
+      "risk_id": "RSK-ASSET-002",
+      "description": "Disposal is performed correctly but leaves no record, so it cannot be demonstrated and is indistinguishable from not having occurred.",
+      "inherent_severity": "medium"
+    }
+  ],
+  "common_findings": [
+    "FND-ASSET-001"
+  ],
+  "remediation": [
+    "REM-ASSET-001"
+  ],
+  "questionnaire_questions": [
+    "QN-PHYSEC-001-Q04",
+    "QN-PHYSEC-001-Q05"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.1-002",
+      "relationship": "depends_on",
+      "note": "Cryptographic erasure depends on controlled key custody."
+    },
+    {
+      "control_id": "SOC2-CC6.4-001",
+      "relationship": "supports",
+      "note": "Physical protections are the ones being discontinued."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "MP-6",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.7.14",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "3.5",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.5",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "This criterion is frequently under-controlled in cloud-native entities on the assumption that it does not apply. Endpoints almost always hold protected information, so the criterion generally does apply even where no server hardware is owned."
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-IAM-001",
+  "name": "Multi-factor authentication not enforced across all authentication paths",
+  "description": "A second authentication factor is enforced for some access paths but not others, leaving one or more routes into the in-scope environment reachable with a single credential. Commonly affects direct application logins, VPN or bastion access, cloud CLI, long-lived API tokens, break-glass accounts, and vendor support portals.",
+  "domain": "access_management",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That an enumerated authentication path reaching in-scope systems is not covered by the enforced policy and has no stated compensating control.",
+      "That the enforced configuration does not match what the policy document or system description claims."
+    ],
+    "must_not_assert": [
+      "That MFA is required by SOC 2. It is one common way to help meet the CC6.1 objective, not a mandate.",
+      "That the control failed, where the uncovered path cannot reach in-scope systems or data."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Evidence shows the uncovered path was actually used to reach in-scope systems during the period."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Authentication paths have not been enumerated, so coverage can be neither confirmed nor refuted from the configuration export alone."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.6"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.1-001"
+  ],
+  "default_severity": "critical",
+  "severity_factors": {
+    "criterion_impact": "An uncovered path means a single compromised credential grants access, which is the exact outcome the control exists to prevent.",
+    "pervasiveness": "One documented and compensated break-glass exclusion differs from an entire access route left ungoverned.",
+    "compensating_controls": [],
+    "detectability": "Detectable by enumerating authentication paths against the enforced policy; frequently missed because the enumeration is never done.",
+    "escalates_when": [
+      "The uncovered path reaches production or customer data",
+      "The uncovered path is available to privileged accounts",
+      "The system description asserts environment-wide enforcement that the configuration does not support",
+      "The exclusion is undocumented"
+    ],
+    "de_escalates_when": [
+      "The exclusion is a documented break-glass account with vaulted credentials and alerting on use",
+      "The path is reachable only from a restricted network with its own compensating controls",
+      "The path carries no access to in-scope data"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Identity provider policy assignment scope excludes user groups or applications that are within the declared system boundary.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-IAM-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Configuration export lists exclusions with no corresponding compensating control.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-IAM-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Respondent reports partial coverage or documented exceptions.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q01",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent enumerates ungoverned authentication paths without stating compensating controls.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q02",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Policy document asserts enforcement that the configuration export contradicts.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Because this is a design issue, auditors commonly evaluate it before operating-effectiveness testing. A materially uncovered path can support a conclusion that the control was not suitably designed, which is more consequential than an isolated operating exception. Treatment varies with the compensating controls present.",
+  "customer_impact": "The vendor's stated authentication posture is stronger than what is enforced, and the gap is not visible from the report alone.",
+  "remediations": [
+    "REM-IAM-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the path cannot reach in-scope systems or data; confirm against the declared system boundary first.",
+    "Not a gap where a documented break-glass account is vaulted, alerted on, and its use reviewed.",
+    "Not a gap where the second factor is enforced by a different mechanism, such as certificate-based or hardware-bound device authentication, rather than the identity provider policy.",
+    "MFA is not itself a SOC 2 requirement. Frame the observation as the criterion's objective being unmet by the current design, not as a missing mandatory control."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1, CC6.6",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "The design-before-operation evaluation sequence and severity factors.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype; not an audit finding.",
+    "Backfilled with observation_class and conclusion_rules in the CC6 phase (schema 0.2.0)."
+  ]
+}

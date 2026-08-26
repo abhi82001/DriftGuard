@@ -1,0 +1,127 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-IAM-002",
+  "name": "Shared or generic accounts without individual attribution",
+  "description": "Accounts are used by more than one person, or are generic service or operational accounts used interactively, such that an action taken through the account cannot be attributed to an individual.",
+  "domain": "access_management",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That actions taken through the identified account cannot be attributed to an individual, where the account is confirmed to be shared and no attribution layer exists.",
+      "That access review and provisioning controls covering that account cannot establish who holds the access."
+    ],
+    "must_not_assert": [
+      "That shared accounts are prohibited by SOC 2. They are not; the criteria concern the objective, and attribution can be achieved by other means.",
+      "That misuse occurred. The observation concerns attributability, not evidence of any actual action."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "The shared account holds privileged entitlements and was used during the period with no vault or bastion record establishing who used it."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "informational_observation",
+        "when": "The account is non-interactive, used only by an automated process, with its credential vaulted and its use logged."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.3-002"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "Attribution underpins provisioning, review, and removal controls; without it none of them can establish who holds access.",
+    "pervasiveness": "One legacy application account differs from routine shared use of production administrative credentials.",
+    "compensating_controls": [
+      "SOC2-CC6.3-002"
+    ],
+    "detectability": "Detectable from an entitlement export where account naming or ownership fields reveal shared use; often invisible where naming is inconsistent.",
+    "escalates_when": [
+      "The account holds administrative or production-data privilege",
+      "The credential is stored somewhere multiple people can read it without a checkout record",
+      "The account is excluded from the access review population"
+    ],
+    "de_escalates_when": [
+      "A credential vault or bastion records which individual used the account and when",
+      "The account is non-interactive and used only by an automated process",
+      "The account has no path to protected information"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Entitlement export contains accounts whose naming or owner field indicates team or role ownership rather than an individual.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-003",
+        "EV-IAM-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Privileged inventory shows accounts with no assigned human owner.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-003"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Respondent confirms shared accounts exist without individual attribution.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q10",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly probe attribution when sampling access changes, since a shared account breaks the chain between an approval and the person who holds the access. Treatment depends heavily on whether a vault or bastion supplies attribution.",
+  "customer_impact": "Actions affecting the customer's data cannot be traced to a person, which limits both accountability and incident investigation.",
+  "remediations": [
+    "REM-IAM-002"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where a credential vault or bastion records which individual checked out or used the account; attribution exists, it simply sits in a different system.",
+    "Not a gap for non-interactive service accounts used solely by automated processes, provided the credential is not human-accessible.",
+    "Not a gap where a vendor-imposed account cannot be individualised and the entity has documented that constraint with a compensating detective control.",
+    "Do not infer sharing from naming convention alone. Confirm actual use before drawing a conclusion; many individually-held accounts have role-shaped names."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1, CC6.2, CC6.3",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "record_type": "report_types",
+  "version": "0.1.0",
+  "last_reviewed": "2026-08-11",
+  "report_types": [
+    {
+      "report_type_id": "SOC2-TYPE1",
+      "name": "SOC 2 Type 1",
+      "family": "SOC 2",
+      "opinion_covers": ["Fairness of the description of the system as of a specified date", "Suitability of the design of controls as of that date"],
+      "tests_operating_effectiveness": false,
+      "period_basis": "point_in_time",
+      "typical_use": "First-time reporting, newly implemented control environments, or a customer commitment that must be met before a Type 2 period can elapse.",
+      "distribution": "restricted",
+      "sources": ["SRC-AICPA-TSC-2017-R2022", "SRC-AICPA-ATC-205"]
+    },
+    {
+      "report_type_id": "SOC2-TYPE2",
+      "name": "SOC 2 Type 2",
+      "family": "SOC 2",
+      "opinion_covers": ["Fairness of the description of the system throughout a period", "Suitability of the design of controls", "Operating effectiveness of controls throughout the period"],
+      "tests_operating_effectiveness": true,
+      "period_basis": "period_of_time",
+      "typical_period_note": "Periods are commonly 3 to 12 months. No specific minimum period is prescribed by the trust services criteria; period length is an engagement decision and user entities frequently expect 12 months for a mature program.",
+      "typical_period_verification": "auditor_interpretation",
+      "typical_use": "Ongoing assurance to customers and prospects; the report most enterprise procurement teams request.",
+      "distribution": "restricted",
+      "sources": ["SRC-AICPA-TSC-2017-R2022", "SRC-AICPA-ATC-205", "SRC-DG-AUDITOR-PRACTICE"]
+    },
+    {
+      "report_type_id": "SOC3",
+      "name": "SOC 3",
+      "family": "SOC 3",
+      "opinion_covers": ["Effectiveness of controls relevant to the selected trust services categories"],
+      "tests_operating_effectiveness": true,
+      "period_basis": "period_of_time",
+      "typical_use": "A general-use summary report suitable for public posting. Contains no detailed description of tests or results.",
+      "distribution": "general_use",
+      "relationship_to_soc2": "Derived from a SOC 2 Type 2 examination; not a substitute for it.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "report_type_id": "SOC1",
+      "name": "SOC 1",
+      "family": "SOC 1",
+      "opinion_covers": ["Controls relevant to user entities' internal control over financial reporting (ICFR)"],
+      "tests_operating_effectiveness": true,
+      "period_basis": "both",
+      "typical_use": "Included for disambiguation only. SOC 1 uses control objectives defined by management, not the trust services criteria, and is out of scope for DriftGuard's SOC 2 knowledge layer.",
+      "distribution": "restricted",
+      "in_driftguard_scope": false,
+      "sources": ["SRC-AICPA-ATC-205"]
+    }
+  ],
+  "disambiguation_rules": [
+    "'SOC 2 certification' is not a valid term. A SOC 2 engagement produces an attestation report containing a practitioner's opinion, not a certificate. DriftGuard must use 'report', 'examination', or 'attestation'.",
+    "A SOC 2 report is not 'passed' or 'failed'. The auditor issues an unqualified, qualified, adverse, or disclaimer opinion.",
+    "SOC 2 and SOC 1 are not interchangeable; scope, criteria, and intended users differ."
+  ]
+}

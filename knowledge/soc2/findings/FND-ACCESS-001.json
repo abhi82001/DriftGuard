@@ -1,0 +1,136 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ACCESS-001",
+  "name": "Access not revoked within the committed timeframe after termination",
+  "description": "System access for terminated employees or contractors remained active beyond the revocation timeframe the organization committed to in its own policy, or revocation time is not measured at all so adherence cannot be demonstrated.",
+  "domain": "access_management",
+  "finding_category": "timeliness_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That revocation occurred outside the timeframe the organization committed to, where both the termination date and the revocation date are evidenced.",
+      "That adherence is not demonstrable, where revocation time is not measured at all."
+    ],
+    "must_not_assert": [
+      "That an exception will be reported in the SOC 2 report. Only the service auditor decides that.",
+      "That any specific revocation timeframe is required by SOC 2. The benchmark is the organization's own commitment."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "potentially_ineffective_control",
+        "when": "Overruns appear across a majority of the termination population, suggesting the control does not operate as described rather than having isolated exceptions."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "missing_evidence",
+        "when": "Termination dates or revocation timestamps are unavailable, so no comparison is possible. Absence of the timestamps is not evidence that revocation was late."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.2-002",
+    "SOC2-CC6.3-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Access persisting beyond the committed window means unauthorised persons retained the ability to access in-scope systems, going directly to the access criteria.",
+    "pervasiveness": "A single instance with a short overrun differs materially from a systemic pattern across the population.",
+    "compensating_controls": [
+      "SOC2-CC6.1-001"
+    ],
+    "detectability": "Detectable if revocation timestamps are measured against termination dates; undetectable if they are not.",
+    "escalates_when": [
+      "The retained access was privileged or administrative",
+      "The account was actually used after termination",
+      "The overrun spans weeks or months rather than hours",
+      "The pattern repeats across the termination population"
+    ],
+    "de_escalates_when": [
+      "Overrun is short and isolated, with a documented cause",
+      "SSO session revocation removed effective access even though the downstream account persisted",
+      "The account had no path to in-scope data"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Revocation timestamp for a terminated identity postdates the termination date by more than the policy-committed timeframe.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "An account belonging to a terminated identity appears as active in an entitlement export dated after the termination.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "No committed revocation timeframe exists, or revocation time is not measured.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q06",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Exception relating to terminated user access appears in Section 4 of a parsed SOC 2 report.",
+      "source_of_signal": "report_parsing",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly test a sample of terminations against revocation records. Overruns are typically reported as exceptions in Section 4; whether they affect the opinion depends on pervasiveness and whether the criterion can still be concluded on. Treatment varies by firm.",
+  "customer_impact": "A user entity relying on the vendor is exposed to access by people the vendor no longer employs, for a window the vendor cannot bound.",
+  "remediations": [
+    "REM-ACCESS-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the identity provider session and federation were revoked within the committed window, even if a downstream local account object persisted without an authentication path.",
+    "Not a gap where the person transferred internally rather than terminated; that is a role-change scenario assessed against least privilege instead.",
+    "Not a gap where the account was disabled within the window and later deleted; disablement, not deletion, is usually the committed action.",
+    "Confirm the committed timeframe from the organization's own policy before flagging. DriftGuard must not apply a default timeframe as though SOC 2 prescribed one."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.2, CC6.3",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment and severity factors.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "This is a DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings.",
+    "SOC 2 prescribes no revocation timeframe. The benchmark is always the organization's own stated commitment.",
+    "Backfilled with observation_class and conclusion_rules in the CC6 phase (schema 0.2.0).",
+    "affected_controls extended to SOC2-CC6.2-002 once the dedicated access-removal control existed. In the foundation phase the relationship was carried by SOC2-CC6.3-001 alone because no CC6.2 control had been authored."
+  ]
+}

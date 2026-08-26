@@ -1,0 +1,152 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC7.1-002",
+  "control_name": "Configuration Baseline Monitoring and Change Detection",
+  "criterion": "CC7.1",
+  "secondary_criteria": [
+    "CC7.2",
+    "CC8.1"
+  ],
+  "category": "security",
+  "domain": "platform_engineering",
+  "objective": "Detect changes to system configuration that introduce new vulnerability or weaken an existing control, rather than discovering them at review time or during an examination.",
+  "description": "Security-relevant configuration across the in-scope environment is defined as a reviewed baseline. Live configuration is compared against that baseline continuously, deviations raise an alert routed to a named owner, and both detection time and resolution time are recorded so drift duration is measurable. Newly published vulnerability information is monitored and assessed against the deployed estate so susceptibility to newly disclosed issues is identified rather than waiting for the next scan cycle.",
+  "control_type": "detective",
+  "automation_level": "automated",
+  "frequency": "continuous",
+  "owner_role": "Platform Engineering, with Security Engineering accountable for the baseline",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The entity operates configurable infrastructure or platform services within the system boundary"
+    ]
+  },
+  "implementation_guidance": [
+    "Reuse the boundary baseline established for CC6.6 rather than maintaining a second one; CC7.1 widens the surface, it does not change the mechanism.",
+    "Subscribe to vendor and platform advisories for the technologies actually deployed, and record the assessment of each against the estate.",
+    "Record detection and resolution time for every deviation, since drift duration is the operating measure of this control.",
+    "Check audit log retention against the examination period before relying on it; short default retention silently defeats this control."
+  ],
+  "design_considerations": [
+    "Does the baseline cover the configuration surfaces that matter, not only the network boundary?",
+    "Is there a mechanism that would detect an out-of-band change made directly in a console?",
+    "Is newly published vulnerability information assessed against the estate, or only picked up by the next scan?"
+  ],
+  "operating_considerations": [
+    "Did change history span the full period?",
+    "Were deviations detected by the entity or surfaced during fieldwork?",
+    "Were advisories assessed on a defined cadence with the assessment recorded?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "primary",
+      "note": "Change history and drift record across the period."
+    },
+    {
+      "evidence_id": "EV-VULN-001",
+      "necessity": "supporting",
+      "note": "Scan results corroborate whether configuration change introduced known vulnerability."
+    }
+  ],
+  "policy_examples": [
+    "POL-NETSEC-001",
+    "POL-VULN-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-CONFIG-001",
+      "description": "A configuration change weakens a control and remains undetected for the rest of the period.",
+      "inherent_severity": "high"
+    },
+    {
+      "risk_id": "RSK-CONFIG-002",
+      "description": "A newly disclosed vulnerability affects deployed technology and nobody assesses exposure until the next scheduled scan.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-NETSEC-002"
+  ],
+  "remediation": [
+    "REM-NETSEC-002"
+  ],
+  "questionnaire_questions": [
+    "QN-OPS-001-Q01"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.6-001",
+      "relationship": "overlaps_with",
+      "note": "Shares the baseline and drift mechanism; CC6.6 scopes it to the external boundary, CC7.1 to configuration generally."
+    },
+    {
+      "control_id": "SOC2-CC7.1-001",
+      "relationship": "supports",
+      "note": "Scanning finds known vulnerabilities; baseline monitoring finds the configuration changes that introduce them."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "CM-3",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.9",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "NIST-CSF-2.0",
+      "external_id": "DE.CM",
+      "relationship": "informs",
+      "source_id": "SRC-NIST-CSF-2.0",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.1",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Deliberately reuses EV-CONFIG-001 and REM-NETSEC-002 rather than creating parallel CC7 objects. The mechanism is the same one built for CC6.6; only the scope differs.",
+    "SOC2-CC7.1-001 (vulnerability identification and remediation) already addresses the scanning half of CC7.1 and is unchanged."
+  ]
+}

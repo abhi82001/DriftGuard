@@ -1,0 +1,162 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.7-001",
+  "control_name": "Protection of Information During Transmission, Movement, and Removal",
+  "criterion": "CC6.7",
+  "secondary_criteria": [
+    "CC6.1",
+    "CC6.6"
+  ],
+  "category": "security",
+  "domain": "data_protection",
+  "objective": "Restrict who and what may move protected information out of the environment, and keep that information protected while it is in motion or on portable media.",
+  "description": "Protected information in transit is carried over encrypted channels using currently acceptable protocol versions and cipher suites, enforced at the load balancer, service mesh, and outbound integration points rather than left to individual clients. Routes by which information can leave the environment \u2014 bulk export, integrations, email attachments, removable media, and endpoint sync \u2014 are identified, and each is either restricted to authorised users and processes or documented as an accepted route with compensating monitoring. Removable media is either disallowed or encrypted, and that stance is enforced technically rather than stated in policy alone.",
+  "control_type": "preventive",
+  "automation_level": "semi_automated",
+  "frequency": "continuous",
+  "owner_role": "Platform Engineering for transport enforcement; Security Engineering for egress restriction",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "Protected information moves between systems, organizations, or media at any point"
+    ]
+  },
+  "implementation_guidance": [
+    "Enforce transport encryption at the boundary component so every client inherits it; per-client configuration produces inconsistent coverage that is hard to evidence.",
+    "State the minimum acceptable protocol version and cipher suites, and validate the deployed configuration against that statement rather than assuming.",
+    "Enumerate egress routes before restricting them. Most entities discover routes they had not considered, particularly integrations and endpoint sync clients.",
+    "Restriction need not mean prohibition. An authorised, logged, monitored export path is a control; an unlogged one is not.",
+    "Where removable media is disallowed, enforce it on the endpoint. A policy statement with no technical enforcement evidences intent only.",
+    "Distinguish internal service-to-service traffic from traffic crossing the boundary, and be explicit about which the control covers."
+  ],
+  "design_considerations": [
+    "Is transport encryption enforced centrally, or dependent on each client's configuration?",
+    "Have all egress routes been enumerated, or only the obvious ones?",
+    "Is the removable media stance technically enforced or only documented?"
+  ],
+  "operating_considerations": [
+    "Did the transport configuration hold for the full period, including after deployments?",
+    "Were bulk exports performed during the period, by whom, and under what authorisation?",
+    "Were any endpoints outside the media enforcement policy?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-CRYPTO-002",
+      "necessity": "primary",
+      "note": "Transport configuration and independent validation of deployed protocol and cipher support."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "supporting",
+      "note": "Change history evidencing that the transport configuration held through the period."
+    },
+    {
+      "evidence_id": "EV-ENDPOINT-001",
+      "necessity": "supporting",
+      "note": "Endpoint management coverage evidencing removable media enforcement."
+    }
+  ],
+  "policy_examples": [
+    "POL-DATA-001",
+    "POL-CRYPTO-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-DATA-001",
+      "description": "Protected information is intercepted in transit over a downgraded or unencrypted channel.",
+      "inherent_severity": "high"
+    },
+    {
+      "risk_id": "RSK-DATA-002",
+      "description": "Bulk information leaves the environment through an unmonitored route and the entity cannot determine what left or when.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-CRYPTO-002",
+    "FND-DATA-001"
+  ],
+  "remediation": [
+    "REM-CRYPTO-002",
+    "REM-DATA-001"
+  ],
+  "questionnaire_questions": [
+    "QN-NETSEC-001-Q04",
+    "QN-NETSEC-001-Q05"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.1-002",
+      "relationship": "overlaps_with",
+      "note": "At-rest and in-transit protection share key management and policy."
+    },
+    {
+      "control_id": "SOC2-CC6.6-001",
+      "relationship": "supports",
+      "note": "Boundary controls determine which egress routes exist to be restricted."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "SC-8",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.24",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "medium"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "3.10",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.7",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Data loss prevention tooling is one way to restrict information movement, not a requirement. An entity with few egress routes may meet the objective through architecture and access restriction alone.",
+    "DriftGuard must not treat the absence of a DLP product as a deficiency."
+  ]
+}

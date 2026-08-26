@@ -1,0 +1,140 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ACCESS-005",
+  "name": "Standing privileged access without a least-privilege basis",
+  "description": "Administrative or production-data privilege is held on a standing basis without a documented role basis, without segregation-of-duties consideration, or without review; or elevation is nominally time-bounded while sessions are renewed indefinitely, producing standing privilege with the appearance of just-in-time control.",
+  "domain": "access_management",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That named identities hold privileged entitlements with no corresponding role definition or approval, where the privileged inventory has been supplied.",
+      "That elevation records show renewal patterns amounting to continuous privilege, where the elevation log evidences it.",
+      "That non-human identities hold privilege outside any review population."
+    ],
+    "must_not_assert": [
+      "That standing privilege is prohibited. It is not; narrow, attributable, reviewed standing privilege can meet the objective.",
+      "That just-in-time elevation is required by SOC 2. It is a DriftGuard recommendation.",
+      "That privilege was misused. The observation concerns the entitlement, not any action taken with it."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Privileged entitlements were granted during the period outside the role model and no review detected them."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "The privileged inventory omits non-human identities or a whole system, so the population cannot be assessed."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.3-002"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Broad standing privilege makes any single account compromise an environment-wide compromise, which is what least privilege exists to bound.",
+    "pervasiveness": "Two engineers with standing production access differs from an entire team holding administrator by default.",
+    "compensating_controls": [
+      "SOC2-CC6.1-001",
+      "SOC2-CC6.3-001"
+    ],
+    "detectability": "Detectable from a privileged entitlement inventory; frequently missed where service accounts are excluded from that inventory.",
+    "escalates_when": [
+      "Privilege extends to production customer data",
+      "Conflicting entitlement combinations are held by one identity",
+      "Service accounts hold broader privilege than any human and are unreviewed",
+      "No review covers the privileged population at all"
+    ],
+    "de_escalates_when": [
+      "The population is small, named, and reviewed on a defined cadence",
+      "Elevation is genuinely time-bounded with justification captured",
+      "Privilege is scoped to a non-production environment holding no protected information"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Privileged inventory shows entitlements with no linked role definition or approval.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-003",
+        "EV-ACCESS-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Elevation records show back-to-back renewals producing effectively continuous privilege.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-003"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Non-human identities holding privilege absent from the review population.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-003",
+        "EV-ACCESS-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent reports standing privilege that is not systematically reviewed.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q08",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly examine the privileged population directly rather than sampling it, and probe whether each holder's role requires the privilege. Standing privilege that is reviewed and justified is routinely accepted.",
+  "customer_impact": "A larger set of people than necessary can reach the customer's data at any time, widening the blast radius of any single credential compromise.",
+  "remediations": [
+    "REM-ACCESS-005"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where standing privilege is narrow, attributable, and covered by a documented periodic review. The criterion concerns the objective, not the mechanism.",
+    "Not a gap for break-glass accounts that are vaulted, alerted on, and reviewed after use.",
+    "Not a gap where privilege is scoped to an environment holding no protected information; confirm against the system boundary first.",
+    "Small entities may legitimately have a high proportion of privileged staff. Assess against the role requirement, not against a headcount ratio."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.3",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

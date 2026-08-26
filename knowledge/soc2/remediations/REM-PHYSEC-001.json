@@ -1,0 +1,100 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-PHYSEC-001",
+  "name": "Unify physical access revocation with the offboarding trigger and evidence roster review",
+  "description": "Drive badge revocation from the same event that removes logical access, distinguish sensitive areas from general facility access, and make the roster review produce evidenced revocations rather than an acknowledgement.",
+  "domain": "physical_security",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "Facilities or Workplace Operations, with Security accountable for the review",
+  "addresses_findings": [
+    "FND-PHYSEC-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.4-001"
+  ],
+  "affected_criteria": [
+    "CC6.4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Add physical access revocation to the offboarding checklist driven by the HR termination event, alongside logical deprovisioning.",
+      "owner_role": "People Operations"
+    },
+    {
+      "step": 2,
+      "action": "Separate the badge access model into general facility access and access to server rooms and media storage.",
+      "owner_role": "Facilities"
+    },
+    {
+      "step": 3,
+      "action": "Set a committed revocation timeframe in the physical security policy, chosen from measured performance.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 4,
+      "action": "Establish a roster review cadence with a named reviewer for each area.",
+      "owner_role": "Security",
+      "produces_evidence": [
+        "EV-PHYSEC-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Require the review to record a per-holder decision and to evidence the revocation of access identified for removal.",
+      "owner_role": "Facilities",
+      "produces_evidence": [
+        "EV-PHYSEC-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Reconcile the roster against current personnel records each cycle and retain the reconciliation as part of the review record.",
+      "owner_role": "Security",
+      "produces_evidence": [
+        "EV-PHYSEC-001"
+      ]
+    },
+    {
+      "step": 7,
+      "action": "Bring contractors, visitors, and maintenance personnel into the model, with escort requirements where they apply.",
+      "owner_role": "Facilities"
+    }
+  ],
+  "implementation_considerations": [
+    "Badge systems are frequently administered by a landlord or building operator rather than by the entity, which changes revocation from a configuration change into a service request with its own turnaround. Measure that turnaround before committing to a timeframe.",
+    "Where the entity occupies shared space, distinguish building-level access from access to its own suite; conflating them produces findings that are not the entity's to fix.",
+    "For a largely remote workforce the roster is small and the review is cheap; the common failure is that nobody owns it, not that it is burdensome."
+  ],
+  "effort": "low",
+  "typical_duration": "Weeks, gated by the badge system administrator's responsiveness rather than by internal work.",
+  "prerequisites": [
+    "Access to badge system reporting",
+    "Clarity on who administers the badge system"
+  ],
+  "verification_method": {
+    "how": "Sample terminations after the change and confirm badge deactivation occurred within the committed timeframe, and confirm the most recent roster review reconciles to personnel records with evidenced revocations.",
+    "verifying_evidence": [
+      "EV-PHYSEC-001"
+    ],
+    "automatable": false
+  },
+  "residual_risk_note": "Physical keys, tailgating, and access granted informally by colleagues sit outside a badge-based control and are addressed by awareness and layout rather than by roster hygiene.",
+  "period_limitation_note": "Revoking retained access now does not change the fact that it was retained during an elapsed period. Where an exception has been identified, this reduces recurrence.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Where facilities are hosted, this remediation applies only to the entity's own offices; the data centre dependency is addressed by REM-PHYSEC-002."
+  ]
+}

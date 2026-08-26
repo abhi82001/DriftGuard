@@ -1,0 +1,129 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ACCESS-003",
+  "name": "Access review population incomplete",
+  "description": "The entitlement population subject to review omitted part of the in-scope identity estate, commonly service accounts, shared accounts, contractors, privileged roles, or systems fronted by a secondary identity provider. The review may have been performed well over a population that was never complete.",
+  "domain": "access_management",
+  "finding_category": "scope_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That specific identities present in an authoritative source were absent from the reviewed population.",
+      "That the reviewed scope is narrower than the scope the control is described as covering."
+    ],
+    "must_not_assert": [
+      "That the population is incomplete solely because its generation method was not stated. That is insufficient evidence, not a demonstrated gap.",
+      "That every identity class must be in a single review. Separate reviews with their own records are equally valid."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "The process itself has no step that would ever bring the omitted population into scope, making the omission structural rather than incidental."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Only detection signal SIG-004 fires: the population generation method is unstated, so completeness can be neither confirmed nor refuted."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.3-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Entitlements outside the population were never assessed, so the control does not cover the scope it is described as covering.",
+    "pervasiveness": "Omitting one low-risk application differs from omitting all non-human identities.",
+    "compensating_controls": [
+      "SOC2-CC6.1-001"
+    ],
+    "detectability": "Detectable only if the population is reconciled to an authoritative source; otherwise invisible.",
+    "escalates_when": [
+      "Omitted population includes privileged or administrative accounts",
+      "Omitted systems hold customer data",
+      "The system description claims a coverage the population does not support"
+    ],
+    "de_escalates_when": [
+      "The omitted population is covered by a separate documented review",
+      "The omitted system is genuinely outside the declared system boundary"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Reviewed population does not reconcile to the identity provider or HR record count for the same date.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001",
+        "EV-IAM-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "No service accounts or administrative roles appear anywhere in the reviewed population.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Respondent does not select service accounts or privileged roles as included populations.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q04",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Evidence does not state how the population was generated, so completeness cannot be assessed.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Population completeness is assessed before sampling. An unreconcilable population commonly causes the evidence to be rejected and re-requested, and can escalate to a scope limitation if it cannot be established.",
+  "customer_impact": "Assurance about entitlement appropriateness applies only to the accounts that were actually looked at, which the report does not disclose.",
+  "remediations": [
+    "REM-ACCESS-003"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the omitted identities are covered by a separate review with its own record.",
+    "Not a gap where a count difference is explained by timing between exports taken on different dates.",
+    "Not a gap where the omitted system is outside the declared system boundary; confirm the boundary before flagging.",
+    "Service accounts governed by a distinct non-human identity control are covered, not omitted."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Population completeness as a precondition to sampling and a frequent cause of evidence rejection.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype; not an audit finding.",
+    "Backfilled with observation_class and conclusion_rules in the CC6 phase (schema 0.2.0)."
+  ]
+}

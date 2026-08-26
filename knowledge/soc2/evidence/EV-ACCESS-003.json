@@ -1,0 +1,170 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ACCESS-003",
+  "name": "Privileged Access Inventory and Elevation Record",
+  "description": "The population of identities holding administrative or production-data privilege, together with the record of privilege elevations across the period showing who elevated, when, why, and for how long.",
+  "domain": "access_management",
+  "evidence_type": "system_generated_report",
+  "evidence_role": "operational",
+  "origin": "system_generated",
+  "collection_mode": "automated_export",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Complete list of identities holding privileged entitlements, with the entitlement named",
+      "required": true,
+      "why": "Establishes the standing-privilege population, which is what least privilege is assessed against."
+    },
+    {
+      "element": "Distinction between standing privilege and privilege held only through elevation",
+      "required": true,
+      "why": "These carry very different risk and are frequently conflated in a single export."
+    },
+    {
+      "element": "Elevation events with actor, timestamp, duration, and target system",
+      "required": true,
+      "why": "Demonstrates that just-in-time privilege actually expires rather than being nominally temporary."
+    },
+    {
+      "element": "Justification captured at elevation",
+      "required": true,
+      "why": "Elevation records without justification evidence that elevation happened, not that it was appropriate."
+    },
+    {
+      "element": "Identification of non-human identities holding privilege",
+      "required": true,
+      "why": "Service accounts frequently hold the broadest privilege and are the most common omission."
+    },
+    {
+      "element": "Segregation-of-duties conflicts present in the population",
+      "required": false,
+      "why": "Supports the conflict-detection element of the control where one is claimed."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.3-002",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.3-001",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.1",
+    "CC6.3"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "IT / Identity and Access Management owner",
+  "source_system_examples": [
+    "Privileged access management platform session and elevation log",
+    "Cloud provider IAM policy analysis export",
+    "Identity governance entitlement report"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously operating control. Not an audit rule."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "Never include session recordings, command transcripts, or credential material.",
+    "Retain identity attribution; the artifact has no value without it."
+  ],
+  "retention_guidance": "Retain elevation records for the full examination period; retention shorter than the period leaves an untestable interval.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A privileged access inventory exists for each in-scope system.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-005"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "The inventory includes non-human identities and reconciles to the identity provider population.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-005"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Elevation records carry a justification and a bounded duration.",
+      "check_type": "llm_assisted",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ACCESS-005"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Elevation records span the full examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "relevance",
+      "rule": "The systems covered fall within the declared system boundary.",
+      "check_type": "heuristic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The export originates from the platform enforcing elevation, not from a maintained register.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Elevation is nominally time-bounded but sessions are renewed indefinitely.",
+      "impact": "Standing privilege in effect, with the appearance of just-in-time control.",
+      "related_finding": "FND-ACCESS-005"
+    },
+    {
+      "issue": "Service accounts with broad privilege excluded from the inventory as out of scope.",
+      "impact": "The highest-privilege population is unassessed.",
+      "related_finding": "FND-ACCESS-005"
+    },
+    {
+      "issue": "Break-glass accounts present with no record of whether they were used.",
+      "impact": "Cannot distinguish an unused emergency path from routine privileged access."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Where an entity operates standing privilege deliberately, this artifact still applies: the inventory is the evidence, and elevation records are simply absent. That is not a deficiency by itself."
+  ]
+}

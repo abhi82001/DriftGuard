@@ -1,0 +1,158 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-NETSEC-002",
+  "name": "Boundary configuration drift not detected across the period",
+  "description": "The entity can show what its boundary configuration is now, but not that it held throughout the examination period. Either no baseline exists to compare against, temporary rules have no expiry mechanism, or change history retention is shorter than the period. Whether drift actually occurred is unknown.",
+  "domain": "network_security",
+  "finding_category": "operating_deficiency",
+  "observation_class": "potentially_ineffective_control",
+  "conclusion_rules": {
+    "may_assert": [
+      "That the entity has no mechanism that would detect deviation from its boundary baseline between reviews.",
+      "That configuration change history does not span the examination period.",
+      "That temporary rules have no expiry or owner, so their closure depends on recollection."
+    ],
+    "must_not_assert": [
+      "That drift occurred. The defining characteristic of this observation is that the entity cannot tell, and neither can DriftGuard.",
+      "That the control failed. It may have operated perfectly throughout; what is absent is the ability to demonstrate that.",
+      "That continuous drift detection is required by SOC 2. It is a DriftGuard recommendation."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Partial change history positively shows a rule was opened contrary to baseline and remained open, converting an unknown into a demonstrated deviation."
+      },
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Change history exists but was not supplied, so the question is unresolved rather than unanswerable."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "informational_observation",
+        "when": "The examination is a Type 1, where point-in-time configuration state is what the opinion addresses and period coverage is not at issue."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.6",
+    "CC6.1",
+    "CC7.1"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.6-001",
+    "SOC2-CC7.1-002"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "Operating effectiveness across a period cannot be concluded on from point-in-time state alone, whatever the current configuration shows.",
+    "pervasiveness": "Missing history for one month differs from having no baseline and no history at all.",
+    "compensating_controls": [
+      "SOC2-CC6.6-001"
+    ],
+    "detectability": "This finding is precisely about the absence of detection capability, which is itself readily visible from the evidence supplied.",
+    "escalates_when": [
+      "No baseline exists at all",
+      "Change history retention is materially shorter than the period",
+      "Temporary rules are common practice with no expiry mechanism"
+    ],
+    "de_escalates_when": [
+      "The examination is a Type 1",
+      "Infrastructure is defined as code with full repository history covering the period",
+      "Repeated dated snapshots exist even without formal drift alerting"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Configuration change history does not span the full examination period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CONFIG-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Only a single dated boundary export is supplied for a period-based examination.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-NETSEC-001",
+        "EV-CONFIG-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Drift detected but with no resolution time recorded, so drift duration is unknown.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CONFIG-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent reports no baseline, or a baseline reviewed only periodically.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q02",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent indicates temporary rule closure depends on someone remembering.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q03",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-006",
+      "signal": "Respondent relies on a single configuration capture to evidence a period.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q11",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "For a Type 2, auditors commonly ask how the entity knows the configuration held throughout the period. Where the answer is a single export, the usual response is a request for change history or repeated snapshots rather than an immediate exception.",
+  "customer_impact": "The vendor's current boundary posture is demonstrable; its posture during the period the report covers is not.",
+  "remediations": [
+    "REM-NETSEC-002"
+  ],
+  "false_positive_guidance": [
+    "Not applicable to a Type 1 examination at all. A Type 1 opinion addresses design as of a date, and point-in-time configuration evidence is exactly what it requires.",
+    "Not a gap where infrastructure is defined as code and the repository history covers the period; that history is the change record.",
+    "Not a gap where repeated dated snapshots exist across the period, even without formal drift alerting.",
+    "Classified as potentially ineffective rather than as an operating gap because DriftGuard cannot tell whether drift occurred. Never state that the boundary changed; state that it cannot be shown not to have."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.6",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "The point-in-time versus period evidence distinction and how auditors typically resolve it.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings.",
+    "Extended in the CC7 phase to CC7.1 and SOC2-CC7.1-002 rather than creating a parallel configuration-drift archetype. CC7.1 widens the surface from the external boundary to configuration generally; the observation, signals, and false-positive guidance are unchanged."
+  ]
+}

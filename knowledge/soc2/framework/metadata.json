@@ -1,0 +1,216 @@
+{
+  "record_type": "framework_metadata",
+  "knowledge_base_id": "KB-DRIFTGUARD-SOC2",
+  "name": "DriftGuard SOC 2 Knowledge Base",
+  "framework": "SOC2",
+  "framework_full_name": "SOC 2 - System and Organization Controls 2",
+  "framework_authority": "AICPA",
+  "criteria_set": {
+    "name": "Trust Services Criteria",
+    "reference": "TSP Section 100",
+    "edition": "2017 criteria with revised points of focus (2022)",
+    "source_id": "SRC-AICPA-TSC-2017-R2022"
+  },
+  "attestation_standard": {
+    "name": "SSAE No. 18 as amended by SSAE No. 21",
+    "relevant_sections": [
+      "AT-C 105",
+      "AT-C 205"
+    ],
+    "source_ids": [
+      "SRC-AICPA-SSAE-21",
+      "SRC-AICPA-ATC-105",
+      "SRC-AICPA-ATC-205"
+    ]
+  },
+  "description_criteria": {
+    "reference": "DC Section 200",
+    "edition": "2018",
+    "source_id": "SRC-AICPA-DC-200"
+  },
+  "knowledge_base_version": "0.4.0",
+  "schema_version": {
+    "note": "Schemas are versioned individually. Each schema file carries x-driftguard-schema-version and every record's schema_version must match the schema it conforms to; the validator enforces this.",
+    "common.defs.json": "0.1.0",
+    "control.schema.json": "0.1.0",
+    "evidence.schema.json": "0.2.0",
+    "policy.schema.json": "0.1.0",
+    "questionnaire.schema.json": "0.2.0",
+    "finding.schema.json": "0.2.0",
+    "remediation.schema.json": "0.2.0",
+    "mapping.schema.json": "0.1.0",
+    "source.schema.json": "0.1.0",
+    "semantic_condition.schema.json": "1.0.0",
+    "semantic_evaluation_result.schema.json": "1.0.0"
+  },
+  "status": "cc7_slice",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "maintainers": [
+    "DriftGuard Compliance Knowledge Team"
+  ],
+  "language": "en",
+  "id_conventions": {
+    "control": "SOC2-<CRITERION>-<NNN>, e.g. SOC2-CC6.1-001",
+    "evidence": "EV-<DOMAIN>-<NNN>, e.g. EV-ACCESS-001",
+    "policy": "POL-<DOMAIN>-<NNN>",
+    "questionnaire": "QN-<DOMAIN>-<NNN>; questions QN-<DOMAIN>-<NNN>-Q<NN>",
+    "finding": "FND-<DOMAIN>-<NNN>",
+    "remediation": "REM-<DOMAIN>-<NNN>",
+    "mapping": "MAP-<NNNN>",
+    "source": "SRC-<PUBLISHER>-<SHORTNAME>",
+    "glossary": "GLO-<TERM-SLUG>",
+    "document": "FRW-<DOC-SLUG>",
+    "stability_rule": "IDs are permanent. Never reuse, never renumber. Deprecate with status=deprecated and superseded_by."
+  },
+  "directory_map": {
+    "framework": "Framework-level explanatory and structural knowledge. Not instance data.",
+    "controls": "Control definitions conforming to control.schema.json.",
+    "evidence": "Evidence type definitions conforming to evidence.schema.json.",
+    "policies": "Policy definitions and required-element models conforming to policy.schema.json.",
+    "questionnaires": "Assessment and vendor-review questionnaires conforming to questionnaire.schema.json.",
+    "findings": "Finding archetypes conforming to finding.schema.json.",
+    "remediations": "Remediation playbooks conforming to remediation.schema.json.",
+    "mappings": "Relationship records conforming to mapping.schema.json.",
+    "prompts": "Prompt specifications for the future DriftGuard AI engine. Specification only in this phase.",
+    "schemas": "JSON Schema definitions governing all of the above.",
+    "semantics": "Semantic condition decompositions and example evaluation results for free-text questionnaire conditions."
+  },
+  "structure_decisions": [
+    {
+      "decision_id": "SD-001",
+      "decision": "Directory structure implemented exactly as specified in the DriftGuard knowledge charter. No deviation.",
+      "rationale": "The prescribed structure cleanly separates the six entity types plus framework knowledge, schemas, and prompts, and matches the required relationship model."
+    },
+    {
+      "decision_id": "SD-002",
+      "decision": "Added framework/source_governance.md beyond the required Phase 1 file list.",
+      "rationale": "Phase 6 requires an explicit source convention. Embedding it only as machine-readable tiers in references.json left no human-readable normative statement of the citation rules. Additive, not a replacement."
+    },
+    {
+      "decision_id": "SD-003",
+      "decision": "Added schemas/common.defs.json as a shared $ref target for identifier, versioning, and source-reference definitions.",
+      "rationale": "Without it, the source-reference and versioning blocks would be duplicated across all eight schemas, violating the no-unnecessary-duplication rule and guaranteeing drift. Additive, not a replacement."
+    },
+    {
+      "decision_id": "SD-004",
+      "decision": "Criteria text from TSP Section 100 is referenced by identifier and never reproduced.",
+      "rationale": "The trust services criteria are copyrighted AICPA material. DriftGuard stores identifiers, structure, and its own interpretation only."
+    },
+    {
+      "decision_id": "SD-005",
+      "decision": "Added a validate.py script and README files at knowledge/soc2/ and per-directory level.",
+      "rationale": "Validation is required before finishing each phase and must be repeatable. READMEs record the directory contract so future contributors do not drift from it."
+    },
+    {
+      "decision_id": "SD-006",
+      "decision": "Created three exemplar controls rather than the one or two specified in the knowledge charter.",
+      "rationale": "The evidence data model requires a vulnerability scan exemplar, and evidence.applicable_controls is a required, referentially-checked field. Without SOC2-CC7.1-001 the vulnerability evidence record would have had no valid control to reference, producing a deliberately broken reference in a foundation intended to demonstrate referential integrity."
+    },
+    {
+      "decision_id": "SD-007",
+      "decision": "Extended evidence.schema.json with evidence_role and origin (both required). Schema to 0.2.0.",
+      "rationale": "The CC6 charter requires evidence to distinguish configuration, operational, approval, and review artifacts, and system-generated from human-generated ones. The existing evidence_type describes the artifact's file form and collection_mode describes how it is obtained; neither captures the role it plays in an assessment or who authored its substance. Additive fields only; no existing field renamed or removed. The three foundation evidence records were backfilled."
+    },
+    {
+      "decision_id": "SD-008",
+      "decision": "Extended finding.schema.json with observation_class and conclusion_rules (both required). Schema to 0.2.0.",
+      "rationale": "The charter requires DriftGuard to distinguish missing evidence, insufficient evidence, design gap, operating gap, potentially ineffective control, and informational observation, and forbids treating an absent artifact as a control failure. finding_category describes the nature of a deficiency; it cannot express how strong a conclusion the available information supports. conclusion_rules makes the may-assert and must-not-assert boundary machine-readable, with escalation and de-escalation conditions, so the constraint is enforced by data rather than by prose. The five foundation findings were backfilled."
+    },
+    {
+      "decision_id": "SD-009",
+      "decision": "Extended remediation.schema.json with responsible_role (required) and implementation_considerations. Schema to 0.2.0.",
+      "rationale": "The charter requires each remediation to identify a responsible role and implementation considerations. Per-step owner_role existed but no single accountable owner, and considerations were being forced into steps where they are not steps. The five foundation remediations were backfilled."
+    },
+    {
+      "decision_id": "SD-010",
+      "decision": "Added x-driftguard-schema-version to every schema and a validator check that each record's schema_version matches the schema it conforms to.",
+      "rationale": "Once schemas version independently, a record can silently claim conformance to a version it does not meet. Per-schema versioning is more precise than a single global schema version and avoids churning records governed by unchanged schemas."
+    },
+    {
+      "decision_id": "SD-011",
+      "decision": "Added mappings/MAPSET-CC6.json as a second mapping set rather than extending MAPSET-ACCESS-CORE, and changed the validator to treat the relationship vocabulary as global rather than per-file.",
+      "rationale": "One mapping set per vertical slice keeps files reviewable and diffs meaningful as further slices are added. The schema requires each set to declare relationship_types, so the vocabulary is repeated; to prevent it forking, the validator now unions declared types across all sets and errors if two sets define the same type name differently. Edges already present in MAPSET-ACCESS-CORE are not repeated."
+    },
+    {
+      "decision_id": "SD-012",
+      "decision": "MAPSET-CC6 edges are generated from the entity records rather than authored independently.",
+      "rationale": "Convenience references on entities and the authoritative graph must agree, and the validator checks that in both directions. Deriving edges from the records makes divergence impossible at creation time; a hand-written rationale that drifts from the record it describes is worse than a composed one. Substantive judgement remains in the entity record and is cited in the edge."
+    },
+    {
+      "decision_id": "SD-013",
+      "decision": "Added a bidirectional graph-consistency check for evidence-to-control and remediation-to-evidence references.",
+      "rationale": "The foundation validator checked convenience references only from the control and finding side. Adding the reverse direction immediately surfaced three evidence records asserting applicability to controls that did not reciprocate. The controls were corrected rather than the evidence, since the relationships were legitimate."
+    },
+    {
+      "decision_id": "SD-014",
+      "decision": "CC7 reused existing objects instead of creating parallel ones: EV-CONFIG-001, EV-VULN-001 and EV-ENDPOINT-002 gained CC7 relationships; FND-NETSEC-002 and REM-NETSEC-002 were extended to CC7.1; POL-VULN-001 and POL-NETSEC-001 were reused.",
+      "rationale": "CC7.1 configuration-change detection is the same mechanism as CC6.6 boundary drift with a wider scope. Cloning the archetype would have produced two records DriftGuard could report simultaneously against one condition. Extending the existing records keeps one concept in one place."
+    },
+    {
+      "decision_id": "SD-015",
+      "decision": "Added a versioned gap_signal condition grammar (1.0.0) with three operators and two fields. Prose `condition` retained alongside the new `condition_expr`.",
+      "rationale": "Of 51 existing conditions, 12 sit on enumerated answers and were mechanically translatable; 39 sit on free-text answers and encode semantic judgement. Only the operators the 12 actually require were added, and no boolean composition was needed because `in` subsumes the only disjunctions present. The prose is kept because it is the sole representation for the 39 and remains the human-readable explanation for the 12."
+    },
+    {
+      "decision_id": "SD-016",
+      "decision": "Added semantic_condition and semantic_evaluation_result schemas, a knowledge/soc2/semantics/ directory, and an optional semantic_condition_id link on gap signals. Two of the 39 free-text conditions were decomposed as exemplars.",
+      "rationale": "The deterministic grammar cannot express free-text conditions. Separating the condition (what an answer must evidence) from the result (what an evaluator concluded) keeps the knowledge layer evaluator-agnostic and makes the boundary enforceable: the result vocabulary is phrased in terms of support, and the validator rejects compliance-verdict tokens anywhere in a result, so no evaluator can smuggle an audit conclusion into the knowledge base."
+    }
+  ],
+  "quality_rules": [
+    "Do not fabricate SOC 2 requirements.",
+    "Do not present recommendations as requirements.",
+    "Do not duplicate information; cross-reference by ID.",
+    "IDs are stable and permanent.",
+    "All JSON must be valid and schema-conformant.",
+    "Use the glossary's preferred terminology consistently.",
+    "Preserve source references on every factual claim.",
+    "Design for versioning: every record carries version, last_reviewed, status."
+  ],
+  "current_phase": {
+    "phase": "cc7_vertical_slice",
+    "completed": [
+      "framework foundation",
+      "schemas",
+      "source governance",
+      "data models",
+      "CC6.1-CC6.8 slice",
+      "CC7.1-CC7.5 slice"
+    ],
+    "explicitly_deferred": [
+      "CC1-CC5",
+      "CC8-CC9",
+      "availability, processing integrity, confidentiality and privacy category criteria",
+      "prompt engineering",
+      "application code",
+      "AI engine",
+      "frontend",
+      "backend",
+      "database",
+      "API"
+    ]
+  },
+  "validation": {
+    "script": "knowledge/soc2/validate.py",
+    "command": "python3 knowledge/soc2/validate.py",
+    "dependencies": [
+      "jsonschema"
+    ],
+    "note": "Schemas are authored against JSON Schema 2020-12. The validator uses Draft7Validator because that is what is available in the current environment; the keywords in use (const, $ref, $defs pointers, enum, pattern, required, additionalProperties) behave identically under both drafts. Re-point to Draft202012Validator when a newer jsonschema is available."
+  },
+  "gap_signal_grammar": {
+    "version": "1.0.0",
+    "operators": [
+      "equals",
+      "in",
+      "not_includes_all"
+    ],
+    "fields": [
+      "answer.value",
+      "answer.values"
+    ],
+    "rule": "condition_expr is required for gap signals on single_select and multi_select questions and forbidden elsewhere. Conditions on free-text answers retain prose only; evaluating them requires semantic judgement a deterministic grammar cannot express.",
+    "tests": "knowledge/soc2/tests/test_gap_signal_grammar.py"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-NETSEC-001",
+  "name": "Establish a boundary baseline and close unintended exposure",
+  "description": "Define the intended boundary as a reviewed baseline, document the intent behind every broad rule, and remove or restrict exposure that no intent supports \u2014 starting with administrative interfaces.",
+  "domain": "network_security",
+  "remediation_type": "redesign_control",
+  "durability": "structural",
+  "responsible_role": "Platform Engineering, with Security Engineering accountable for the baseline",
+  "addresses_findings": [
+    "FND-NETSEC-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.6-001"
+  ],
+  "affected_criteria": [
+    "CC6.6"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Export effective boundary rules across every account, region, and network within the declared system boundary, not only production.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-NETSEC-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Identify all rules permitting ingress from any source, and separately identify exposed administrative and management interfaces.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-NETSEC-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "For each broad rule, record whether the exposure is intended, and if so why; remove or restrict those with no supporting intent.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 4,
+      "action": "Move administrative access behind a bastion, authenticating proxy, or private connectivity, and require additional authentication from outside the boundary.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-IAM-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Express the resulting rule set as code and adopt it as the reviewed baseline.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 6,
+      "action": "Assess network paths from adjacent non-production accounts into production and restrict them.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 7,
+      "action": "Record the baseline and its documented exceptions in the network security policy.",
+      "owner_role": "Security Engineering"
+    }
+  ],
+  "implementation_considerations": [
+    "Effective reachability matters more than rule definitions. Overlapping rules and network ACLs mean a permissive-looking rule may deny in practice and vice versa; assess the effective path.",
+    "Closing exposure without knowing who uses it causes outages. Log first, observe actual sources, then restrict.",
+    "Non-production accounts with paths into production are a frequent blind spot and are usually owned by a different team than the one holding the boundary.",
+    "Documenting intent is the cheapest step and the one that most reduces future findings, because it converts an ambiguous export into an assessable one."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks; longer where administrative access must be re-architected behind a bastion.",
+  "prerequisites": [
+    "A current system boundary definition covering all accounts and regions",
+    "Ability to observe traffic before restricting rules"
+  ],
+  "verification_method": {
+    "how": "Re-export effective boundary rules across the full boundary and confirm no administrative interface is reachable from any source without a documented intent and compensating restriction, and that every remaining broad rule carries recorded intent.",
+    "verifying_evidence": [
+      "EV-NETSEC-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-NETSEC-002"
+  ],
+  "residual_risk_note": "A baseline is a point-in-time statement. Without the drift detection in REM-NETSEC-002 it degrades between reviews and cannot evidence a period.",
+  "period_limitation_note": "Closing exposure now does not change the boundary configuration during an elapsed period. Where a Type 2 period ran with an exposed interface, that condition existed.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Broad ingress is not a deficiency where it is intended. This remediation is as much about recording intent as about closing rules."
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-MONITOR-001",
+  "name": "Record alert disposition and define the anomaly-to-event threshold",
+  "description": "Require a recorded analyst, disposition, and basis for every alert, document what makes an anomaly a security event, and export the population unfiltered.",
+  "domain": "security_operations",
+  "remediation_type": "improve_evidence",
+  "durability": "structural",
+  "responsible_role": "Security Engineering",
+  "addresses_findings": [
+    "FND-MONITOR-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.2-001"
+  ],
+  "affected_criteria": [
+    "CC7.2",
+    "CC7.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Define alert severities and an analysis timeframe for each, set from measured capacity rather than aspiration.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 2,
+      "action": "Assign a named responder or on-call rotation so responsibility is attributable.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Require a recorded disposition and its basis on every alert, replacing bare status changes.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-MONITOR-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Document the criteria that turn an anomaly into a security event, and reference them from the disposition.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Document any auto-closure suppression rules and their rationale.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-MONITOR-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Export the unfiltered alert population as the standing evidence artifact.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-MONITOR-001"
+      ]
+    },
+    {
+      "step": 7,
+      "action": "Tune noisy rules rather than accepting a backlog the responder population cannot process.",
+      "owner_role": "Security Engineering"
+    }
+  ],
+  "implementation_considerations": [
+    "Demanding written justification on every low-severity alert collapses under volume. Tune detection and document suppression rules instead.",
+    "An unfiltered export will reveal a backlog. That visibility is the point and is better found internally than in fieldwork.",
+    "Where analysis genuinely happens in a ticketing system, the fix may be reconciling two records rather than changing any behaviour."
+  ],
+  "effort": "low",
+  "typical_duration": "Weeks to implement; one period to accumulate the evidence.",
+  "prerequisites": [
+    "An alerting platform capable of exporting the full population"
+  ],
+  "verification_method": {
+    "how": "Export the unfiltered alert population for a completed interval and confirm each item has an analyst, a disposition with a basis, and an analysis time measurable against the committed timeframe.",
+    "verifying_evidence": [
+      "EV-MONITOR-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-INCIDENT-001"
+  ],
+  "residual_risk_note": "Recorded dispositions show alerts were assessed, not that the assessments were correct; detection quality remains outside what this proves.",
+  "period_limitation_note": "Dispositions cannot be written retrospectively. Where alerts during an elapsed period have no record, that gap stands.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Deliberately parallel to REM-ENDPOINT-002, which covers the malware-specific detection queue. Apply one, not both, to the same records."
+  ]
+}

@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/mapping.schema.json",
+  "title": "DriftGuard SOC 2 Mapping Set",
+  "description": "Explicit, queryable edges between knowledge entities. Entity records carry convenience references; this file is the authoritative relationship graph, and is what DriftGuard traverses to answer relationship questions. A mapping is directed: from source_ref to target_ref.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "record_type": {
+      "const": "mapping_set"
+    },
+    "mapping_set_id": {
+      "type": "string",
+      "pattern": "^MAPSET-[A-Z0-9-]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "relationship_model": {
+      "type": "object",
+      "description": "The canonical entity chain this set instantiates.",
+      "properties": {
+        "chain": {
+          "type": "array",
+          "items": {
+            "$ref": "common.defs.json#/$defs/entity_type"
+          }
+        },
+        "traversal_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "relationship_types": {
+      "type": "array",
+      "description": "Vocabulary of allowed edge types with their inverses, so the graph can be traversed in both directions.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "from_entity": {
+            "$ref": "common.defs.json#/$defs/entity_type"
+          },
+          "to_entity": {
+            "$ref": "common.defs.json#/$defs/entity_type"
+          },
+          "inverse": {
+            "type": "string"
+          },
+          "cardinality": {
+            "type": "string",
+            "enum": [
+              "one_to_one",
+              "one_to_many",
+              "many_to_one",
+              "many_to_many"
+            ]
+          },
+          "answers_question": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "from_entity",
+          "to_entity",
+          "inverse",
+          "cardinality"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "mapping_id": {
+            "$ref": "common.defs.json#/$defs/mapping_id"
+          },
+          "from": {
+            "type": "object",
+            "properties": {
+              "entity_type": {
+                "$ref": "common.defs.json#/$defs/entity_type"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "entity_type",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          "to": {
+            "type": "object",
+            "properties": {
+              "entity_type": {
+                "$ref": "common.defs.json#/$defs/entity_type"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "entity_type",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          "relationship": {
+            "type": "string"
+          },
+          "strength": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "supporting",
+              "optional"
+            ]
+          },
+          "confidence": {
+            "$ref": "common.defs.json#/$defs/confidence"
+          },
+          "rationale": {
+            "type": "string"
+          },
+          "sources": {
+            "$ref": "common.defs.json#/$defs/source_id_list"
+          },
+          "status": {
+            "$ref": "common.defs.json#/$defs/record_status"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "mapping_id",
+          "from",
+          "to",
+          "relationship",
+          "confidence",
+          "rationale",
+          "sources",
+          "status"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "schema_version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "status": {
+      "$ref": "common.defs.json#/$defs/record_status"
+    },
+    "created": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "last_reviewed": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "notes": {
+      "$ref": "common.defs.json#/$defs/notes"
+    }
+  },
+  "required": [
+    "record_type",
+    "mapping_set_id",
+    "name",
+    "description",
+    "relationship_types",
+    "mappings",
+    "version",
+    "schema_version",
+    "status",
+    "created",
+    "last_reviewed"
+  ],
+  "additionalProperties": false,
+  "x-driftguard-schema-version": "0.1.0"
+}

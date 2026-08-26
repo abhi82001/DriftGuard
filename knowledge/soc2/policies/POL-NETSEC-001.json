@@ -1,0 +1,166 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-NETSEC-001",
+  "name": "Network and Boundary Security Policy",
+  "description": "Defines how the external boundary of the in-scope environment is configured, changed, monitored, and reviewed, and what constitutes an acceptable exposure.",
+  "domain": "network_security",
+  "policy_type": "policy",
+  "purpose": "Establish the boundary baseline that current configuration is compared against, so that deviation is detectable rather than a matter of opinion.",
+  "scope_guidance": "Should cover every account, region, and network segment within the system boundary, and should address both ingress from outside the boundary and egress from inside it.",
+  "supported_controls": [
+    "SOC2-CC6.6-001"
+  ],
+  "supported_criteria": [
+    "CC6.6",
+    "CC6.7"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Definition of the system boundary in network terms, including all accounts and regions",
+      "necessity": "expected",
+      "rationale": "Boundary controls cannot be assessed against an undefined boundary.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Default-deny posture for ingress, and the conditions under which exposure is permitted",
+      "necessity": "expected",
+      "rationale": "Establishes what is exceptional, which is what review and drift detection look for.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Prohibition or restriction on exposing administrative and management interfaces externally",
+      "necessity": "expected",
+      "rationale": "The most consequential boundary exposure and the one most worth stating explicitly.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Requirement that boundary rules carry documented intent",
+      "necessity": "expected",
+      "rationale": "Broad-by-design and broad-by-accident are indistinguishable without it.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Change process for boundary rules, including approval and expiry of temporary rules",
+      "necessity": "expected",
+      "rationale": "Temporary rules that never expire are the most common source of drift.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Additional authentication requirement for access originating outside the boundary",
+      "necessity": "expected",
+      "rationale": "This is where the boundary control and the authentication control meet.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Monitoring of attempts against external access points, and who reviews them",
+      "necessity": "expected",
+      "rationale": "Logging without review evidences collection, not monitoring.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Drift detection requirement and the cadence or mechanism used",
+      "necessity": "expected",
+      "rationale": "A quarterly review leaves the boundary unassessed between reviews and cannot evidence a period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Segmentation expectations between production, non-production, and corporate networks",
+      "necessity": "recommended",
+      "rationale": "Determines whether an adjacent environment is a path into the boundary.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-010",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-NETSEC-001"
+    ]
+  },
+  "communication_expectation": "Communicated to platform and infrastructure engineers, who are the population able to change boundary rules.",
+  "common_gaps": [
+    "Policy covers the production account while non-production accounts with network paths into it are unaddressed.",
+    "Temporary rules permitted with no expiry requirement.",
+    "Monitoring required but no named reviewer, so no triage evidence exists.",
+    "No baseline defined, so drift has nothing to be measured against."
+  ],
+  "related_policies": [
+    "POL-CRYPTO-001",
+    "POL-ACCESS-001"
+  ],
+  "evidence_examples": [
+    "EV-NETSEC-001",
+    "EV-CONFIG-001"
+  ],
+  "common_findings": [
+    "FND-NETSEC-001",
+    "FND-NETSEC-002"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.6",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "A broad ingress rule is not a policy violation where the policy documents that exposure as intended. The policy's job is to make intent explicit, not to forbid exposure."
+  ]
+}

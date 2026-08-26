@@ -1,0 +1,131 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ACCESS-002",
+  "name": "Access review performed without evidence of follow-through",
+  "description": "Access reviews took place, but items flagged for modification or revocation were not tracked to closure, or closure was recorded only in a ticket with no confirmation that the entitlement actually changed. Also covers reviews missed against the defined cadence.",
+  "domain": "access_management",
+  "finding_category": "operating_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That entitlements flagged for change remained in place after the review, where a post-review export shows them.",
+      "That fewer reviews were performed than the organization's stated cadence requires, where the review records are complete."
+    ],
+    "must_not_assert": [
+      "That a review did not occur merely because its record was not supplied.",
+      "That bulk sign-off is prohibited. It weakens the evidence; it is not a rule violation."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "potentially_ineffective_control",
+        "when": "No flagged item in any cycle was closed, indicating the detective control produces no corrective outcome."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "missing_evidence",
+        "when": "Only the review record is absent and the organization asserts the review occurred; request the record before concluding."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.3-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "A detective control that identifies inappropriate access but does not correct it does not achieve its objective; the inappropriate access persists.",
+    "pervasiveness": "One unclosed item differs from a review cycle in which nothing flagged was ever actioned.",
+    "compensating_controls": [],
+    "detectability": "Highly detectable by comparing flagged items to post-review entitlement state.",
+    "escalates_when": [
+      "No flagged item in any cycle was closed",
+      "Unclosed items involve privileged access",
+      "Reviews were performed only after fieldwork began, covering an elapsed period"
+    ],
+    "de_escalates_when": [
+      "Closure occurred but was evidenced elsewhere, such as in the next cycle's entitlement export",
+      "The flagged item was reversed by a documented decision that the access was appropriate after all"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Entitlements flagged for revocation still present in the entitlement export following the review.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Review record contains a single bulk sign-off with no per-entitlement decisions.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Fewer review records exist than the defined cadence requires for the period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes no tracking mechanism for flagged items, or relies on ticket closure alone.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q05",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent reports ad hoc cadence, cadence differing from policy, or no reviews performed.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q03",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly trace flagged items through to the underlying system rather than accepting the review record alone. Absence of closure evidence is typically reported as an exception.",
+  "customer_impact": "The vendor's assurance that entitlements are appropriate rests on a control that identifies problems without fixing them.",
+  "remediations": [
+    "REM-ACCESS-002"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where no items were flagged because the population genuinely required no change; verify the review was substantive rather than assuming a nil return is a failure.",
+    "Not a gap where closure is evidenced in a different artifact, such as the following cycle's export or the ticketing system, and can be reconciled.",
+    "Not a gap where the cadence shortfall is explained by a system entering scope partway through the period."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor testing approach and severity factors.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype; not an audit finding.",
+    "Backfilled with observation_class and conclusion_rules in the CC6 phase (schema 0.2.0)."
+  ]
+}

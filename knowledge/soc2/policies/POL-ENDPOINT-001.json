@@ -1,0 +1,157 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-ENDPOINT-001",
+  "name": "Endpoint Protection Policy",
+  "description": "Defines the protective measures required on endpoints and workloads, how coverage is measured, and how detections are triaged and acted upon.",
+  "domain": "endpoint_security",
+  "policy_type": "policy",
+  "purpose": "Establish what protection is expected on which asset classes, and the timeframe within which detections must be acted upon, which is the benchmark for operating effectiveness.",
+  "scope_guidance": "Should cover corporate endpoints, servers, and workload images, and should state explicitly whether contractor and personally owned devices are in or out of the boundary.",
+  "supported_controls": [
+    "SOC2-CC6.8-001"
+  ],
+  "supported_criteria": [
+    "CC6.8",
+    "CC6.7"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Asset classes in scope and the protective measure expected for each",
+      "necessity": "expected",
+      "rationale": "Endpoint and immutable workload protection differ; a single expectation produces false gaps on one of them.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Requirement that coverage be measured against the authoritative asset inventory",
+      "necessity": "expected",
+      "rationale": "A tool's own device list always looks complete, which is why this must be stated.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Agent health and reporting expectations, not installation alone",
+      "necessity": "expected",
+      "rationale": "A non-reporting agent is functionally absent.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Named responder for detections and the timeframe for triage by severity",
+      "necessity": "expected",
+      "rationale": "This becomes the commitment against which triage timeliness is assessed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Requirement to record disposition and its basis for each detection",
+      "necessity": "expected",
+      "rationale": "Distinguishes informed suppression from alerts nobody examined.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Treatment of contractor and personally owned devices",
+      "necessity": "expected",
+      "rationale": "Silence here leaves coverage impossible to conclude on in either direction.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Image provenance and integrity verification requirements for containerised workloads",
+      "necessity": "recommended",
+      "rationale": "Usually the stronger control where workloads are ephemeral.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Escalation criteria linking detections to the incident response process",
+      "necessity": "recommended",
+      "rationale": "Defines when a detection stops being a triage item and becomes an incident.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-ENDPOINT-001"
+    ]
+  },
+  "communication_expectation": "Communicated to IT operations, security engineering, and all endpoint users, whose device compliance the control depends on.",
+  "common_gaps": [
+    "Coverage expectation stated without naming the inventory it is measured against.",
+    "No triage timeframe, so timeliness has no benchmark.",
+    "Endpoint agent expectations applied uniformly to ephemeral container workloads.",
+    "Contractor devices neither covered nor declared out of boundary."
+  ],
+  "related_policies": [
+    "POL-DATA-001",
+    "POL-ASSET-001"
+  ],
+  "evidence_examples": [
+    "EV-ENDPOINT-001",
+    "EV-ENDPOINT-002"
+  ],
+  "common_findings": [
+    "FND-ENDPOINT-001",
+    "FND-ENDPOINT-002"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.8",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criterion concerns preventing or detecting and acting upon unauthorised or malicious software. It names no product category, and this policy deliberately does not either."
+  ]
+}

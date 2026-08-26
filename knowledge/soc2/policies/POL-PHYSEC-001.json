@@ -1,0 +1,157 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-PHYSEC-001",
+  "name": "Physical Security Policy",
+  "description": "Defines how physical access to facilities and to areas holding protected information assets is authorised, granted, reviewed, and revoked, and how reliance on hosting providers is governed.",
+  "domain": "physical_security",
+  "policy_type": "policy",
+  "purpose": "Give the physical access controls a documented basis, and make explicit which physical protections the entity operates itself versus relies on a subservice organization to operate.",
+  "scope_guidance": "Should cover offices, server rooms, media storage, and any location where endpoints with access to protected information are used, plus the treatment of facilities operated by subservice organizations.",
+  "supported_controls": [
+    "SOC2-CC6.4-001"
+  ],
+  "supported_criteria": [
+    "CC6.4",
+    "CC6.5"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Facilities and areas in scope, with sensitive areas distinguished from general access",
+      "necessity": "expected",
+      "rationale": "A single undifferentiated access tier over-grants by construction.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Authorisation required before physical access is granted, and who may authorise it",
+      "necessity": "expected",
+      "rationale": "Mirrors the logical provisioning control and is assessed the same way.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Revocation on termination or role change, with a committed timeframe",
+      "necessity": "expected",
+      "rationale": "The stated timeframe is the benchmark; without one, timeliness cannot be assessed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Periodic review of the access roster, with cadence and reviewer accountability",
+      "necessity": "expected",
+      "rationale": "The review control cannot be tested against an undefined cadence.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Visitor handling, including registration and escort requirements for sensitive areas",
+      "necessity": "expected",
+      "rationale": "Visitors are the population most often outside the badge system entirely.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Contractor and maintenance personnel access",
+      "necessity": "expected",
+      "rationale": "Routinely granted by exception and therefore unevidenced.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Reliance on subservice organizations for facility controls, and the requirement to obtain and review their assurance reports",
+      "necessity": "expected",
+      "rationale": "For a hosted entity this is how CC6.4 is met, and leaving it unstated is why it is often missed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Handling of physical media in transit and at rest within facilities",
+      "necessity": "recommended",
+      "rationale": "Connects physical security to the media sanitization control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-PHYSEC-001"
+    ]
+  },
+  "communication_expectation": "Communicated to all personnel who enter facilities, and to whoever administers badge access, which is frequently outside the security function.",
+  "common_gaps": [
+    "Policy assumes the entity operates its own facilities and is silent on hosted infrastructure, leaving CC6.4 apparently unaddressed for a cloud-native entity.",
+    "No committed timeframe for badge revocation, so overruns cannot be identified.",
+    "Server room access not distinguished from office access.",
+    "Contractors and visitors unaddressed."
+  ],
+  "related_policies": [
+    "POL-ACCESS-001",
+    "POL-ASSET-001"
+  ],
+  "evidence_examples": [
+    "EV-PHYSEC-001",
+    "EV-PHYSEC-002"
+  ],
+  "common_findings": [
+    "FND-PHYSEC-001",
+    "FND-PHYSEC-002"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.4",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "A fully hosted entity still needs this policy; its content shifts from badge administration to subservice organization reliance and assessment."
+  ]
+}

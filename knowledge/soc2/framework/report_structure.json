@@ -1,0 +1,76 @@
+{
+  "record_type": "report_structure",
+  "version": "0.1.0",
+  "last_reviewed": "2026-08-11",
+  "applies_to": ["SOC2-TYPE1", "SOC2-TYPE2"],
+  "scope_note": "Describes the sections a SOC 2 report conventionally contains, so DriftGuard can parse and analyse uploaded reports. Section ordering and numbering vary by audit firm; DriftGuard must identify sections by content signature, not by position.",
+  "sections": [
+    {
+      "section_key": "independent_service_auditor_report",
+      "conventional_position": 1,
+      "name": "Independent Service Auditor's Report",
+      "author": "service_auditor",
+      "audited": true,
+      "contains": ["Scope paragraph identifying the system and trust services categories", "Service organization's and service auditor's responsibilities", "Inherent limitations", "Opinion", "Reference to Section 4 description of tests and results", "Restricted-use paragraph"],
+      "driftguard_extraction_targets": ["opinion_type", "trust_services_categories_in_scope", "period_or_as_of_date", "auditor_firm", "system_name", "subservice_organization_treatment"],
+      "sources": ["SRC-AICPA-ATC-205", "SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "section_key": "management_assertion",
+      "conventional_position": 2,
+      "name": "Management's Assertion",
+      "author": "service_organization_management",
+      "audited": true,
+      "contains": ["Assertion that the description is presented in accordance with the description criteria", "Assertion on suitability of design (and, for Type 2, operating effectiveness)", "Identification of criteria used"],
+      "driftguard_extraction_targets": ["asserted_categories", "asserted_period", "description_criteria_referenced"],
+      "note": "Some firms present the assertion before the auditor's report. Ordering of sections 1 and 2 is a firm convention, not a requirement.",
+      "sources": ["SRC-AICPA-ATC-205", "SRC-AICPA-DC-200"]
+    },
+    {
+      "section_key": "system_description",
+      "conventional_position": 3,
+      "name": "Description of the System",
+      "author": "service_organization_management",
+      "audited": true,
+      "contains": ["Services provided and system boundaries", "Principal service commitments and system requirements", "Components: infrastructure, software, people, procedures, data", "Relevant aspects of the control environment, risk assessment, information and communication, and monitoring", "Complementary user entity controls (CUECs)", "Complementary subservice organization controls (CSOCs) and carve-out or inclusive method", "Disclosed incidents and changes during the period"],
+      "driftguard_extraction_targets": ["system_boundary", "cuec_list", "csoc_list", "subservice_organizations", "disclosed_incidents", "in_scope_products"],
+      "governed_by": "SRC-AICPA-DC-200",
+      "sources": ["SRC-AICPA-DC-200"]
+    },
+    {
+      "section_key": "criteria_controls_tests_results",
+      "conventional_position": 4,
+      "name": "Trust Services Criteria, Related Controls, Tests of Controls, and Results of Tests",
+      "author": "service_auditor",
+      "audited": true,
+      "present_in_type1": false,
+      "contains": ["Each in-scope criterion", "Management's controls mapped to each criterion", "Tests performed by the auditor", "Results, including any exceptions/deviations"],
+      "driftguard_extraction_targets": ["control_inventory", "criterion_to_control_map", "test_procedures", "exceptions", "exception_severity_signals"],
+      "note": "A Type 1 report presents controls and the description but does not include tests of operating effectiveness or results.",
+      "sources": ["SRC-AICPA-ATC-205", "SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "section_key": "other_information",
+      "conventional_position": 5,
+      "name": "Other Information Provided by Management",
+      "author": "service_organization_management",
+      "audited": false,
+      "contains": ["Management responses to exceptions", "Business continuity or roadmap information", "Other unaudited context"],
+      "driftguard_extraction_targets": ["management_responses", "unaudited_claims"],
+      "note": "This section is explicitly not covered by the auditor's opinion. DriftGuard must never treat content here as audited evidence.",
+      "sources": ["SRC-AICPA-SOC2-GUIDE"]
+    }
+  ],
+  "opinion_types": [
+    {"key": "unqualified", "name": "Unqualified (clean)", "meaning": "Controls were suitably designed and, for Type 2, operated effectively in all material respects."},
+    {"key": "qualified", "name": "Qualified", "meaning": "Except for identified matters, controls were suitably designed and operating effectively."},
+    {"key": "adverse", "name": "Adverse", "meaning": "Controls were not suitably designed or did not operate effectively in material respects."},
+    {"key": "disclaimer", "name": "Disclaimer of opinion", "meaning": "The practitioner was unable to obtain sufficient appropriate evidence to form an opinion."}
+  ],
+  "opinion_sources": ["SRC-AICPA-ATC-205"],
+  "analysis_rules": [
+    "An unqualified opinion does not mean zero exceptions. Exceptions may appear in Section 4 with a clean opinion; DriftGuard must read Section 4 rather than inferring from the opinion.",
+    "CUECs shift responsibility to the customer and are a primary vendor-risk signal; they must always be extracted.",
+    "Carved-out subservice organizations are excluded from the opinion and create a downstream assurance gap that must be flagged."
+  ]
+}

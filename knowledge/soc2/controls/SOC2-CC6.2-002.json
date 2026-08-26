@@ -1,0 +1,150 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.2-002",
+  "control_name": "Timely Removal of Access on Termination and Role Change",
+  "criterion": "CC6.2",
+  "secondary_criteria": [
+    "CC6.3"
+  ],
+  "category": "security",
+  "domain": "access_management",
+  "objective": "Ensure credentials and entitlements cease to be usable once the authorisation basis for them ends, within a timeframe the entity has committed to and can measure.",
+  "description": "Termination or role change recorded in the HR system triggers removal of the identity provider account, revocation of active sessions and tokens, and removal or adjustment of downstream entitlements. Elapsed time between the triggering event and revocation is recorded so adherence to the committed timeframe is measurable. Applications that cannot consume lifecycle events are enumerated and handled through a documented manual path with the same commitment.",
+  "control_type": "preventive",
+  "automation_level": "semi_automated",
+  "frequency": "event_driven",
+  "owner_role": "IT / Identity and Access Management owner",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The entity administers credentials for users whose authorisation can end"
+    ]
+  },
+  "implementation_guidance": [
+    "Revoke sessions and tokens, not only the account. A disabled account with a live session or a valid long-lived token has not lost access.",
+    "Treat role change with the same rigour as termination; accumulated entitlement from internal moves is harder to detect and just as consequential.",
+    "Measure the interval as a matter of routine. An organization that cannot state its actual revocation times cannot evidence this control at all.",
+    "Enumerate the applications outside the lifecycle integration explicitly; they are where the overruns will occur.",
+    "Set the committed timeframe from measured performance, not aspiration."
+  ],
+  "design_considerations": [
+    "Does the trigger fire for contractors and external users, or only for employees in the HR system?",
+    "Are sessions and tokens covered, or only the account object?",
+    "Is there a defined path for applications that cannot be integrated?"
+  ],
+  "operating_considerations": [
+    "Was every termination in the period followed by revocation within the committed timeframe?",
+    "Were role changes actioned, or only terminations?",
+    "Is the interval measured, or asserted?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-ACCESS-001",
+      "necessity": "primary",
+      "note": "Entitlement state and revocation records reconciled to the termination population."
+    },
+    {
+      "evidence_id": "EV-IAM-001",
+      "necessity": "supporting",
+      "note": "Identity provider account state corroborating revocation."
+    }
+  ],
+  "policy_examples": [
+    "POL-ACCESS-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ACCESS-007",
+      "description": "A person who has left retains a usable path into systems holding customer data.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-ACCESS-008",
+      "description": "Entitlement accumulated through internal moves produces standing privilege nobody authorised.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-ACCESS-001"
+  ],
+  "remediation": [
+    "REM-ACCESS-001"
+  ],
+  "questionnaire_questions": [
+    "QN-ACCESS-001-Q06"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.2-001",
+      "relationship": "overlaps_with",
+      "note": "Two ends of the same access lifecycle."
+    },
+    {
+      "control_id": "SOC2-CC6.3-001",
+      "relationship": "compensates_for",
+      "note": "Periodic review detects removals this control missed, but detects them late."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "AC-2(3)",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.5.16",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "medium"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "6.2",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.2",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No revocation timeframe is prescribed by SOC 2. The organization's own committed timeframe is the only benchmark against which timeliness is assessed."
+  ]
+}

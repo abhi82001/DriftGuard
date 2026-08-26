@@ -1,0 +1,132 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-MONITOR-001",
+  "name": "Alerts generated without recorded analysis or escalation criteria",
+  "description": "Monitoring produces alerts, but the population lacks recorded dispositions, is exported filtered so the unanalysed backlog is hidden, or there are no documented criteria for when an anomaly becomes a security event.",
+  "domain": "security_operations",
+  "finding_category": "evidence_deficiency",
+  "observation_class": "insufficient_evidence",
+  "conclusion_rules": {
+    "may_assert": [
+      "That alert records lack an analyst, disposition, or basis, where the alert export has been supplied.",
+      "That the export is filtered to escalated or closed items and so is not the alert population.",
+      "That no documented criteria distinguish an anomaly from a security event."
+    ],
+    "must_not_assert": [
+      "That alerts were ignored. Absent records establish that analysis cannot be demonstrated, not that it did not occur.",
+      "That any specific analysis timeframe is required by SOC 2.",
+      "That an incident occurred or was missed."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "A complete population positively shows alerts that passed their committed analysis timeframe with no disposition."
+      },
+      {
+        "observation_class": "potentially_ineffective_control",
+        "when": "Alert volume is far beyond what the responder population could process, so detection exists without any realistic prospect of analysis."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.2",
+    "CC7.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.2-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "CC7.2 concerns analysing anomalies, not only generating them; unrecorded analysis leaves that half unevidenced.",
+    "pervasiveness": "A few auto-closed low-severity alerts differ from a period with no dispositions at all.",
+    "compensating_controls": [
+      "SOC2-CC7.3-001"
+    ],
+    "detectability": "Visible directly in the alert export, provided it is unfiltered.",
+    "escalates_when": [
+      "High-severity alerts have no disposition",
+      "The export is filtered",
+      "No analysis timeframe or responder is defined anywhere"
+    ],
+    "de_escalates_when": [
+      "Auto-closure follows a documented suppression rule with a recorded basis",
+      "Analysis records live in a ticketing or incident system and reconcile",
+      "Alert volume is low and each item has a disposition"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Alert records lack analyst identity or disposition.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-MONITOR-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Export limited to escalated or closed alerts rather than the full population.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-MONITOR-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "No documented criteria distinguishing an anomaly from a security event.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent identifies no named responder, analysis timeframe, or escalation criteria.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-OPS-001-Q03",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample alerts and ask what was concluded about each. Where analysis is recorded in a different system this resolves quickly; where it is recorded nowhere it tends to become reportable.",
+  "customer_impact": "The vendor can show it collects telemetry but not that anyone assesses what it surfaces.",
+  "remediations": [
+    "REM-MONITOR-001"
+  ],
+  "false_positive_guidance": [
+    "Classified as insufficient evidence, not an operating gap. Absent records do not establish that analysis did not happen; request them first.",
+    "Not a gap where auto-closure follows a documented suppression rule with a recorded basis; that is informed triage at scale.",
+    "Not a gap where analysis is recorded in a ticketing or incident system rather than the alerting platform; reconcile across systems before concluding.",
+    "A low alert count is not itself a finding. Corroborate against EV-LOG-001 coverage before treating quiet as either healthy or broken.",
+    "Overlaps deliberately with FND-ENDPOINT-002, which covers the malware-specific detection population. Report one, not both, where the same records are in question."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.2",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

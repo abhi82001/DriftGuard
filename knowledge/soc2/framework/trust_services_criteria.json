@@ -1,0 +1,208 @@
+{
+  "record_type": "trust_services_criteria_index",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "version": "0.1.0",
+  "last_reviewed": "2026-08-11",
+  "primary_source": "SRC-AICPA-TSC-2017-R2022",
+  "scope_note": "This file is a structural index of criteria identifiers, groupings, and titles. It deliberately does NOT reproduce the copyrighted criteria text or points of focus. Control records reference criteria by identifier; the authoritative wording must be read from TSP Section 100.",
+  "counts": {
+    "categories": 5,
+    "common_criteria": 33,
+    "category_specific_criteria": 28,
+    "total_criteria": 61,
+    "counts_verification_status": "verified",
+    "counts_note": "33 common criteria (CC1-CC9) plus A (3), PI (5), C (2), P (18)."
+  },
+  "categories": [
+    {
+      "category_id": "security",
+      "name": "Security",
+      "criteria_prefix": "CC",
+      "required": true,
+      "description": "Information and systems are protected against unauthorized access, unauthorized disclosure of information, and damage to systems that could compromise the availability, integrity, confidentiality, and privacy of information or systems and affect the entity's ability to meet its objectives.",
+      "note": "Security is the only category that must be included in every SOC 2 examination. Its criteria are the 'common criteria' and are shared across all categories.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "category_id": "availability",
+      "name": "Availability",
+      "criteria_prefix": "A",
+      "required": false,
+      "description": "Information and systems are available for operation and use to meet the entity's objectives.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "category_id": "processing_integrity",
+      "name": "Processing Integrity",
+      "criteria_prefix": "PI",
+      "required": false,
+      "description": "System processing is complete, valid, accurate, timely, and authorized to meet the entity's objectives.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "category_id": "confidentiality",
+      "name": "Confidentiality",
+      "criteria_prefix": "C",
+      "required": false,
+      "description": "Information designated as confidential is protected to meet the entity's objectives.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "category_id": "privacy",
+      "name": "Privacy",
+      "criteria_prefix": "P",
+      "required": false,
+      "description": "Personal information is collected, used, retained, disclosed, and disposed of to meet the entity's objectives.",
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    }
+  ],
+  "criteria_series": [
+    {
+      "series_id": "CC1",
+      "category_id": "security",
+      "title": "Control Environment",
+      "coso_alignment": ["Principle 1", "Principle 2", "Principle 3", "Principle 4", "Principle 5"],
+      "criteria": ["CC1.1", "CC1.2", "CC1.3", "CC1.4", "CC1.5"]
+    },
+    {
+      "series_id": "CC2",
+      "category_id": "security",
+      "title": "Communication and Information",
+      "coso_alignment": ["Principle 13", "Principle 14", "Principle 15"],
+      "criteria": ["CC2.1", "CC2.2", "CC2.3"]
+    },
+    {
+      "series_id": "CC3",
+      "category_id": "security",
+      "title": "Risk Assessment",
+      "coso_alignment": ["Principle 6", "Principle 7", "Principle 8", "Principle 9"],
+      "criteria": ["CC3.1", "CC3.2", "CC3.3", "CC3.4"]
+    },
+    {
+      "series_id": "CC4",
+      "category_id": "security",
+      "title": "Monitoring Activities",
+      "coso_alignment": ["Principle 16", "Principle 17"],
+      "criteria": ["CC4.1", "CC4.2"]
+    },
+    {
+      "series_id": "CC5",
+      "category_id": "security",
+      "title": "Control Activities",
+      "coso_alignment": ["Principle 10", "Principle 11", "Principle 12"],
+      "criteria": ["CC5.1", "CC5.2", "CC5.3"]
+    },
+    {
+      "series_id": "CC6",
+      "category_id": "security",
+      "title": "Logical and Physical Access Controls",
+      "coso_alignment": [],
+      "criteria": ["CC6.1", "CC6.2", "CC6.3", "CC6.4", "CC6.5", "CC6.6", "CC6.7", "CC6.8"]
+    },
+    {
+      "series_id": "CC7",
+      "category_id": "security",
+      "title": "System Operations",
+      "coso_alignment": [],
+      "criteria": ["CC7.1", "CC7.2", "CC7.3", "CC7.4", "CC7.5"]
+    },
+    {
+      "series_id": "CC8",
+      "category_id": "security",
+      "title": "Change Management",
+      "coso_alignment": [],
+      "criteria": ["CC8.1"]
+    },
+    {
+      "series_id": "CC9",
+      "category_id": "security",
+      "title": "Risk Mitigation",
+      "coso_alignment": [],
+      "criteria": ["CC9.1", "CC9.2"]
+    },
+    {
+      "series_id": "A1",
+      "category_id": "availability",
+      "title": "Availability - Additional Criteria",
+      "coso_alignment": [],
+      "criteria": ["A1.1", "A1.2", "A1.3"]
+    },
+    {
+      "series_id": "PI1",
+      "category_id": "processing_integrity",
+      "title": "Processing Integrity - Additional Criteria",
+      "coso_alignment": [],
+      "criteria": ["PI1.1", "PI1.2", "PI1.3", "PI1.4", "PI1.5"]
+    },
+    {
+      "series_id": "C1",
+      "category_id": "confidentiality",
+      "title": "Confidentiality - Additional Criteria",
+      "coso_alignment": [],
+      "criteria": ["C1.1", "C1.2"]
+    },
+    {
+      "series_id": "P1",
+      "category_id": "privacy",
+      "title": "Notice and Communication of Objectives Related to Privacy",
+      "coso_alignment": [],
+      "criteria": ["P1.1"]
+    },
+    {
+      "series_id": "P2",
+      "category_id": "privacy",
+      "title": "Choice and Consent",
+      "coso_alignment": [],
+      "criteria": ["P2.1"]
+    },
+    {
+      "series_id": "P3",
+      "category_id": "privacy",
+      "title": "Collection",
+      "coso_alignment": [],
+      "criteria": ["P3.1", "P3.2"]
+    },
+    {
+      "series_id": "P4",
+      "category_id": "privacy",
+      "title": "Use, Retention, and Disposal",
+      "coso_alignment": [],
+      "criteria": ["P4.1", "P4.2", "P4.3"]
+    },
+    {
+      "series_id": "P5",
+      "category_id": "privacy",
+      "title": "Access",
+      "coso_alignment": [],
+      "criteria": ["P5.1", "P5.2"]
+    },
+    {
+      "series_id": "P6",
+      "category_id": "privacy",
+      "title": "Disclosure and Notification",
+      "coso_alignment": [],
+      "criteria": ["P6.1", "P6.2", "P6.3", "P6.4", "P6.5", "P6.6", "P6.7"]
+    },
+    {
+      "series_id": "P7",
+      "category_id": "privacy",
+      "title": "Quality",
+      "coso_alignment": [],
+      "criteria": ["P7.1"]
+    },
+    {
+      "series_id": "P8",
+      "category_id": "privacy",
+      "title": "Monitoring and Enforcement",
+      "coso_alignment": [],
+      "criteria": ["P8.1"]
+    }
+  ],
+  "usage_rules": [
+    "A control record's `criterion` field MUST contain an identifier present in this index.",
+    "Points of focus are illustrative and are not requirements; DriftGuard must never report a missing point of focus as a criterion failure.",
+    "Category selection is the service organization's choice, except Security, which is always in scope.",
+    "Criteria text is copyrighted and is not stored here. Store only identifiers, titles, and DriftGuard-authored interpretation."
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-INCIDENT-001",
+  "name": "Security Incident Record",
+  "description": "The lifecycle record of a declared incident: basis for declaration, timeline, containment and recovery actions, communications issued, post-incident review, and remediation tracked to closure.",
+  "domain": "security_operations",
+  "evidence_type": "ticket_record",
+  "evidence_role": "operational",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Complete list of incidents declared during the examination period",
+      "required": true,
+      "why": "Establishes the population; a curated selection cannot be sampled from."
+    },
+    {
+      "element": "Declaration basis referencing the entity's severity or impact criteria",
+      "required": true,
+      "why": "Shows the declaration was a judgement against a standard rather than an improvised call."
+    },
+    {
+      "element": "Timeline with detection, declaration, containment, and closure timestamps",
+      "required": true,
+      "why": "Timeliness against the entity's committed response timeframes is measured from these."
+    },
+    {
+      "element": "Containment and recovery actions taken, with the person who took them",
+      "required": true,
+      "why": "The substance of the response; a record of the event alone does not evidence action."
+    },
+    {
+      "element": "Communications issued internally and externally, with recipients and timing",
+      "required": true,
+      "why": "Notification obligations are commitments the entity is measured against."
+    },
+    {
+      "element": "Post-incident review with root cause and contributing conditions",
+      "required": true,
+      "why": "CC7.5 concerns recovery and addressing the cause, not only restoring service."
+    },
+    {
+      "element": "Remediation actions with owners, target dates, and closure evidence",
+      "required": true,
+      "why": "Actions held only in a review document reliably lapse and cannot be shown to have closed."
+    },
+    {
+      "element": "Verification that restoration succeeded, where recovery involved restoring components",
+      "required": false,
+      "why": "Distinguishes a completed restore from an attempted one."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC7.3-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC7.4-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC7.5-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC7.3",
+    "CC7.4",
+    "CC7.5"
+  ],
+  "collection_frequency": "event_driven",
+  "owner": "Incident commander role, with Security Engineering maintaining the record",
+  "source_system_examples": [
+    "Incident management platform records",
+    "Security ticketing queue incident tickets",
+    "Post-incident review documents linked from the incident record"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 400,
+    "basis": "event_bound",
+    "rationale": "Incidents are event-bound and assessed against the population declared during the period. The value shown is a retention floor, not a staleness threshold."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "Incident records describe exploited weaknesses and may contain customer data; restrict distribution and never attach raw records to customer-facing output.",
+    "Retain responder identity and timestamps; these are the attribution the record exists to provide."
+  ],
+  "retention_guidance": "Retain for the examination period plus the following period, since incidents near a period boundary are tested in the later examination.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "An incident population export exists covering the examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-003"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Each record carries declaration basis, timeline, containment actions, and communications.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-INCIDENT-003"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "A post-incident review with root cause exists for incidents at or above the entity's review threshold.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-INCIDENT-004"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "Remediation actions carry owners and target dates and are traceable to closure.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-INCIDENT-004"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "timeliness",
+      "rule": "Containment and communication occurred within the entity's committed timeframes for the severity.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-003"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "relevance",
+      "rule": "Declaration basis references the entity's documented criteria rather than free-text judgement.",
+      "check_type": "llm_assisted",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-001"
+    },
+    {
+      "rule_id": "VR-007",
+      "dimension": "authenticity",
+      "rule": "Records come from the incident management system with system timestamps, not from a narrative written after the fact.",
+      "check_type": "human_review",
+      "failure_severity": "high",
+      "failure_finding": "FND-INCIDENT-003"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Timeline reconstructed after closure rather than captured during the incident.",
+      "impact": "Produces a narrative rather than a contemporaneous record, which materially weakens it.",
+      "related_finding": "FND-INCIDENT-003"
+    },
+    {
+      "issue": "Post-incident review held but actions recorded only in the review document.",
+      "impact": "Actions are not tracked and closure cannot be demonstrated.",
+      "related_finding": "FND-INCIDENT-004"
+    },
+    {
+      "issue": "Zero incidents declared for the period.",
+      "impact": "Entirely plausible, and equally consistent with a declaration threshold nobody applies. Corroborate against EV-MONITOR-001 before concluding either way."
+    },
+    {
+      "issue": "Communications described in the plan but not evidenced as issued.",
+      "impact": "The notification obligation is documented but its execution is unevidenced.",
+      "related_finding": "FND-INCIDENT-003"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "A period with no declared incidents leaves this control with no operating population. That is not a deficiency; design suitability remains assessable and DriftGuard must say so rather than reporting an absence."
+  ]
+}

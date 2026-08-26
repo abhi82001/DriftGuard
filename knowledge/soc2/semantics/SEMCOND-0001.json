@@ -1,0 +1,41 @@
+{
+  "$schema": "../schemas/semantic_condition.schema.json",
+  "record_type": "semantic_condition",
+  "condition_id": "SEMCOND-0001",
+  "evaluation_type": "semantic",
+  "question_id": "QN-ACCESS-001-Q09",
+  "indicates_finding": "FND-CRYPTO-001",
+  "source_condition": "answer omits backups, snapshots, or replicas",
+  "fires_when": "any_required_element_missing",
+  "expected_elements": [
+    {
+      "element_id": "SE-001",
+      "description": "The answer states the encryption position for backups of storage holding protected information.",
+      "required": true
+    },
+    {
+      "element_id": "SE-002",
+      "description": "The answer states the encryption position for snapshots.",
+      "required": true
+    },
+    {
+      "element_id": "SE-003",
+      "description": "The answer states the encryption position for replicas.",
+      "required": true
+    }
+  ],
+  "sources": [
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "1.0.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Pattern: enumerated-scope omission. The prose names three derived-copy types the answer must cover; the condition fires when any one is unaddressed.",
+    "The decomposition adds nothing to the original prose. Primary datastore encryption is deliberately not an expected element, because the source condition does not mention it."
+  ]
+}

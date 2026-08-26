@@ -1,0 +1,171 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-NETSEC-001",
+  "name": "Network Boundary Configuration Export",
+  "description": "The effective ingress and egress rule set at the entity's external boundary, showing what can be reached from outside the system boundary and from where.",
+  "domain": "network_security",
+  "evidence_type": "configuration_export",
+  "evidence_role": "configuration",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "point_in_time",
+  "type2_pairing_requirement": [
+    "EV-CONFIG-001"
+  ],
+  "expected_content": [
+    {
+      "element": "Effective rule set with source, destination, port, and protocol for every boundary control point",
+      "required": true,
+      "why": "Effective rules, not intended rules; overlapping rule sets frequently permit more than any single rule suggests."
+    },
+    {
+      "element": "Identification of every boundary control point in scope, including all accounts, regions, and virtual networks",
+      "required": true,
+      "why": "A single-account export from a multi-account environment understates exposure."
+    },
+    {
+      "element": "Which rules permit ingress from any source",
+      "required": true,
+      "why": "This is the highest-signal element and should be readable without manual analysis."
+    },
+    {
+      "element": "Documented intent for rules that are broad by design, such as a public web tier",
+      "required": true,
+      "why": "Broad-by-design and broad-by-accident are indistinguishable in an export without stated intent."
+    },
+    {
+      "element": "Exposure status of administrative interfaces and management ports",
+      "required": true,
+      "why": "The most consequential and most common boundary finding."
+    },
+    {
+      "element": "Reference to the reviewed baseline the current state is compared against",
+      "required": false,
+      "why": "Enables drift assessment, which is what converts this into period evidence when paired with EV-CONFIG-001."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.6-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.6"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Platform Engineering",
+  "source_system_examples": [
+    "Cloud provider security group and network ACL export",
+    "Firewall rule base export",
+    "Infrastructure-as-code network definitions",
+    "Cloud security posture management exposure report"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously enforced configuration. Not an audit rule."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "A boundary rule export is an attack map. Restrict distribution and never attach it to customer-facing output.",
+    "Internal address ranges may be tokenised provided rule structure remains assessable."
+  ],
+  "retention_guidance": "Capture on a schedule and retain dated snapshots alongside EV-CONFIG-001.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A boundary configuration export exists covering the in-scope environment.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-NETSEC-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "All accounts, regions, and virtual networks within the boundary are represented.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-NETSEC-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "relevance",
+      "rule": "Rules permitting unrestricted ingress to administrative or management ports are identified and carry documented intent.",
+      "check_type": "deterministic",
+      "failure_severity": "critical",
+      "failure_finding": "FND-NETSEC-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "For a Type 2 conclusion the export is paired with EV-CONFIG-001 evidencing that the rule set held through the period.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-NETSEC-002"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "The export comes from the platform API or rule base rather than from a diagram or narrative.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "timeliness",
+      "rule": "The export is dated within the examination period or the freshness window.",
+      "check_type": "deterministic",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Export covers the production account only, while non-production accounts share network paths into it.",
+      "impact": "Exposure through an adjacent account is invisible.",
+      "related_finding": "FND-NETSEC-001"
+    },
+    {
+      "issue": "Broad rules present with no stated intent, so design cannot be distinguished from accident.",
+      "impact": "DriftGuard cannot conclude either way and must report insufficient evidence rather than a gap.",
+      "related_finding": "FND-NETSEC-001"
+    },
+    {
+      "issue": "Single export offered as evidence for a full period.",
+      "impact": "Says nothing about rules opened and closed between snapshots.",
+      "related_finding": "FND-NETSEC-002"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "A broad ingress rule is not automatically a deficiency. A public-facing service is broad by design. Documented intent is what separates the two, which is why it is a required content element."
+  ]
+}

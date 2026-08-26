@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/semantic_evaluation_result.schema.json",
+  "record_type": "semantic_evaluation_result",
+  "result_id": "SEMRES-EXAMPLE-0002",
+  "condition_id": "SEMCOND-0002",
+  "question_id": "QN-OPS-001-Q03",
+  "assessment": "INSUFFICIENT",
+  "confidence": 0.81,
+  "present_elements": [],
+  "missing_elements": [
+    "SE-001",
+    "SE-002"
+  ],
+  "reason_codes": [
+    "element_not_mentioned",
+    "answer_too_brief"
+  ],
+  "needs_human_review": true,
+  "evaluated_on": "2026-08-12",
+  "notes": [
+    "Illustrative only. Models a brief answer such as 'the security team reviews alerts', which names neither a responder role nor a timeframe.",
+    "INSUFFICIENT describes the answer, not the control. The entity may well have both a responder and a timeframe; the answer does not evidence them, which is why the correct next step is to request evidence rather than to report a gap."
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "$schema": "../schemas/questionnaire.schema.json",
+  "record_type": "questionnaire",
+  "questionnaire_id": "QN-OPS-001",
+  "name": "System Operations Readiness Questionnaire",
+  "description": "Establishes how configuration change and vulnerability exposure are detected, how security telemetry is collected and analysed, and how incidents are declared, worked, and reviewed.",
+  "purpose": "readiness_assessment",
+  "audience": "service_organization",
+  "domain": "security_operations",
+  "covers_criteria": [
+    "CC7.1",
+    "CC7.2",
+    "CC7.3",
+    "CC7.4",
+    "CC7.5"
+  ],
+  "questions": [
+    {
+      "question_id": "QN-OPS-001-Q01",
+      "text": "How would you learn that a security-relevant configuration had changed, and how do you assess whether a newly disclosed vulnerability affects technology you actually run?",
+      "intent": "Establish whether change detection is continuous or review-based, and whether advisory monitoring exists separately from scheduled scanning.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.1-002"
+      ],
+      "related_criteria": [
+        "CC7.1"
+      ],
+      "expected_evidence": [
+        "EV-CONFIG-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer relies on periodic review with no continuous detection",
+          "indicates_finding": "FND-NETSEC-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "For a Type 1 examination this is not material; point-in-time configuration state is what the opinion addresses."
+    },
+    {
+      "question_id": "QN-OPS-001-Q02",
+      "text": "Which components send security logs to a central store, what is that coverage measured against, and how long are the logs kept?",
+      "intent": "Establish whether coverage is measured against the asset inventory rather than the logging platform's own source list, and whether retention reaches the examination period.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.2-001"
+      ],
+      "related_criteria": [
+        "CC7.2"
+      ],
+      "expected_evidence": [
+        "EV-LOG-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "coverage measured against the logging platform's own source list",
+          "indicates_finding": "FND-LOG-001",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "retention shorter than the examination period",
+          "indicates_finding": "FND-LOG-001",
+          "severity": "high",
+          "confidence": "high"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-OPS-001-Q03",
+      "text": "When an alert fires, who looks at it, within what timeframe, and what record is left of what they concluded?",
+      "intent": "Establish whether analysis is attributable, time-bounded, and recorded, which is what separates monitoring from collection.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.2-001"
+      ],
+      "related_criteria": [
+        "CC7.2"
+      ],
+      "expected_evidence": [
+        "EV-MONITOR-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "no named responder or analysis timeframe",
+          "semantic_condition_id": "SEMCOND-0002",
+          "indicates_finding": "FND-MONITOR-001",
+          "severity": "medium",
+          "confidence": "medium"
+        },
+        {
+          "condition": "alerts closed with no recorded disposition or basis",
+          "indicates_finding": "FND-MONITOR-001",
+          "severity": "high",
+          "confidence": "high"
+        }
+      ],
+      "required": true,
+      "guidance": "Documented auto-closure suppression rules are informed triage at scale, not absence of analysis."
+    },
+    {
+      "question_id": "QN-OPS-001-Q04",
+      "text": "What written criteria determine that a security event is an incident, who may declare one, and how do events reported by customers or researchers enter that process?",
+      "intent": "Establish whether declaration is a judgement against a documented standard, and whether non-monitoring intake paths exist.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.3-001"
+      ],
+      "related_criteria": [
+        "CC7.3"
+      ],
+      "expected_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "no written declaration criteria",
+          "indicates_finding": "FND-INCIDENT-001",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "no defined intake path for externally reported events",
+          "indicates_finding": "FND-INCIDENT-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-OPS-001-Q05",
+      "text": "When was your incident response plan last exercised, what did the exercise reveal, and what changed as a result?",
+      "intent": "Establish whether the plan is tested within the period and whether the test produces outcomes rather than attendance.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.4-001"
+      ],
+      "related_criteria": [
+        "CC7.4"
+      ],
+      "expected_evidence": [
+        "EV-INCIDENT-002"
+      ],
+      "gap_signals": [
+        {
+          "condition": "no exercise within the examination period",
+          "indicates_finding": "FND-INCIDENT-002",
+          "severity": "medium",
+          "confidence": "high"
+        },
+        {
+          "condition": "exercise recorded with no observations or improvement actions",
+          "indicates_finding": "FND-INCIDENT-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "A real incident worked through the plan and documented commonly satisfies the same objective as an exercise."
+    },
+    {
+      "question_id": "QN-OPS-001-Q06",
+      "text": "After an incident is closed, what triggers a root-cause review, and where do the actions arising from it live?",
+      "intent": "Establish whether review is triggered by a threshold and whether resulting actions are tracked somewhere closure can be demonstrated.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.5-001"
+      ],
+      "related_criteria": [
+        "CC7.5"
+      ],
+      "expected_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "no defined review trigger",
+          "indicates_finding": "FND-INCIDENT-004",
+          "severity": "medium",
+          "confidence": "medium"
+        },
+        {
+          "condition": "actions recorded only in the review document",
+          "indicates_finding": "FND-INCIDENT-004",
+          "severity": "medium",
+          "confidence": "high"
+        }
+      ],
+      "required": true,
+      "guidance": "A period with no declared incidents leaves this control with no operating population. That is not a gap."
+    },
+    {
+      "question_id": "QN-OPS-001-Q07",
+      "text": "What defines the scope of your vulnerability scanning, and what happens when a finding passes the remediation timeframe you have set for its severity?",
+      "intent": "Establish whether scan scope derives from the authoritative asset inventory and whether overdue findings have a governed risk-acceptance path rather than simply remaining open.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC7.1-001"
+      ],
+      "related_criteria": [
+        "CC7.1"
+      ],
+      "expected_evidence": [
+        "EV-VULN-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "scan scope is a static target list rather than derived from the asset inventory",
+          "indicates_finding": "FND-VULN-001",
+          "severity": "high",
+          "confidence": "medium"
+        },
+        {
+          "condition": "overdue findings have no documented risk acceptance path",
+          "indicates_finding": "FND-VULN-001",
+          "severity": "high",
+          "confidence": "high"
+        }
+      ],
+      "required": true,
+      "guidance": "The benchmark is the timeframe the entity set for itself, not any external standard."
+    }
+  ],
+  "scoring_model": {
+    "method": "criterion_coverage",
+    "description": "Answers are aggregated per criterion. A criterion is marked 'evidence needed' where a gap signal fires, and 'covered' only where the answer is corroborated by evidence that passes its validation rules.",
+    "disclaimer": "This score is a DriftGuard readiness signal only. It is not an audit conclusion, not an opinion on control effectiveness, and carries no assurance. Only an independent service auditor can conclude on whether criteria were met."
+  },
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.4.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Question formulations are original DriftGuard wording. No proprietary questionnaire content is reproduced.",
+    "CC7.1's vulnerability-management half is already covered by the existing catalog; Q01 targets only the configuration-change and advisory-monitoring half that SOC2-CC7.1-002 adds.",
+    "Q07 added during the CC7 quality gate: SOC2-CC7.1-001 predates the questionnaire model and had no question coverage, leaving the vulnerability-management half of CC7.1 untested by questionnaire.",
+    "gap_signal conditions migrated to grammar 1.0.0. Conditions on enumerated answer types carry a machine-readable condition_expr; conditions on free-text answers retain prose only, because evaluating them requires semantic judgement that a deterministic grammar cannot express. The prose `condition` is unchanged in every case.",
+    "QN-OPS-001-Q03 gap signal linked to SEMCOND-0002 as a representative semantic-condition decomposition. The prose condition is unchanged and no other condition in this record was modified."
+  ],
+  "gap_signal_grammar_version": "1.0.0"
+}

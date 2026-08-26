@@ -1,0 +1,140 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-PHYSEC-001",
+  "name": "Physical access not revoked or roster not reviewed",
+  "description": "Badge or physical credential access remained active for people whose authorisation basis ended, or the access roster was not reviewed on the cadence the entity defined, or the review identified access for removal that was never withdrawn.",
+  "domain": "physical_security",
+  "finding_category": "operating_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That named individuals retained physical access after their termination date, where the roster and personnel records have both been supplied and reconciled.",
+      "That fewer roster reviews occurred than the entity's stated cadence requires, where the review records are complete."
+    ],
+    "must_not_assert": [
+      "That physical entry occurred. Retained badge access is not evidence of use; entry logs are a separate artifact.",
+      "That any specific revocation timeframe is required by SOC 2."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Entry logs show the retained credential was actually used after the authorisation basis ended. Severity escalates within the same class rather than changing class."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "missing_evidence",
+        "when": "The roster or personnel records have not been supplied, so retention of access cannot be established either way."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.4"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.4-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "Physical entry to areas holding protected information assets remained possible for people no longer authorised.",
+    "pervasiveness": "One badge missed differs from physical revocation being absent from the offboarding process entirely.",
+    "compensating_controls": [
+      "SOC2-CC6.2-002"
+    ],
+    "detectability": "Detectable by reconciling the roster to personnel records; invisible where physical and logical lifecycles are entirely separate.",
+    "escalates_when": [
+      "The retained access covers a server room or media storage area",
+      "Entry logs show the credential was used after termination",
+      "Physical revocation is not part of the offboarding process at all"
+    ],
+    "de_escalates_when": [
+      "The facility holds no protected information assets and no endpoints with access to them",
+      "Access was to a shared building lobby with a separate control on the entity's own space",
+      "The credential was deactivated centrally by the building operator within the committed timeframe"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Roster contains holders absent from current personnel records.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-PHYSEC-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Fewer roster review records than the stated cadence requires for the period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-PHYSEC-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Review identified holders for removal with no corresponding revocation record.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-PHYSEC-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes physical revocation as a separate manual step with no committed timeframe.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-PHYSEC-001-Q02",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent reports no defined roster review cadence.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-PHYSEC-001-Q03",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample terminations and check badge deactivation alongside logical revocation. Because the two processes are often separate, physical overruns are a frequent source of exceptions even where logical deprovisioning is strong.",
+  "customer_impact": "Former personnel retained the ability to enter locations where the customer's data or the equipment accessing it is present.",
+  "remediations": [
+    "REM-PHYSEC-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the facility holds no protected information assets and no endpoints with access to them; confirm against the system boundary.",
+    "Not a gap where the entity does not administer the badge system and the building operator deactivated the credential within the committed timeframe.",
+    "Not a gap where the individual transferred rather than terminated and their new role legitimately retains the access.",
+    "Retained access is not evidence of entry. Do not describe it as unauthorised physical access without entry log evidence."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.4",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

@@ -1,0 +1,467 @@
+{
+  "$schema": "../schemas/questionnaire.schema.json",
+  "record_type": "questionnaire",
+  "questionnaire_id": "QN-ACCESS-001",
+  "name": "Access Management Readiness Questionnaire",
+  "description": "Establishes how identity, authentication, and entitlement review actually operate, so that answers can be reconciled against evidence and mapped to finding archetypes.",
+  "purpose": "readiness_assessment",
+  "audience": "service_organization",
+  "domain": "access_management",
+  "covers_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3",
+    "CC6.6"
+  ],
+  "questions": [
+    {
+      "question_id": "QN-ACCESS-001-Q01",
+      "text": "Is a second authentication factor enforced for all human access to in-scope production systems, the identity provider, the cloud management console, and the source code repository?",
+      "intent": "Establish whether MFA enforcement is environment-wide or partial. Partial coverage is a design issue, not an operating one.",
+      "answer_type": "single_select",
+      "options": [
+        "Yes, all listed systems",
+        "Most systems, with documented exceptions",
+        "Some systems only",
+        "No"
+      ],
+      "related_controls": [
+        "SOC2-CC6.1-001"
+      ],
+      "related_criteria": [
+        "CC6.1",
+        "CC6.6"
+      ],
+      "expected_evidence": [
+        "EV-IAM-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer in ['Some systems only', 'No']",
+          "condition_expr": {
+            "operator": "in",
+            "field": "answer.value",
+            "values": [
+              "Some systems only",
+              "No"
+            ]
+          },
+          "indicates_finding": "FND-IAM-001",
+          "severity": "critical",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer == 'Most systems, with documented exceptions'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Most systems, with documented exceptions"
+          },
+          "indicates_finding": "FND-IAM-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "Answer for the enforced configuration, not the policy statement. If the two differ, that difference is itself the finding."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q02",
+      "text": "List every authentication path into the in-scope environment that is NOT governed by the identity provider's policy, including direct application logins, VPN, SSH or bastion access, cloud CLI, long-lived API tokens, break-glass accounts, and vendor support portals.",
+      "intent": "Surface bypass paths. This is where MFA controls usually fail, and an empty answer is more often incompleteness than genuine full coverage.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.1-001"
+      ],
+      "related_criteria": [
+        "CC6.1"
+      ],
+      "expected_evidence": [
+        "EV-IAM-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer lists any path without a stated compensating control",
+          "indicates_finding": "FND-IAM-001",
+          "severity": "high",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "An answer of 'none' should be corroborated against the configuration export before it is accepted."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q03",
+      "text": "How frequently are user access reviews performed, and does that match the cadence stated in your access control policy?",
+      "intent": "Detect divergence between documented cadence and actual practice, which is a documentation deficiency independent of whether reviews occurred.",
+      "answer_type": "single_select",
+      "options": [
+        "Quarterly, matching policy",
+        "Annually, matching policy",
+        "Performed, but cadence differs from policy",
+        "Ad hoc / no defined cadence",
+        "Not performed"
+      ],
+      "related_controls": [
+        "SOC2-CC6.3-001"
+      ],
+      "related_criteria": [
+        "CC6.2",
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer == 'Not performed'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Not performed"
+          },
+          "indicates_finding": "FND-ACCESS-002",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer in ['Ad hoc / no defined cadence', 'Performed, but cadence differs from policy']",
+          "condition_expr": {
+            "operator": "in",
+            "field": "answer.value",
+            "values": [
+              "Ad hoc / no defined cadence",
+              "Performed, but cadence differs from policy"
+            ]
+          },
+          "indicates_finding": "FND-ACCESS-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q04",
+      "text": "Which identity populations are included in the access review: employees, contractors, service accounts, shared accounts, and privileged or administrative roles?",
+      "intent": "Detect scope defects in the review population, the most common cause of an otherwise well-run review failing.",
+      "answer_type": "multi_select",
+      "options": [
+        "Employees",
+        "Contractors",
+        "Service accounts",
+        "Shared accounts",
+        "Privileged/administrative roles"
+      ],
+      "related_controls": [
+        "SOC2-CC6.3-001"
+      ],
+      "related_criteria": [
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "any of ['Service accounts', 'Privileged/administrative roles'] not selected",
+          "condition_expr": {
+            "operator": "not_includes_all",
+            "field": "answer.values",
+            "values": [
+              "Service accounts",
+              "Privileged/administrative roles"
+            ]
+          },
+          "indicates_finding": "FND-ACCESS-003",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "any of ['Contractors', 'Shared accounts'] not selected",
+          "condition_expr": {
+            "operator": "not_includes_all",
+            "field": "answer.values",
+            "values": [
+              "Contractors",
+              "Shared accounts"
+            ]
+          },
+          "indicates_finding": "FND-ACCESS-003",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q05",
+      "text": "When an access review flags an entitlement for removal, how is the removal tracked, and how is it confirmed in the underlying system?",
+      "intent": "Establish whether the detective control results in correction. A review with no verified closure does not achieve its objective.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.3-001"
+      ],
+      "related_criteria": [
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates no tracking mechanism",
+          "indicates_finding": "FND-ACCESS-002",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer relies on ticket closure with no system-side confirmation",
+          "indicates_finding": "FND-ACCESS-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q06",
+      "text": "What is your committed timeframe for revoking system access after an employee or contractor is terminated, and how is actual revocation time measured against it?",
+      "intent": "Establish the self-defined commitment and whether adherence to it is measurable at all.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.3-001"
+      ],
+      "related_criteria": [
+        "CC6.2",
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "no defined timeframe",
+          "indicates_finding": "FND-ACCESS-001",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "timeframe defined but revocation time is not measured",
+          "indicates_finding": "FND-ACCESS-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q07",
+      "text": "Before system credentials are issued, what record is created showing who approved the specific entitlement being granted, and where is that record kept?",
+      "intent": "Establish whether authorisation precedes provisioning and whether it names the entitlement, which is what makes an approval evidential rather than ceremonial.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.2-001"
+      ],
+      "related_criteria": [
+        "CC6.2"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-002"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates no approval record exists prior to provisioning",
+          "indicates_finding": "FND-ACCESS-004",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer indicates approvals are held only in chat or email",
+          "indicates_finding": "FND-ACCESS-004",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "Answer for the path actually used, including for contractors and external users, who are frequently onboarded outside the standard workflow."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q08",
+      "text": "Is administrative or production-data privilege held on a standing basis, or requested and time-bounded at the point of use?",
+      "intent": "Distinguish standing privilege from just-in-time elevation, which is the single largest differentiator in CC6.3 risk.",
+      "answer_type": "single_select",
+      "options": [
+        "Just-in-time only, time-bounded and logged",
+        "Mostly just-in-time, with documented standing exceptions",
+        "Standing privilege, restricted and reviewed",
+        "Standing privilege, not systematically reviewed"
+      ],
+      "related_controls": [
+        "SOC2-CC6.3-002"
+      ],
+      "related_criteria": [
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-003"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer == 'Standing privilege, not systematically reviewed'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Standing privilege, not systematically reviewed"
+          },
+          "indicates_finding": "FND-ACCESS-005",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer == 'Standing privilege, restricted and reviewed'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Standing privilege, restricted and reviewed"
+          },
+          "indicates_finding": "FND-ACCESS-005",
+          "severity": "low",
+          "confidence": "low"
+        }
+      ],
+      "required": true,
+      "guidance": "Standing privilege is not itself a deficiency. Narrow, attributable, reviewed standing privilege can meet the objective; the risk is standing privilege nobody is watching."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q09",
+      "text": "Which storage holding protected information is encrypted at rest, and who can both read that data and administer the encryption keys?",
+      "intent": "Establish encryption coverage including backups, and whether key custody is separated from data access, which determines what the control actually mitigates.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.1-002"
+      ],
+      "related_criteria": [
+        "CC6.1"
+      ],
+      "expected_evidence": [
+        "EV-CRYPTO-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer omits backups, snapshots, or replicas",
+          "semantic_condition_id": "SEMCOND-0001",
+          "indicates_finding": "FND-CRYPTO-001",
+          "severity": "high",
+          "confidence": "medium"
+        },
+        {
+          "condition": "answer indicates the same principals hold key administration and routine data access",
+          "indicates_finding": "FND-CRYPTO-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "Provider-managed keys are a legitimate choice. The question is whether the choice is deliberate and whether key access is appropriately narrow."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q10",
+      "text": "Are any accounts shared between individuals, or used generically, such that an action cannot be attributed to one person?",
+      "intent": "Surface attribution gaps, which undermine every access control that depends on knowing who did something.",
+      "answer_type": "single_select",
+      "options": [
+        "No shared or generic accounts",
+        "Shared accounts exist, individually attributable through a vault or bastion",
+        "Shared accounts exist without individual attribution",
+        "Not known"
+      ],
+      "related_controls": [
+        "SOC2-CC6.3-002"
+      ],
+      "related_criteria": [
+        "CC6.1",
+        "CC6.3"
+      ],
+      "expected_evidence": [
+        "EV-ACCESS-003"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer == 'Shared accounts exist without individual attribution'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Shared accounts exist without individual attribution"
+          },
+          "indicates_finding": "FND-IAM-002",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer == 'Not known'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "Not known"
+          },
+          "indicates_finding": "FND-IAM-002",
+          "severity": "medium",
+          "confidence": "low"
+        }
+      ],
+      "required": true,
+      "guidance": "A shared account fronted by a credential vault that records which individual checked it out is attributable and is a materially different situation from a password in a team document."
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q11",
+      "text": "How do you demonstrate that a security-relevant configuration, such as the authentication policy or encryption settings, remained in place for the whole examination period rather than only on the date it was captured?",
+      "intent": "Establish whether point-in-time configuration evidence is paired with period evidence, which is the most common Type 2 evidence design error.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.1-001",
+        "SOC2-CC6.1-002"
+      ],
+      "related_criteria": [
+        "CC6.1"
+      ],
+      "expected_evidence": [
+        "EV-CONFIG-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer relies on a single configuration capture with no change history or repeated snapshots",
+          "indicates_finding": "FND-NETSEC-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": false,
+      "guidance": "This question is only material for a Type 2 examination. For a Type 1, point-in-time configuration state is sufficient and no gap should be raised."
+    }
+  ],
+  "scoring_model": {
+    "method": "criterion_coverage",
+    "description": "Answers are aggregated per criterion. A criterion is marked 'evidence needed' where a gap signal fires, and 'covered' only where the answer is corroborated by evidence that passes its validation rules.",
+    "disclaimer": "This score is a DriftGuard readiness signal only. It is not an audit conclusion, not an opinion on control effectiveness, and carries no assurance. Only an independent service auditor can conclude on whether criteria were met."
+  },
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.4.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "gap_signal conditions are expressed in prose in this foundation phase. Formalising them into an evaluable expression grammar is deferred; the evaluation engine is out of scope for this phase.",
+    "Extended in the CC6 phase with Q07-Q11 covering provisioning authorization, privileged access, encryption at rest, account attribution, and period coverage of configuration evidence. Existing question IDs and wording are unchanged.",
+    "gap_signal conditions migrated to grammar 1.0.0. Conditions on enumerated answer types carry a machine-readable condition_expr; conditions on free-text answers retain prose only, because evaluating them requires semantic judgement that a deterministic grammar cannot express. The prose `condition` is unchanged in every case.",
+    "QN-ACCESS-001-Q09 gap signal linked to SEMCOND-0001 as a representative semantic-condition decomposition. The prose condition is unchanged and no other condition in this record was modified."
+  ],
+  "gap_signal_grammar_version": "1.0.0"
+}

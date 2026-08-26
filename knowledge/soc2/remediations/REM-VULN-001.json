@@ -1,0 +1,102 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-VULN-001",
+  "name": "Enforce remediation timeframes with inventory-driven scope and governed risk acceptance",
+  "description": "Drive scan scope from the authoritative asset inventory, put an SLA clock on every finding, and give overruns a formal, authorised, time-bounded risk acceptance path instead of leaving them open.",
+  "domain": "vulnerability_management",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "Security Engineering",
+  "addresses_findings": [
+    "FND-VULN-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.1-001"
+  ],
+  "affected_criteria": [
+    "CC7.1",
+    "CC7.2"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Make the asset inventory authoritative for scan scope, and reconcile scanned assets against it after every scan.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-VULN-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Extend coverage to container images and third-party dependencies, not only hosts.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Auto-create a tracked work item per finding, carrying a due date derived from the policy timeframe for its severity.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-VULN-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Alert on approaching and breached due dates so overruns surface before period end rather than during fieldwork.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Implement a risk acceptance workflow requiring a named authoriser, a documented rationale, a compensating control, and a mandatory expiry date.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 6,
+      "action": "Verify remediation by rescan rather than by ticket closure.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-VULN-001"
+      ]
+    },
+    {
+      "step": 7,
+      "action": "Recalibrate the policy timeframes against what the organization actually achieves; unrealistic published timeframes manufacture exceptions.",
+      "owner_role": "CISO or equivalent"
+    }
+  ],
+  "implementation_considerations": [
+    "Recalibrating published timeframes is politically harder than tightening tooling, but it is often the change that removes the exceptions.",
+    "Ephemeral infrastructure needs continuous discovery rather than scheduled scans; scheduled scanning alone will keep producing coverage gaps."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks for tooling and workflow; one full cycle to demonstrate adherence.",
+  "prerequisites": [
+    "A maintained asset inventory",
+    "A scanner able to cover the asset classes in the boundary"
+  ],
+  "verification_method": {
+    "how": "For a completed period, confirm every scan reconciles to the inventory, every finding has a due date derived from its severity, and every overrun carries an authorised time-bounded risk acceptance.",
+    "verifying_evidence": [
+      "EV-VULN-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [],
+  "residual_risk_note": "Ephemeral and auto-scaled assets can appear and disappear between scans; inventory-driven scope reduces but does not eliminate blind spots without continuous discovery.",
+  "period_limitation_note": "Remediating an overdue vulnerability now does not remove the overrun that occurred during an elapsed examination period.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Step 7 is deliberate: DriftGuard should not recommend the shortest possible timeframes, because the organization is measured against whatever it publishes.",
+    "Backfilled with responsible_role and implementation_considerations in the CC6 phase (schema 0.2.0)."
+  ]
+}

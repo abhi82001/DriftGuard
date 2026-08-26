@@ -1,0 +1,178 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ASSET-001",
+  "name": "Media Sanitization and Asset Disposal Record",
+  "description": "Per-asset record showing that data on an asset was rendered unreadable before protections over that asset were discontinued, together with the disposal route and any third-party destruction certificate.",
+  "domain": "asset_management",
+  "evidence_type": "signed_document",
+  "evidence_role": "operational",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Asset identifier such as serial or asset tag, matching the asset inventory",
+      "required": true,
+      "why": "Without it the record cannot be reconciled to the assets that actually left the entity's control."
+    },
+    {
+      "element": "Sanitization method applied, and why it suits the media type",
+      "required": true,
+      "why": "Overwriting, degaussing, physical destruction, and cryptographic erasure are not interchangeable."
+    },
+    {
+      "element": "Date performed and the person or vendor who performed it",
+      "required": true,
+      "why": "Attribution and sequence relative to the asset leaving the entity's control."
+    },
+    {
+      "element": "Disposal route: destroyed, returned to lessor, resold, transferred, or retained",
+      "required": true,
+      "why": "Each route carries a different residual risk and a different evidence expectation."
+    },
+    {
+      "element": "Itemised certificate of destruction where a third party performed it",
+      "required": true,
+      "why": "A certificate that does not identify the assets cannot be reconciled to what was sent."
+    },
+    {
+      "element": "Where cryptographic erasure was relied on, evidence that the key was destroyed",
+      "required": true,
+      "why": "Cryptographic erasure without evidenced key destruction is an assertion, not a control."
+    },
+    {
+      "element": "Asset inventory entry closed with a disposal status",
+      "required": true,
+      "why": "An asset that simply disappears from the inventory leaves no trail either way."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.5-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.5"
+  ],
+  "collection_frequency": "event_driven",
+  "owner": "IT Operations",
+  "source_system_examples": [
+    "Asset management system disposal records",
+    "Third-party destruction vendor certificates",
+    "Endpoint management wipe confirmation",
+    "Key management service key destruction log"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 400,
+    "basis": "event_bound",
+    "rationale": "Disposal is event-bound and assessed against the population of assets that left the inventory during the period. The value shown is a retention floor, not a staleness threshold."
+  },
+  "sensitivity": "internal",
+  "redaction_guidance": [
+    "Serial numbers are needed for reconciliation and should be retained rather than redacted.",
+    "Vendor certificates occasionally carry customer names; redact commercial detail, not asset identifiers."
+  ],
+  "retention_guidance": "Retain for the examination period plus the following period so that disposals near the period boundary remain testable.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "Sanitization records exist for assets that left the inventory during the period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ASSET-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Every inventory departure reconciles to a sanitization or destruction record.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ASSET-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "relevance",
+      "rule": "The sanitization method is appropriate to the media type recorded.",
+      "check_type": "human_review",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ASSET-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "Third-party certificates itemise the assets and reconcile to what was sent.",
+      "check_type": "llm_assisted",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ASSET-001"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "Records originate from the tool performing the wipe or from the vendor, not from a maintained log alone.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "timeliness",
+      "rule": "Sanitization preceded the asset leaving the entity's control.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ASSET-001"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Assets are wiped correctly but no per-asset record is kept.",
+      "impact": "The control may be operating; it cannot be demonstrated, which is a different problem from it not operating.",
+      "related_finding": "FND-ASSET-001"
+    },
+    {
+      "issue": "Vendor certificate states a quantity but no serial numbers.",
+      "impact": "Cannot confirm the assets sent are the assets destroyed.",
+      "related_finding": "FND-ASSET-001"
+    },
+    {
+      "issue": "Leased equipment returned without sanitization because disposal process covers owned assets only.",
+      "impact": "An entire departure route is uncontrolled.",
+      "related_finding": "FND-ASSET-001"
+    },
+    {
+      "issue": "Cryptographic erasure claimed with no key destruction evidence.",
+      "impact": "Data remains recoverable to anyone retaining the key."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Absence of this record is missing evidence, not a demonstrated control failure. DriftGuard must request it before drawing any conclusion about whether sanitization occurred."
+  ]
+}

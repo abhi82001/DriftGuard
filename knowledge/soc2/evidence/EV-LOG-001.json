@@ -1,0 +1,165 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-LOG-001",
+  "name": "Security Log Source Coverage and Retention Configuration",
+  "description": "Which in-scope components send security-relevant logs to the central store, how long those logs are retained, and what protects them from alteration.",
+  "domain": "security_operations",
+  "evidence_type": "configuration_export",
+  "evidence_role": "configuration",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "point_in_time",
+  "type2_pairing_requirement": [
+    "EV-CONFIG-001"
+  ],
+  "expected_content": [
+    {
+      "element": "List of log sources actively forwarding, with last-received time per source",
+      "required": true,
+      "why": "A configured source that stopped forwarding is functionally absent, and only last-received time distinguishes them."
+    },
+    {
+      "element": "Authoritative asset inventory for the same date, reconciled against the source list",
+      "required": true,
+      "why": "The platform's own source list always looks complete; the inventory is the only honest denominator."
+    },
+    {
+      "element": "Retention period configured per source or index",
+      "required": true,
+      "why": "Retention shorter than the examination period leaves an interval that cannot be evidenced at all."
+    },
+    {
+      "element": "Log integrity or immutability configuration, where implemented",
+      "required": false,
+      "why": "Determines whether records of an incident could be altered by the access that caused it."
+    },
+    {
+      "element": "Coverage of identity, infrastructure, application, and endpoint sources",
+      "required": true,
+      "why": "Partial-domain coverage is common and produces monitoring blind to whole classes of activity."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC7.2-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC7.2"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Security Engineering",
+  "source_system_examples": [
+    "SIEM data source and index configuration",
+    "Cloud provider log routing configuration",
+    "Log aggregation agent inventory"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously enforced configuration. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Source names may identify systems; retain enough to reconcile to the inventory.",
+    "Do not include log contents in a coverage artifact."
+  ],
+  "retention_guidance": "Capture on a schedule and retain dated snapshots alongside EV-CONFIG-001, since this is point-in-time evidence.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A log source and retention configuration export exists.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-LOG-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Forwarding sources reconcile to the authoritative asset inventory for the same date.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-LOG-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "timeliness",
+      "rule": "Configured retention is at least as long as the examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-LOG-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "For a Type 2 conclusion the export is paired with EV-CONFIG-001 covering the period.",
+      "check_type": "heuristic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "The export comes from the logging platform's API rather than a maintained list.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "relevance",
+      "rule": "Log integrity protection is described where the entity claims it.",
+      "check_type": "human_review",
+      "failure_severity": "low",
+      "failure_finding": "FND-LOG-002"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Sources configured but silently stopped forwarding mid-period.",
+      "impact": "Monitoring appears complete while an interval has no telemetry at all.",
+      "related_finding": "FND-LOG-001"
+    },
+    {
+      "issue": "Retention set to a platform default shorter than the examination period.",
+      "impact": "Early months of the period cannot be evidenced regardless of what was collected.",
+      "related_finding": "FND-LOG-001"
+    },
+    {
+      "issue": "Coverage limited to infrastructure, with identity and application sources absent.",
+      "impact": "Whole classes of activity are outside detection.",
+      "related_finding": "FND-LOG-001"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criteria name no retention period. Adequacy is assessed against the entity's own examination period, not an external benchmark."
+  ]
+}

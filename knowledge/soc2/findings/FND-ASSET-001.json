@@ -1,0 +1,140 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ASSET-001",
+  "name": "No record of media sanitization before assets left the entity's control",
+  "description": "Assets that held protected information left the entity's control \u2014 destroyed, returned to a lessor, resold, or transferred \u2014 with no per-asset record showing that the data was rendered unrecoverable first. The sanitization may well have occurred; what is absent is the ability to demonstrate it.",
+  "domain": "asset_management",
+  "finding_category": "evidence_deficiency",
+  "observation_class": "missing_evidence",
+  "conclusion_rules": {
+    "may_assert": [
+      "That assets departed the inventory during the period with no corresponding sanitization record, where the inventory and sanitization records have both been supplied.",
+      "That third-party destruction certificates do not itemise assets and so cannot be reconciled to what was sent."
+    ],
+    "must_not_assert": [
+      "That data left the entity in a recoverable state. Absence of a record is not evidence that sanitization did not occur.",
+      "That any specific sanitization standard is required by SOC 2. None is prescribed; the criterion concerns the objective."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Evidence positively shows an asset left the entity's control without sanitization, such as a return receipt predating any wipe record."
+      },
+      {
+        "observation_class": "control_design_gap",
+        "when": "The process has no step that would produce a record for a whole departure route, such as lease returns, making the absence structural."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.5"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.5-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "Whether protections were discontinued only after data became unrecoverable cannot be determined.",
+    "pervasiveness": "A single untracked laptop differs from an entire lease-return route with no sanitization step.",
+    "compensating_controls": [
+      "SOC2-CC6.1-002"
+    ],
+    "detectability": "Detectable by reconciling inventory departures against sanitization records; entirely invisible where the inventory does not record departures.",
+    "escalates_when": [
+      "The asset held unencrypted protected information",
+      "A whole departure route has no sanitization step at all",
+      "The asset was resold or transferred to a third party rather than destroyed"
+    ],
+    "de_escalates_when": [
+      "Full-disk encryption was in force and the key was destroyed, with that destruction evidenced",
+      "The asset never held protected information",
+      "The asset was physically destroyed under an itemised certificate"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Assets absent from the current inventory with no disposal or sanitization record.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ASSET-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Destruction certificate states a quantity without asset identifiers.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ASSET-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Cryptographic erasure relied on with no key destruction evidence.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ASSET-001",
+        "EV-CRYPTO-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes no per-asset record, or a process covering destruction only.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-PHYSEC-001-Q04",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent relies on cryptographic erasure without evidencing key destruction.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-PHYSEC-001-Q05",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample assets that left the inventory and request the sanitization record for each. Where no record exists, the usual outcome is a request for evidence rather than an immediate exception; a sustained inability to produce it is what becomes reportable.",
+  "customer_impact": "It cannot be established whether equipment holding the customer's data was cleared before leaving the vendor's control.",
+  "remediations": [
+    "REM-ASSET-001"
+  ],
+  "false_positive_guidance": [
+    "Classified as missing evidence, not a control failure. The absence of a record is not evidence that sanitization did not happen, and DriftGuard must request the record before drawing any stronger conclusion.",
+    "Not a gap where the asset never held protected information; confirm classification before concluding.",
+    "Not a gap where full-disk encryption was in force and key destruction is evidenced; cryptographic erasure is a legitimate method.",
+    "Not a gap where the asset remains in the entity's control and was merely reassigned internally.",
+    "Cloud storage decommissioning is evidenced differently. Do not expect a physical destruction certificate for a deleted storage bucket."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.5",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-PHYSEC-002",
+  "name": "Subservice Organization Assurance Report",
+  "description": "The attestation report obtained from a subservice organization whose controls the entity depends on, together with the entity's record of having reviewed it and assessed the complementary controls it expects the entity to implement.",
+  "domain": "third_party_risk",
+  "evidence_type": "third_party_report",
+  "evidence_role": "third_party_assurance",
+  "origin": "human_generated",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "The report itself, identifying the service organization, system, and trust services categories in scope",
+      "required": true,
+      "why": "Establishes what the report actually covers, which is frequently narrower than assumed."
+    },
+    {
+      "element": "Report type and the period or as-of date covered",
+      "required": true,
+      "why": "A Type 1 provides no operating-effectiveness assurance, and the period determines whether coverage gaps exist."
+    },
+    {
+      "element": "The opinion, and any exceptions reported in the tests-of-controls section",
+      "required": true,
+      "why": "An unqualified opinion does not mean zero exceptions; the exceptions matter to the depending entity."
+    },
+    {
+      "element": "Complementary user entity controls listed in the report",
+      "required": true,
+      "why": "These are obligations transferred to the entity and are the primary reason to read the report at all."
+    },
+    {
+      "element": "The entity's assessment mapping each complementary user entity control to one of its own controls",
+      "required": true,
+      "why": "Obtaining the report is not the control; assessing and acting on it is."
+    },
+    {
+      "element": "Identification of any further subservice organizations carved out of that report",
+      "required": true,
+      "why": "Carve-outs chain, and a downstream carve-out leaves an assurance gap the entity has not seen."
+    },
+    {
+      "element": "Coverage assessment for any interval between the report period end and the entity's own period end",
+      "required": false,
+      "why": "Gaps are common and are addressed by a bridge letter, which carries no assurance and must be labelled as such."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.4-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.4"
+  ],
+  "collection_frequency": "annual",
+  "owner": "Vendor Risk or Compliance owner",
+  "source_system_examples": [
+    "Subservice organization SOC 2 Type 2 report",
+    "Cloud provider compliance portal report download",
+    "Vendor risk management platform record"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 400,
+    "basis": "period_bound",
+    "rationale": "DriftGuard default reflecting an annual report cycle plus a grace interval. The operative question is whether the report period covers the entity's own period, not the report's age."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Subservice organization reports are usually restricted-use and confidential to the recipient. Do not redistribute; store access-controlled.",
+    "Do not extract and republish the provider's control descriptions into customer-facing DriftGuard output."
+  ],
+  "retention_guidance": "Retain each annual report so that consecutive periods can be shown to be covered without gaps.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A current assurance report exists for each subservice organization the entity depends on for an in-scope criterion.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-PHYSEC-002"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "timeliness",
+      "rule": "The report period covers the entity's examination period, with any gap identified.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-PHYSEC-002"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Every complementary user entity control is mapped to one of the entity's own controls or explicitly assessed as not applicable.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-PHYSEC-002"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "relevance",
+      "rule": "The report's scope includes the services and criteria the entity is relying on it for.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-PHYSEC-002"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "completeness",
+      "rule": "Exceptions in the report's tests-of-controls section have been read and their relevance assessed.",
+      "check_type": "human_review",
+      "failure_severity": "medium",
+      "failure_finding": "FND-PHYSEC-002"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The report is the signed practitioner report, not a marketing summary or a compliance badge.",
+      "check_type": "human_review",
+      "failure_severity": "high"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Report collected and filed but never read; complementary user entity controls unmapped.",
+      "impact": "Obligations transferred to the entity were never assumed by anyone.",
+      "related_finding": "FND-PHYSEC-002"
+    },
+    {
+      "issue": "Report scope covers different services or regions than the ones actually used.",
+      "impact": "Reliance is placed on assurance that does not cover the dependency.",
+      "related_finding": "FND-PHYSEC-002"
+    },
+    {
+      "issue": "Report period ends months before the entity's period, with a bridge letter offered as coverage.",
+      "impact": "A bridge letter is unaudited management representation and provides no assurance for the gap.",
+      "related_finding": "FND-PHYSEC-002"
+    },
+    {
+      "issue": "A public compliance badge or certification page is supplied instead of the report.",
+      "impact": "No practitioner opinion, no scope, no exceptions; nothing that can be assessed."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Classified origin=human_generated because from the entity's perspective the artifact is a document received, not a system record it can regenerate. Its persuasiveness comes from the independent practitioner behind it, which is captured in evidence_role rather than origin.",
+    "Generic enough to be reused for subservice organizations supporting criteria beyond CC6.4. It is scoped to CC6.4 here because that is the CC6 dependency; extend applicable_controls rather than creating a second record when later slices need it."
+  ]
+}

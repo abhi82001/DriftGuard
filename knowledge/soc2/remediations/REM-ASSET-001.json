@@ -1,0 +1,105 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ASSET-001",
+  "name": "Make media sanitization evidenced per asset across every departure route",
+  "description": "Close the evidence gap by recording sanitization against the asset identifier for every route by which an asset can leave the entity's control, and by requiring itemised certificates where a third party performs destruction.",
+  "domain": "asset_management",
+  "remediation_type": "improve_evidence",
+  "durability": "structural",
+  "responsible_role": "IT Operations, with Security accountable for the sanitization standard",
+  "addresses_findings": [
+    "FND-ASSET-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.5-001"
+  ],
+  "affected_criteria": [
+    "CC6.5"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enumerate every route by which an asset can leave the entity's control: destruction, lease return, resale, transfer, and loss.",
+      "owner_role": "IT Operations"
+    },
+    {
+      "step": 2,
+      "action": "Define the sanitization method for each media type and record the basis for each choice.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Require a per-asset record capturing identifier, method, date, and performer, produced by the tool performing the wipe wherever possible.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ASSET-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Require itemised certificates from destruction vendors and reconcile them against the assets sent.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ASSET-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Where cryptographic erasure is relied on, evidence key destruction from the key management service.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ASSET-001",
+        "EV-CRYPTO-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Close the asset inventory record with a disposal status, so departures are traceable rather than inferred from absence.",
+      "owner_role": "IT Operations"
+    },
+    {
+      "step": 7,
+      "action": "Reconcile inventory departures against sanitization records periodically, so gaps surface before fieldwork.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ASSET-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Lease returns are usually the uncontrolled route, because they are handled by whoever manages the office rather than by IT. Fixing ownership matters more than fixing process.",
+    "Endpoint management tooling can produce a wipe confirmation automatically, which is far stronger and cheaper than a manually maintained log. Prefer it where the fleet is managed.",
+    "Cryptographic erasure is legitimate and often the only option for cloud storage, but it is only evidenced where key destruction is itself logged.",
+    "Backfilling records for assets already disposed of is not possible and should not be attempted; start the record from a stated date."
+  ],
+  "effort": "low",
+  "typical_duration": "Weeks, dominated by agreeing ownership of the non-destruction departure routes.",
+  "prerequisites": [
+    "An asset inventory that records departures",
+    "Endpoint management tooling capable of confirming a wipe, where a fleet is managed"
+  ],
+  "verification_method": {
+    "how": "Reconcile assets that left the inventory since the change against sanitization records, confirming each has an identifier, method, date, and performer, and that vendor certificates itemise the assets.",
+    "verifying_evidence": [
+      "EV-ASSET-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Lost or stolen assets leave no sanitization path at all; remote wipe and encryption are what bound that exposure, not disposal process.",
+  "period_limitation_note": "Records cannot be created retrospectively for assets already disposed of. Where evidence is absent for an elapsed period, this remediation establishes the record going forward and does not resolve the earlier gap.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "This addresses a missing-evidence observation. The underlying sanitization may well have been performed correctly; what is being remediated is the inability to demonstrate it."
+  ]
+}

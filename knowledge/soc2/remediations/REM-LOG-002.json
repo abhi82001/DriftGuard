@@ -1,0 +1,86 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-LOG-002",
+  "name": "Protect log integrity or document the accepted position",
+  "description": "Place security logs beyond the reach of administrators of the systems they record, or record a reasoned decision that the entity's threat model does not warrant it.",
+  "domain": "security_operations",
+  "remediation_type": "implement_control",
+  "durability": "structural",
+  "responsible_role": "Security Engineering",
+  "addresses_findings": [
+    "FND-LOG-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.2-001"
+  ],
+  "affected_criteria": [
+    "CC7.2"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Identify who can delete or alter log data, and whether that overlaps with administrators of the monitored systems.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-LOG-001",
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Forward logs to a separate account, project, or tenant those administrators cannot reach.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-LOG-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Enforce retention through a platform lifecycle policy that cannot be shortened locally.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 4,
+      "action": "Where separation is impractical, record the accepted position with its rationale and an expiry for review.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 5,
+      "action": "Align the logging policy with whichever position was taken, so the document does not claim protection the deployment lacks.",
+      "owner_role": "Compliance owner"
+    }
+  ],
+  "implementation_considerations": [
+    "Architectural separation via a dedicated logging account is usually cheaper and stronger than immutability features, and is available on every major platform.",
+    "Small teams often cannot separate these duties at all. A documented accepted position is a legitimate outcome and better than a policy claim the deployment does not support."
+  ],
+  "effort": "low",
+  "typical_duration": "Days to weeks, depending on whether log routing must be rebuilt.",
+  "prerequisites": [
+    "Visibility of who holds delete rights over the log store"
+  ],
+  "verification_method": {
+    "how": "Confirm that principals administering monitored systems cannot delete or alter the corresponding logs, or that an authorised, time-bounded accepted position is on record.",
+    "verifying_evidence": [
+      "EV-LOG-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Separation bounds tampering by system administrators; it does not protect against compromise of the logging platform itself.",
+  "period_limitation_note": "Protecting logs now says nothing about the integrity of logs already collected during an elapsed period.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Log immutability is named nowhere in the criteria. This is a DriftGuard recommendation, and a documented accepted position closes the observation."
+  ]
+}

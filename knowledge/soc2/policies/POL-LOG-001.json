@@ -1,0 +1,151 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-LOG-001",
+  "name": "Logging and Security Monitoring Policy",
+  "description": "Defines which components must produce security-relevant logs, where those logs go, how long they are kept, how they are protected, and how alerts arising from them are analysed.",
+  "domain": "security_operations",
+  "policy_type": "policy",
+  "purpose": "Establish the coverage, retention, and analysis commitments that the monitoring control is measured against, since none of them are prescribed externally.",
+  "scope_guidance": "Should cover identity, infrastructure, application, and endpoint log sources within the system boundary, and state the retention period explicitly.",
+  "supported_controls": [
+    "SOC2-CC7.2-001",
+    "SOC2-CC7.1-002"
+  ],
+  "supported_criteria": [
+    "CC7.1",
+    "CC7.2"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Log sources required by component type, referenced to the authoritative asset inventory",
+      "necessity": "expected",
+      "rationale": "Coverage cannot be assessed against an undefined source list, and the inventory is the only honest denominator.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Retention period, stated as at least the examination period",
+      "necessity": "expected",
+      "rationale": "Retention shorter than the period leaves an interval that cannot be evidenced whatever was collected.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Log integrity or immutability expectations",
+      "necessity": "recommended",
+      "rationale": "Determines whether an attacker with system access could alter the record of their own activity.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Named responder and analysis timeframe by alert severity",
+      "necessity": "expected",
+      "rationale": "This becomes the commitment against which analysis timeliness is assessed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Requirement to record a disposition and its basis for every alert",
+      "necessity": "expected",
+      "rationale": "Distinguishes informed suppression from alerts nobody examined.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Criteria distinguishing an anomaly from a security event",
+      "necessity": "expected",
+      "rationale": "Defines the handoff into incident evaluation; without it the boundary is improvised.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Access restrictions on the log store",
+      "necessity": "recommended",
+      "rationale": "Log data is frequently more sensitive than the systems producing it.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-LOG-001"
+    ]
+  },
+  "communication_expectation": "Communicated to engineering teams who own log-producing components and to whoever staffs alert response.",
+  "common_gaps": [
+    "Retention set to a platform default shorter than the examination period.",
+    "Source coverage stated generically rather than against the asset inventory.",
+    "Analysis timeframe defined with no named responder, so nobody owns it.",
+    "No stated criteria for when an anomaly becomes a security event."
+  ],
+  "related_policies": [
+    "POL-INCIDENT-001",
+    "POL-ENDPOINT-001",
+    "POL-NETSEC-001"
+  ],
+  "evidence_examples": [
+    "EV-LOG-001",
+    "EV-MONITOR-001"
+  ],
+  "common_findings": [
+    "FND-LOG-001",
+    "FND-LOG-002",
+    "FND-MONITOR-001"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.1, CC7.2",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "SOC 2 prescribes no retention period, log source list, or detection rule set. 'expected' means DriftGuard expects the element in a policy intended to support these controls."
+  ]
+}

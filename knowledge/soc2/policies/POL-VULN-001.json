@@ -1,0 +1,53 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-VULN-001",
+  "name": "Vulnerability Management Policy",
+  "description": "Defines how vulnerabilities are identified across the environment, how they are ranked, the timeframes within which they must be resolved, and how exceptions to those timeframes are authorised.",
+  "domain": "vulnerability_management",
+  "policy_type": "policy",
+  "purpose": "Establish the organization's own remediation commitments, which become the benchmark against which the operating effectiveness of the vulnerability control is judged.",
+  "scope_guidance": "Should cover hosts, containers, application dependencies, and cloud configuration within the declared system boundary, and state how scan scope is kept aligned to the asset inventory.",
+  "supported_controls": ["SOC2-CC7.1-001"],
+  "supported_criteria": ["CC7.1", "CC7.2"],
+  "required_elements": [
+    { "element_id": "PE-001", "element": "Scope of assets subject to vulnerability identification, and the authoritative inventory that defines it", "necessity": "expected", "rationale": "Scan coverage cannot be assessed without a stated authoritative scope.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-002", "element": "Identification methods and cadence for each asset class", "necessity": "expected", "rationale": "Cadence is what scan-gap testing is measured against.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-003", "element": "Severity ranking method", "necessity": "expected", "rationale": "Determines which remediation timeframe applies to each finding.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-004", "element": "Remediation timeframes by severity", "necessity": "expected", "rationale": "These are the commitments the organization will be held to; without them, timeliness is untestable.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-005", "element": "Risk acceptance process: who may authorise, what must be recorded, and mandatory expiry", "necessity": "expected", "rationale": "Converts an overdue vulnerability from a deficiency into a governed decision.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-006", "element": "Verification that remediation was effective, such as rescan confirmation", "necessity": "recommended", "rationale": "Ticket closure alone does not demonstrate the vulnerability was resolved.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-007", "element": "Emergency or zero-day handling path outside the normal cadence", "necessity": "recommended", "rationale": "Without one, urgent action happens off-process and is unevidenced.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-008", "element": "Named policy owner, approval record, and review cadence", "necessity": "expected", "rationale": "An unapproved or undated policy is treated as a documentation deficiency.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": ["EV-VULN-001"]
+  },
+  "communication_expectation": "Communicated to engineering and operations teams who own remediation, since they carry the timeframes in practice.",
+  "common_gaps": [
+    "Remediation timeframes stated but not enforced or tracked anywhere.",
+    "Policy timeframes materially shorter than what the organization actually achieves, creating self-inflicted exceptions.",
+    "No risk acceptance path, so overdue items simply remain open.",
+    "Scope silent on container images and third-party dependencies."
+  ],
+  "related_policies": ["POL-ACCESS-001"],
+  "evidence_examples": ["EV-VULN-001"],
+  "common_findings": ["FND-VULN-001"],
+  "sources": ["SRC-AICPA-TSC-2017-R2022", "SRC-DG-AUDITOR-PRACTICE", "SRC-DG-BEST-PRACTICE"],
+  "source_refs": [
+    { "source_id": "SRC-AICPA-TSC-2017-R2022", "locator": "TSC CC7.1", "authority_tier": 1, "supports": "The criterion this policy's control contributes to.", "verification_status": "verified" },
+    { "source_id": "SRC-DG-AUDITOR-PRACTICE", "authority_tier": 4, "supports": "The observation that self-defined timeframes become the testing benchmark.", "verification_status": "interpretation" }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-11",
+  "notes": [
+    "No SOC 2 criterion specifies remediation timeframes. Setting aggressive timeframes the organization cannot meet manufactures exceptions; DriftGuard should surface that trade-off rather than recommend the shortest window."
+  ]
+}

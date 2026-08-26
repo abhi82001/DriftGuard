@@ -1,0 +1,180 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-CRYPTO-001",
+  "name": "Encryption at Rest and Key Management Configuration",
+  "description": "The declared encryption state of in-scope storage together with the key management configuration governing who can use and administer the keys.",
+  "domain": "cryptography",
+  "evidence_type": "configuration_export",
+  "evidence_role": "configuration",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "point_in_time",
+  "type2_pairing_requirement": [
+    "EV-CONFIG-001"
+  ],
+  "expected_content": [
+    {
+      "element": "Per-resource encryption status across every in-scope storage class",
+      "required": true,
+      "why": "Coverage is the substance of the control; a single compliant datastore says nothing about the estate."
+    },
+    {
+      "element": "Explicit inclusion of backups, snapshots, replicas, and log archives",
+      "required": true,
+      "why": "These are the objects most often left unencrypted while primary storage is compliant."
+    },
+    {
+      "element": "Algorithm and key length in use",
+      "required": true,
+      "why": "Encryption enabled with a deprecated algorithm does not meet the objective the control claims."
+    },
+    {
+      "element": "Key management configuration: provider-managed or customer-managed, and where keys reside",
+      "required": true,
+      "why": "Determines what the control actually mitigates."
+    },
+    {
+      "element": "Principals able to use keys and principals able to administer them, listed separately",
+      "required": true,
+      "why": "Encryption provides no separation if the population that reads data also controls the keys."
+    },
+    {
+      "element": "Rotation configuration and the date of last rotation",
+      "required": false,
+      "why": "Supports the rotation element of the control where one is claimed."
+    },
+    {
+      "element": "Organisation-level enforcement policy preventing creation of unencrypted storage",
+      "required": false,
+      "why": "Distinguishes an enforced default from a convention that new resources may not follow."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.1-002",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.5-001",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.1",
+    "CC6.5",
+    "CC6.7"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Platform Engineering",
+  "source_system_examples": [
+    "Cloud provider storage configuration API",
+    "Key management service policy export",
+    "Cloud security posture management encryption report",
+    "Infrastructure-as-code definitions"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously enforced configuration. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Never include key material, key export blobs, or recovery values.",
+    "Key identifiers and policy documents are safe to include and are what the artifact needs."
+  ],
+  "retention_guidance": "Capture on a schedule and retain each dated snapshot alongside EV-CONFIG-001; a single snapshot cannot evidence a period.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "An encryption configuration export exists covering in-scope storage.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-CRYPTO-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Every storage resource holding protected information appears, including backups, snapshots, and replicas.",
+      "check_type": "heuristic",
+      "failure_severity": "critical",
+      "failure_finding": "FND-CRYPTO-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Key use and key administration principals are separately identifiable.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-CRYPTO-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "For a Type 2 conclusion the export is paired with EV-CONFIG-001 covering the period.",
+      "check_type": "heuristic",
+      "failure_severity": "high"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "timeliness",
+      "rule": "The export is dated within the examination period or the freshness window.",
+      "check_type": "deterministic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The artifact is an API export identifying the account or project, not a console screenshot.",
+      "check_type": "human_review",
+      "failure_severity": "low"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Primary datastore encrypted while backups and snapshots are not.",
+      "impact": "The most portable copy of the data is the unprotected one.",
+      "related_finding": "FND-CRYPTO-001"
+    },
+    {
+      "issue": "Key administration and application data access held by the same principal.",
+      "impact": "Encryption provides no separation from an application-layer compromise.",
+      "related_finding": "FND-CRYPTO-001"
+    },
+    {
+      "issue": "Single export presented as evidence for a twelve-month period.",
+      "impact": "Point-in-time state cannot support an operating-effectiveness conclusion."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Provider-managed keys are not a deficiency. DriftGuard assesses whether the choice is documented and whether key access is appropriately restricted, not which option was chosen."
+  ]
+}

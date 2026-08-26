@@ -1,0 +1,159 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-CRYPTO-001",
+  "name": "Cryptography and Key Management Policy",
+  "description": "Defines where cryptography is applied, which algorithms and key lengths are acceptable, and how cryptographic keys are generated, stored, used, rotated, and destroyed.",
+  "domain": "cryptography",
+  "policy_type": "policy",
+  "purpose": "Establish the entity's own cryptographic standard, which becomes the benchmark against which its encryption controls are assessed for both design and operation.",
+  "scope_guidance": "Should cover data at rest, data in transit, and key custody across every environment within the system boundary, including backups and non-production environments holding production-derived data.",
+  "supported_controls": [
+    "SOC2-CC6.1-002",
+    "SOC2-CC6.7-001"
+  ],
+  "supported_criteria": [
+    "CC6.1",
+    "CC6.5",
+    "CC6.7"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Approved algorithms, key lengths, and minimum transport protocol versions",
+      "necessity": "expected",
+      "rationale": "These are the standard the deployed configuration is measured against; without them adherence is untestable.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Where encryption at rest is required, by data classification or storage class",
+      "necessity": "expected",
+      "rationale": "Determines the coverage the control is expected to achieve.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Key custody model: provider-managed or customer-managed, and the basis for the choice",
+      "necessity": "expected",
+      "rationale": "Both are defensible; an undocumented choice cannot be assessed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Separation of key administration from key use, and who holds each",
+      "necessity": "expected",
+      "rationale": "Encryption provides no separation where the same principals hold both.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Key rotation cadence and the handling of rotation exceptions",
+      "necessity": "expected",
+      "rationale": "A stated cadence becomes a commitment; exceptions must have a governed path rather than drifting silently.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Key destruction requirements, including where cryptographic erasure is relied on for asset disposal",
+      "necessity": "expected",
+      "rationale": "Cryptographic erasure is only valid where key destruction is itself controlled and evidenced.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Certificate management: issuance, renewal, and expiry monitoring",
+      "necessity": "recommended",
+      "rationale": "Certificate expiry causes either outage or bypass, both of which affect the control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Prohibition on embedding key material in source code or configuration",
+      "necessity": "recommended",
+      "rationale": "The most common practical failure of an otherwise sound key management model.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-CRYPTO-001"
+    ]
+  },
+  "communication_expectation": "Communicated to engineering teams who implement storage and transport configuration, since they are the ones who will meet or miss the standard.",
+  "common_gaps": [
+    "Policy names a minimum transport protocol version that deployed endpoints do not actually enforce.",
+    "Backups and non-production copies of production data are outside the stated scope.",
+    "Key rotation cadence stated with no mechanism that would detect a missed rotation.",
+    "Cryptographic erasure relied on for disposal with no key destruction requirement in the policy."
+  ],
+  "related_policies": [
+    "POL-DATA-001",
+    "POL-ASSET-001"
+  ],
+  "evidence_examples": [
+    "EV-CRYPTO-001",
+    "EV-CRYPTO-002"
+  ],
+  "common_findings": [
+    "FND-CRYPTO-001",
+    "FND-CRYPTO-002"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1, CC6.7",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "SOC 2 does not require a cryptography policy, nor prescribe algorithms or key lengths. 'expected' means DriftGuard expects the element in a policy intended to support these controls."
+  ]
+}

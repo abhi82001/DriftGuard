@@ -1,0 +1,133 @@
+{
+  "record_type": "glossary",
+  "version": "0.1.0",
+  "last_reviewed": "2026-08-11",
+  "purpose": "Canonical vocabulary for the DriftGuard SOC 2 knowledge base. Every knowledge record and every product surface must use these preferred terms. Deprecated terms are listed so DriftGuard can detect and correct them in generated output.",
+  "terms": [
+    {
+      "term_id": "GLO-SERVICE-ORGANIZATION",
+      "term": "Service organization",
+      "definition": "The entity that provides services to user entities and whose controls are the subject of the SOC 2 examination.",
+      "aliases": ["service provider", "vendor", "the company under audit"],
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-ATC-205"]
+    },
+    {
+      "term_id": "GLO-USER-ENTITY",
+      "term": "User entity",
+      "definition": "A customer of the service organization that uses the system covered by the report and is an intended user of the report.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-ATC-205"]
+    },
+    {
+      "term_id": "GLO-SUBSERVICE-ORGANIZATION",
+      "term": "Subservice organization",
+      "definition": "A vendor used by the service organization whose controls are necessary, in combination with the service organization's controls, to meet the applicable criteria.",
+      "related_terms": ["GLO-CARVE-OUT", "GLO-INCLUSIVE-METHOD", "GLO-CSOC"],
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "term_id": "GLO-CARVE-OUT",
+      "term": "Carve-out method",
+      "definition": "Presentation method in which the subservice organization's controls are excluded from the description and from the scope of the auditor's opinion, while the types of controls expected of the subservice organization are disclosed.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "term_id": "GLO-INCLUSIVE-METHOD",
+      "term": "Inclusive method",
+      "definition": "Presentation method in which the subservice organization's relevant controls are included in the description and tested as part of the examination.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "term_id": "GLO-CUEC",
+      "term": "Complementary user entity control (CUEC)",
+      "definition": "A control that the service organization assumes the user entity will implement, and that is necessary for the applicable criteria to be met.",
+      "driftguard_note": "CUECs transfer obligation to the customer. In vendor risk review, every CUEC must be assessed against the customer's own control environment.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-SOC2-GUIDE", "SRC-DG-BEST-PRACTICE"]
+    },
+    {
+      "term_id": "GLO-CSOC",
+      "term": "Complementary subservice organization control (CSOC)",
+      "definition": "A control expected to be implemented at a subservice organization that is necessary for the applicable criteria to be met.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-SOC2-GUIDE"]
+    },
+    {
+      "term_id": "GLO-TSC",
+      "term": "Trust services criteria (TSC)",
+      "definition": "The control criteria in TSP Section 100 used to evaluate controls over security, availability, processing integrity, confidentiality, and privacy.",
+      "deprecated_aliases": ["trust services principles"],
+      "deprecation_note": "'Principles' reflects the pre-2017 framework and should not be used.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "term_id": "GLO-POINT-OF-FOCUS",
+      "term": "Point of focus",
+      "definition": "Illustrative consideration published alongside a criterion to help entities design and evaluate controls.",
+      "critical_note": "Points of focus are NOT requirements. They need not be individually addressed, and a missing point of focus is not, by itself, a deficiency.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-TSC-2017-R2022"]
+    },
+    {
+      "term_id": "GLO-DEFICIENCY",
+      "term": "Control deficiency",
+      "definition": "A condition in which a control is missing, is not suitably designed, or does not operate as designed, such that an applicable criterion may not be met.",
+      "related_terms": ["GLO-EXCEPTION"],
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-ATC-205"]
+    },
+    {
+      "term_id": "GLO-EXCEPTION",
+      "term": "Exception (deviation)",
+      "definition": "An instance in which a control did not operate as described, identified during the auditor's testing and reported in Section 4 of a Type 2 report.",
+      "driftguard_note": "An exception is an observed instance; a deficiency is a conclusion about the control. DriftGuard must not conflate them.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-ATC-205", "SRC-DG-AUDITOR-PRACTICE"]
+    },
+    {
+      "term_id": "GLO-DESCRIPTION-CRITERIA",
+      "term": "Description criteria",
+      "definition": "The criteria in DC Section 200 used to evaluate whether management's description of the system is presented in accordance with those criteria.",
+      "distinction_note": "Description criteria govern the system description; trust services criteria govern the controls. They are separate criteria sets.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-DC-200"]
+    },
+    {
+      "term_id": "GLO-SYSTEM-BOUNDARY",
+      "term": "System boundary",
+      "definition": "The scope of infrastructure, software, people, procedures, and data that constitute the system covered by the report.",
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-DC-200"]
+    },
+    {
+      "term_id": "GLO-POPULATION",
+      "term": "Population",
+      "definition": "The complete set of occurrences of a control activity during the examination period, from which the auditor selects a sample.",
+      "driftguard_note": "Completeness and accuracy of the population is a frequent point of auditor challenge; evidence that cannot demonstrate a complete population is commonly rejected.",
+      "authority_tier": 4,
+      "sources": ["SRC-DG-AUDITOR-PRACTICE"]
+    },
+    {
+      "term_id": "GLO-CERTIFICATION",
+      "term": "SOC 2 certification",
+      "definition": "Not a valid concept. SOC 2 produces an attestation report containing a practitioner's opinion; there is no certificate and no certifying body.",
+      "status": "deprecated_term",
+      "preferred_terms": ["SOC 2 report", "SOC 2 examination", "SOC 2 attestation"],
+      "authority_tier": 1,
+      "sources": ["SRC-AICPA-ATC-205"]
+    },
+    {
+      "term_id": "GLO-BRIDGE-LETTER",
+      "term": "Bridge letter (gap letter)",
+      "definition": "A letter from service organization management covering the interval between the end of the report period and the current date, asserting that no material control changes occurred.",
+      "critical_note": "A bridge letter is unaudited management representation. It provides no assurance and must not be treated as evidence of control operation.",
+      "authority_tier": 4,
+      "sources": ["SRC-DG-AUDITOR-PRACTICE"]
+    }
+  ]
+}

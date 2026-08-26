@@ -1,0 +1,167 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-INCIDENT-002",
+  "name": "Incident Response Plan Test Record",
+  "description": "Record of an exercise of the incident response plan: scenario, participants, date, observations, and the improvement actions arising, tracked to closure.",
+  "domain": "security_operations",
+  "evidence_type": "meeting_record",
+  "evidence_role": "review",
+  "origin": "human_generated",
+  "collection_mode": "manual_capture",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Test date, scenario, and test type such as tabletop, functional, or simulation",
+      "required": true,
+      "why": "Different test types provide materially different assurance and the record must say which was performed."
+    },
+    {
+      "element": "Participants and the roles they exercised",
+      "required": true,
+      "why": "A test that did not involve the people named in the plan does not exercise the plan."
+    },
+    {
+      "element": "Observations, including what did not work",
+      "required": true,
+      "why": "A test recording only success evidences an exercise, not an assessment."
+    },
+    {
+      "element": "Improvement actions with owners and target dates",
+      "required": true,
+      "why": "The output that makes the test a control rather than an activity."
+    },
+    {
+      "element": "Closure evidence for improvement actions from a previous test",
+      "required": false,
+      "why": "Demonstrates the cycle completes rather than restarting each year."
+    },
+    {
+      "element": "Confirmation the test occurred within the entity's stated cadence",
+      "required": true,
+      "why": "The stated cadence is the benchmark; the criteria prescribe none."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC7.4-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC7.4"
+  ],
+  "collection_frequency": "annual",
+  "owner": "Incident commander role",
+  "source_system_examples": [
+    "Tabletop exercise report",
+    "Incident response simulation after-action record",
+    "Ticketed improvement actions arising from an exercise"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 400,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default reflecting an annual test cadence plus a grace interval. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Scenarios often describe realistic attack paths against the entity; restrict distribution.",
+    "Participant names may be reduced to roles for external sharing."
+  ],
+  "retention_guidance": "Retain each test record so consecutive periods can be shown to be covered without a gap.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A test record exists for each test the entity's stated cadence requires within the period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-002"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "timeliness",
+      "rule": "The test occurred within the examination period rather than before or after it.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-INCIDENT-002"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "The record includes observations and improvement actions, not only confirmation that a test took place.",
+      "check_type": "llm_assisted",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-002"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "completeness",
+      "rule": "Participants cover the roles the plan assigns.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "The record is contemporaneous with the exercise rather than written to satisfy a request.",
+      "check_type": "human_review",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-002"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "relevance",
+      "rule": "The scenario exercises the entity's own systems and plausible threats rather than a generic template.",
+      "check_type": "human_review",
+      "failure_severity": "low"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Test performed shortly before fieldwork for a period that had already elapsed.",
+      "impact": "The control did not operate during the period it is offered as evidence for.",
+      "related_finding": "FND-INCIDENT-002"
+    },
+    {
+      "issue": "Record confirms a test occurred but lists no observations or actions.",
+      "impact": "Evidences attendance rather than assessment.",
+      "related_finding": "FND-INCIDENT-002"
+    },
+    {
+      "issue": "Improvement actions repeat verbatim from the prior year's test.",
+      "impact": "Indicates the cycle is not closing."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Classified origin=human_generated: the artifact is authored, not produced by a system. Its persuasiveness rests on being contemporaneous and specific, which is why those are validation dimensions here.",
+    "A test scheduled but not yet performed is missing evidence for the period, not proof the plan is untested. The distinction is carried in FND-INCIDENT-002."
+  ]
+}

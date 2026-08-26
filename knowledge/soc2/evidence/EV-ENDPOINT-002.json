@@ -1,0 +1,176 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ENDPOINT-002",
+  "name": "Malicious Software Detection and Triage Record",
+  "description": "The record of detections raised during the period and what was done about each: who triaged it, when, the disposition reached, and any action taken.",
+  "domain": "endpoint_security",
+  "evidence_type": "ticket_record",
+  "evidence_role": "operational",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Complete list of detections raised during the examination period",
+      "required": true,
+      "why": "Establishes the population; a filtered list of resolved items hides the untriaged ones."
+    },
+    {
+      "element": "Detection timestamp and affected asset",
+      "required": true,
+      "why": "Places the detection in the period and connects it to the in-scope boundary."
+    },
+    {
+      "element": "Responder identity and triage timestamp",
+      "required": true,
+      "why": "Demonstrates that a defined person acted, which is the operating substance of the control."
+    },
+    {
+      "element": "Disposition reached: true positive, false positive, or benign, with the basis",
+      "required": true,
+      "why": "A disposition without basis records a decision, not an assessment."
+    },
+    {
+      "element": "Action taken and closure time for true positives",
+      "required": true,
+      "why": "The criterion concerns acting upon detections, not merely producing them."
+    },
+    {
+      "element": "Elapsed time from detection to triage measured against the entity's committed timeframe",
+      "required": true,
+      "why": "Timeliness is measured against the entity's own commitment, which is the only benchmark."
+    },
+    {
+      "element": "Escalation to incident response where thresholds were met",
+      "required": false,
+      "why": "Connects this control to the incident response process where the entity defines that link."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.8-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.8"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Security Engineering",
+  "source_system_examples": [
+    "Endpoint detection and response alert queue export",
+    "Security information and event management case records",
+    "Ticketing system security queue"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "period_bound",
+    "rationale": "DriftGuard default: the record must reach the end of the period under assessment. The 30-day window applies to continuous monitoring outside a formal period."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "Never include malware samples, hashes with live payload references, or exploit detail in shared output.",
+    "Affected user identities may be tokenised; responder identity must be retained for attribution."
+  ],
+  "retention_guidance": "Retain for the full examination period; retention shorter than the period leaves an interval in which triage cannot be demonstrated.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A detection record exists covering the examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "The export is the unfiltered detection population, not only closed or true-positive items.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Each detection carries a responder, a disposition, and the basis for that disposition.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Triage occurred within the entity's committed timeframe for the detection severity.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "relevance",
+      "rule": "Affected assets fall within the declared system boundary.",
+      "check_type": "heuristic",
+      "failure_severity": "low"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "Records originate from the detection platform or ticketing system, not from a summary narrative.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Detections auto-closed by rule with no human disposition.",
+      "impact": "Cannot distinguish informed suppression of known false positives from alerts nobody looked at.",
+      "related_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "issue": "Only true positives exported, so the untriaged backlog is invisible.",
+      "impact": "The population is incomplete and adherence to triage timeframes cannot be assessed.",
+      "related_finding": "FND-ENDPOINT-002"
+    },
+    {
+      "issue": "Zero detections reported for a twelve-month period.",
+      "impact": "Plausible for a small estate, but equally consistent with a non-reporting agent. Corroborate against EV-ENDPOINT-001 before concluding either way."
+    },
+    {
+      "issue": "Disposition recorded as 'false positive' with no basis.",
+      "impact": "Records a decision without evidence that an assessment took place.",
+      "related_finding": "FND-ENDPOINT-002"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "A low or zero detection count is not itself a finding. DriftGuard must corroborate against coverage evidence before treating quiet as either healthy or broken."
+  ]
+}

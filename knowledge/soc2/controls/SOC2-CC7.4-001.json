@@ -1,0 +1,153 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC7.4-001",
+  "control_name": "Incident Response Execution and Communication",
+  "criterion": "CC7.4",
+  "secondary_criteria": [
+    "CC7.3",
+    "CC7.5"
+  ],
+  "category": "security",
+  "domain": "security_operations",
+  "objective": "Ensure that a declared incident is worked through a defined programme covering understanding, containment, remediation, and communication, and that the programme is exercised before it is needed.",
+  "description": "A documented incident response plan assigns roles, defines severity-based response and communication timeframes, and identifies internal and external notification obligations including customer and regulatory paths. Declared incidents are worked through the plan with a record of the timeline, containment actions, participants, and communications issued. The plan is tested at least annually through an exercise, with the test recorded and the resulting improvements tracked.",
+  "control_type": "corrective",
+  "automation_level": "manual",
+  "frequency": "event_driven",
+  "owner_role": "Incident commander role, with the CISO or equivalent accountable for the programme",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The entity operates a system in which security incidents can occur"
+    ]
+  },
+  "implementation_guidance": [
+    "Test the plan on a defined cadence and retain the test record. A plan never exercised is the most common CC7.4 weakness and is trivially detectable.",
+    "Record communications actually issued, not only the notification obligations the plan describes.",
+    "Define customer and regulatory notification triggers and timeframes explicitly; these are the commitments the entity will be measured against.",
+    "Capture the incident timeline as it happens. Reconstructing it afterwards produces a narrative rather than a record.",
+    "Track improvements identified during exercises to closure, or the exercise evidences activity without outcome."
+  ],
+  "design_considerations": [
+    "Does the plan assign named roles and severity-based timeframes?",
+    "Are external notification obligations identified with triggers?",
+    "Is there a defined test cadence?"
+  ],
+  "operating_considerations": [
+    "Was the plan tested during the period, with the test recorded?",
+    "Did declared incidents follow the documented process?",
+    "Were communications issued within the committed timeframes?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-INCIDENT-001",
+      "necessity": "primary",
+      "note": "Incident records showing timeline, containment, participants, and communications."
+    },
+    {
+      "evidence_id": "EV-INCIDENT-002",
+      "necessity": "primary",
+      "note": "Response plan test record and resulting improvement tracking."
+    }
+  ],
+  "policy_examples": [
+    "POL-INCIDENT-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-INCIDENT-003",
+      "description": "An incident is handled ad hoc, containment is delayed, and notification obligations are missed.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-INCIDENT-004",
+      "description": "The plan is discovered to be unworkable during a real incident because it was never exercised.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-INCIDENT-002",
+    "FND-INCIDENT-003"
+  ],
+  "remediation": [
+    "REM-INCIDENT-002",
+    "REM-INCIDENT-003"
+  ],
+  "questionnaire_questions": [
+    "QN-OPS-001-Q05"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC7.3-001",
+      "relationship": "depends_on",
+      "note": "Response is triggered by declaration."
+    },
+    {
+      "control_id": "SOC2-CC7.5-001",
+      "relationship": "supports",
+      "note": "Recovery and post-incident remediation continue where response ends."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "IR-4",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.5.26",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "17.4",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.4",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "An annual test cadence is a DriftGuard recommendation. The criteria prescribe no test frequency; the entity's own stated cadence is the benchmark for whether testing occurred as described."
+  ]
+}

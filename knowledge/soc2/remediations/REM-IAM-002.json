@@ -1,0 +1,101 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-IAM-002",
+  "name": "Establish individual attribution for shared and generic accounts",
+  "description": "Retire shared accounts where an individual account can replace them, and where one cannot, front the account with a mechanism that records which individual used it.",
+  "domain": "access_management",
+  "remediation_type": "redesign_control",
+  "durability": "structural",
+  "responsible_role": "IT / Identity and Access Management owner",
+  "addresses_findings": [
+    "FND-IAM-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.3-002"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Inventory accounts that are shared, generic, or lack an assigned human owner, drawing from the identity provider and each in-scope system rather than from memory.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Classify each as replaceable by individual accounts, replaceable by a vaulted checkout model, or constrained by a vendor limitation.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 3,
+      "action": "Migrate replaceable accounts to individual identities and decommission the shared credential.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-IAM-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "For accounts that must remain shared, route access through a credential vault or bastion that records which individual used them and when.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Assign a named human owner to every remaining non-human identity and bring them into the access review population.",
+      "owner_role": "System owner",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Document the residual shared accounts, their constraint, and their compensating attribution mechanism.",
+      "owner_role": "Compliance owner"
+    }
+  ],
+  "implementation_considerations": [
+    "Vendor-imposed single-account limitations are common in older SaaS products and are usually resolved at renewal rather than by engineering.",
+    "Vaulting is often faster to deploy than account migration and delivers attribution immediately; sequence it first where migration will be slow.",
+    "Bringing service accounts into the review population increases review volume noticeably. Plan reviewer capacity before switching it on."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks, driven by the number of systems and by vendor constraints rather than by tooling.",
+  "prerequisites": [
+    "An entitlement inventory covering non-human identities",
+    "A credential vault or bastion, if one is to be used"
+  ],
+  "verification_method": {
+    "how": "Re-derive the shared and unowned account population independently and confirm each entry is either retired, individually attributable through vault or bastion records, or on the documented exception list with a compensating mechanism.",
+    "verifying_evidence": [
+      "EV-ACCESS-003",
+      "EV-IAM-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Vaulted shared accounts remain shared. Attribution is achieved, but concurrent use and credential exposure at checkout remain, and the vault becomes a high-value target.",
+  "period_limitation_note": "Establishing attribution now does not make actions taken through a shared account during an elapsed period attributable. Where an exception has already been identified, this reduces recurrence rather than resolving it.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Shared accounts are not prohibited by SOC 2. This remediation targets attributability, which is what the access criteria depend on."
+  ]
+}

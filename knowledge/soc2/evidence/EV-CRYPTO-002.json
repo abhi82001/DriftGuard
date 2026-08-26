@@ -1,0 +1,174 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-CRYPTO-002",
+  "name": "Transport Encryption Configuration and Validation",
+  "description": "The configuration enforcing encrypted transport at the entity's boundary and integration points, together with independent validation of what the deployed endpoints actually negotiate.",
+  "domain": "cryptography",
+  "evidence_type": "configuration_export",
+  "evidence_role": "configuration",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "point_in_time",
+  "type2_pairing_requirement": [
+    "EV-CONFIG-001"
+  ],
+  "expected_content": [
+    {
+      "element": "Enumeration of endpoints that terminate or originate protected information traffic",
+      "required": true,
+      "why": "Establishes the population; a configuration for one load balancer says nothing about the others."
+    },
+    {
+      "element": "Minimum protocol version and permitted cipher suites as configured",
+      "required": true,
+      "why": "This is the entity's own stated standard, which is what adherence is measured against."
+    },
+    {
+      "element": "Independent validation of what each endpoint actually negotiates",
+      "required": true,
+      "why": "Configured intent and deployed behaviour diverge routinely; only validation distinguishes them."
+    },
+    {
+      "element": "Whether plaintext connections are refused or merely redirected",
+      "required": true,
+      "why": "A redirect still permits an initial plaintext exchange and is a materially different control."
+    },
+    {
+      "element": "Treatment of internal service-to-service traffic and outbound integrations",
+      "required": true,
+      "why": "Both are commonly omitted from a boundary-only view and are the routes protected information often takes."
+    },
+    {
+      "element": "Certificate inventory with expiry dates",
+      "required": false,
+      "why": "Supports availability of the control; an expired certificate causes either outage or bypass."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.7-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.6-001",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.6",
+    "CC6.7"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Platform Engineering",
+  "source_system_examples": [
+    "Load balancer or ingress controller TLS policy",
+    "Service mesh transport policy",
+    "External TLS configuration scanner output",
+    "Certificate management service inventory"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously enforced configuration. Not an audit rule."
+  },
+  "sensitivity": "internal",
+  "redaction_guidance": [
+    "Never include private keys or certificate signing request key material.",
+    "Public certificate detail and negotiated cipher output are safe to include."
+  ],
+  "retention_guidance": "Retain dated validation output across the period; a single scan cannot evidence that the configuration held.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "Transport configuration evidence exists for in-scope endpoints.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-CRYPTO-002"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "All endpoints carrying protected information are covered, including internal and outbound paths.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-CRYPTO-002"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "relevance",
+      "rule": "Deployed negotiation matches the entity's stated minimum protocol and cipher standard.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-CRYPTO-002"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "For a Type 2 conclusion the evidence is paired with EV-CONFIG-001 covering the period.",
+      "check_type": "heuristic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "Validation output comes from a scanner or API rather than from a narrative assertion.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "timeliness",
+      "rule": "Validation is dated within the examination period or the freshness window.",
+      "check_type": "deterministic",
+      "failure_severity": "low"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Policy states a modern minimum protocol version while deployed endpoints still negotiate a deprecated one.",
+      "impact": "The control as described is not the control in operation.",
+      "related_finding": "FND-CRYPTO-002"
+    },
+    {
+      "issue": "Only the public web endpoint is evidenced; API, webhook, and integration endpoints are not.",
+      "impact": "The paths carrying the most protected information are unassessed.",
+      "related_finding": "FND-CRYPTO-002"
+    },
+    {
+      "issue": "Plaintext connections redirected rather than refused, presented as enforcement.",
+      "impact": "An initial plaintext exchange remains possible."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard names no specific protocol version as required. The benchmark is the entity's own documented standard, assessed for reasonableness against current industry guidance rather than against a SOC 2 rule."
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.6-001",
+  "control_name": "External Boundary Protection",
+  "criterion": "CC6.6",
+  "secondary_criteria": [
+    "CC6.1",
+    "CC6.7"
+  ],
+  "category": "security",
+  "domain": "network_security",
+  "objective": "Reduce exposure of in-scope systems to threats originating outside the system boundary by constraining what can be reached from outside, protecting credentials crossing the boundary, and detecting attempts against external access points.",
+  "description": "Ingress to the in-scope environment is restricted by firewall or cloud security group rules to defined sources, ports, and protocols, with administrative interfaces not exposed to the public internet. Remote access to the environment requires additional authentication beyond a single credential. Boundary rules are defined as code with a reviewed baseline, and deviation from that baseline is detected. Attempts against external access points are logged and monitored.",
+  "control_type": "preventive",
+  "automation_level": "automated",
+  "frequency": "continuous",
+  "owner_role": "Platform Engineering, with Security Engineering accountable for the baseline",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The in-scope system is reachable from outside the entity's own boundary, which is effectively universal for a service organization"
+    ]
+  },
+  "implementation_guidance": [
+    "Express boundary rules as code with review, so the baseline is inspectable and changes leave a trail.",
+    "Treat unrestricted ingress to administrative ports as the priority finding; it is the most common and the most consequential.",
+    "Distinguish rules that are broad by design, such as a public web tier, from rules that are broad by accident. Both look identical in an export without documented intent.",
+    "Detect drift continuously. A boundary reviewed quarterly is unprotected between reviews, and a point-in-time export cannot evidence a period.",
+    "Protect credentials crossing the boundary and require additional authentication for access originating outside it; this is where CC6.6 and CC6.1 meet.",
+    "Retain monitoring evidence showing that attempts were not only logged but looked at."
+  ],
+  "design_considerations": [
+    "Are administrative interfaces reachable from the public internet?",
+    "Is there a reviewed baseline that current state can be compared against?",
+    "Does access from outside the boundary require more than a single credential?"
+  ],
+  "operating_considerations": [
+    "Did the boundary configuration remain within baseline for the whole period?",
+    "Were deviations detected by the entity or only discovered during fieldwork?",
+    "Is there evidence that monitored attempts were triaged?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-NETSEC-001",
+      "necessity": "primary",
+      "note": "Boundary rule export showing sources, ports, and exposure."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "primary",
+      "note": "Change history and drift detection converting point-in-time state into period coverage."
+    },
+    {
+      "evidence_id": "EV-IAM-001",
+      "necessity": "supporting",
+      "note": "Additional authentication for access from outside the boundary."
+    },
+    {
+      "evidence_id": "EV-CRYPTO-002",
+      "necessity": "supporting",
+      "note": "Credential and traffic protection at external access points is evidenced from the transport configuration."
+    }
+  ],
+  "policy_examples": [
+    "POL-NETSEC-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-NETSEC-001",
+      "description": "An administrative interface exposed to the internet is discovered and attacked before the entity notices.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-NETSEC-002",
+      "description": "A temporary rule opened for troubleshooting is never closed and nothing detects it.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-NETSEC-001",
+    "FND-NETSEC-002"
+  ],
+  "remediation": [
+    "REM-NETSEC-001",
+    "REM-NETSEC-002"
+  ],
+  "questionnaire_questions": [
+    "QN-NETSEC-001-Q01",
+    "QN-NETSEC-001-Q02",
+    "QN-NETSEC-001-Q03"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.1-001",
+      "relationship": "supports",
+      "note": "Additional authentication for external access is enforced through the identity provider."
+    },
+    {
+      "control_id": "SOC2-CC6.7-001",
+      "relationship": "overlaps_with",
+      "note": "Boundary protection and transport protection are commonly evidenced from the same configuration surface."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "SC-7",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.20",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "4.4",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.6",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "CC6.6 addresses threats from sources outside the system boundaries. A broad ingress rule is not automatically a deficiency: a public-facing service is broad by design. Intent must be established before any conclusion is drawn.",
+    "evidence_examples extended to EV-CRYPTO-002: CC6.6 concerns protection of credentials crossing the boundary, which is evidenced from the same transport surface as CC6.7."
+  ]
+}

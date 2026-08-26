@@ -1,0 +1,238 @@
+{
+  "$schema": "../schemas/questionnaire.schema.json",
+  "record_type": "questionnaire",
+  "questionnaire_id": "QN-NETSEC-001",
+  "name": "Boundary, Transmission, and Endpoint Protection Readiness Questionnaire",
+  "description": "Establishes how the external boundary is controlled and monitored, how information is protected in transit and restricted on the way out, and how unauthorised software is prevented or detected.",
+  "purpose": "readiness_assessment",
+  "audience": "service_organization",
+  "domain": "network_security",
+  "covers_criteria": [
+    "CC6.6",
+    "CC6.7",
+    "CC6.8"
+  ],
+  "questions": [
+    {
+      "question_id": "QN-NETSEC-001-Q01",
+      "text": "Which administrative or management interfaces in your environment are reachable from the public internet, and for each, is that exposure intended?",
+      "intent": "Surface the highest-impact boundary exposure, and separate intended exposure from accidental exposure, which look identical in a rule export.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.6-001"
+      ],
+      "related_criteria": [
+        "CC6.6"
+      ],
+      "expected_evidence": [
+        "EV-NETSEC-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer identifies exposed administrative interfaces with no stated intent or compensating restriction",
+          "indicates_finding": "FND-NETSEC-001",
+          "severity": "critical",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer is 'none' but no boundary export is supplied to corroborate",
+          "indicates_finding": "FND-NETSEC-001",
+          "severity": "low",
+          "confidence": "low"
+        }
+      ],
+      "required": true,
+      "guidance": "An answer of 'none' should be corroborated against the boundary configuration export before it is accepted."
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q02",
+      "text": "Is there an approved baseline for your boundary rules, and how would you learn that the live configuration had deviated from it?",
+      "intent": "Establish whether drift is detected continuously or discovered at review time, which determines whether the control can evidence a period at all.",
+      "answer_type": "single_select",
+      "options": [
+        "Baseline as code, with continuous drift detection and alerting",
+        "Baseline as code, reviewed periodically",
+        "Baseline documented, reviewed periodically",
+        "No baseline; current configuration is the baseline"
+      ],
+      "related_controls": [
+        "SOC2-CC6.6-001"
+      ],
+      "related_criteria": [
+        "CC6.6"
+      ],
+      "expected_evidence": [
+        "EV-NETSEC-001",
+        "EV-CONFIG-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer == 'No baseline; current configuration is the baseline'",
+          "condition_expr": {
+            "operator": "equals",
+            "field": "answer.value",
+            "value": "No baseline; current configuration is the baseline"
+          },
+          "indicates_finding": "FND-NETSEC-002",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer in ['Baseline as code, reviewed periodically','Baseline documented, reviewed periodically']",
+          "condition_expr": {
+            "operator": "in",
+            "field": "answer.value",
+            "values": [
+              "Baseline as code, reviewed periodically",
+              "Baseline documented, reviewed periodically"
+            ]
+          },
+          "indicates_finding": "FND-NETSEC-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q03",
+      "text": "When a boundary rule is opened temporarily for troubleshooting or a migration, what causes it to be closed again?",
+      "intent": "Test for the most common drift mechanism: a temporary rule with no expiry and no owner.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.6-001"
+      ],
+      "related_criteria": [
+        "CC6.6"
+      ],
+      "expected_evidence": [
+        "EV-CONFIG-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates closure depends on someone remembering",
+          "indicates_finding": "FND-NETSEC-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q04",
+      "text": "What is your minimum accepted transport protocol version, and how do you verify that deployed endpoints actually enforce it rather than merely being configured for it?",
+      "intent": "Separate configured intent from deployed behaviour, and establish whether verification covers API and integration endpoints or only the public web endpoint.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.7-001"
+      ],
+      "related_criteria": [
+        "CC6.7"
+      ],
+      "expected_evidence": [
+        "EV-CRYPTO-002"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer states a standard with no independent verification of deployed endpoints",
+          "indicates_finding": "FND-CRYPTO-002",
+          "severity": "medium",
+          "confidence": "medium"
+        },
+        {
+          "condition": "answer covers only the public web endpoint",
+          "indicates_finding": "FND-CRYPTO-002",
+          "severity": "high",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q05",
+      "text": "By what routes can protected information leave your environment \u2014 bulk export, integrations, email, removable media, endpoint sync \u2014 and which of those are restricted, logged, or monitored?",
+      "intent": "Establish whether egress routes have been enumerated at all, which must precede any judgement about whether they are adequately restricted.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.7-001"
+      ],
+      "related_criteria": [
+        "CC6.7"
+      ],
+      "expected_evidence": [
+        "EV-CRYPTO-002",
+        "EV-ENDPOINT-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates routes have not been systematically enumerated",
+          "indicates_finding": "FND-DATA-001",
+          "severity": "medium",
+          "confidence": "medium"
+        },
+        {
+          "condition": "answer enumerates routes with no restriction, logging, or monitoring on any of them",
+          "indicates_finding": "FND-DATA-001",
+          "severity": "high",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "Restriction does not require a data loss prevention product. An authorised, logged, monitored export path is a control; an unlogged one is not."
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q06",
+      "text": "On which asset classes is protective software deployed, what does coverage measure against, and who acts on a detection?",
+      "intent": "Establish whether coverage is measured against the asset inventory rather than the tool's own list, and whether detections produce action.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.8-001"
+      ],
+      "related_criteria": [
+        "CC6.8"
+      ],
+      "expected_evidence": [
+        "EV-ENDPOINT-001",
+        "EV-ENDPOINT-002"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer measures coverage against the protection tool's own enrolled device list",
+          "indicates_finding": "FND-ENDPOINT-001",
+          "severity": "high",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer identifies no named responder or triage timeframe",
+          "indicates_finding": "FND-ENDPOINT-002",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "For immutable, ephemeral workloads, image provenance and integrity verification is an appropriate answer. Absence of a resident agent on such workloads is not a gap."
+    }
+  ],
+  "scoring_model": {
+    "method": "criterion_coverage",
+    "description": "Answers are aggregated per criterion. A criterion is marked 'evidence needed' where a gap signal fires, and 'covered' only where the answer is corroborated by evidence that passes its validation rules.",
+    "disclaimer": "This score is a DriftGuard readiness signal only. It is not an audit conclusion, not an opinion on control effectiveness, and carries no assurance. Only an independent service auditor can conclude on whether criteria were met."
+  },
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Question formulations are original DriftGuard wording. No proprietary questionnaire content is reproduced.",
+    "gap_signal conditions migrated to grammar 1.0.0. Conditions on enumerated answer types carry a machine-readable condition_expr; conditions on free-text answers retain prose only, because evaluating them requires semantic judgement that a deterministic grammar cannot express. The prose `condition` is unchanged in every case."
+  ],
+  "gap_signal_grammar_version": "1.0.0"
+}

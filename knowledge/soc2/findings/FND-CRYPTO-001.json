@@ -1,0 +1,142 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-CRYPTO-001",
+  "name": "Protected information at rest unencrypted or key custody not demonstrable",
+  "description": "Storage holding protected information is not encrypted, or encryption is enabled while key administration and routine data access are held by the same principals such that the control provides no meaningful separation. Most commonly surfaces as encrypted primary storage alongside unencrypted backups, snapshots, or replicas.",
+  "domain": "cryptography",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That named storage resources holding protected information are not encrypted, where a configuration export shows their encryption status.",
+      "That key administration and routine data access are held by the same principals, where the key policy shows it."
+    ],
+    "must_not_assert": [
+      "That encryption at rest is required by SOC 2. It is a common way to help meet the CC6.1 objective, not a mandate.",
+      "That data was exposed. The observation concerns control design, not any actual disclosure.",
+      "That customer-managed keys are required. Provider-managed keys are a legitimate choice."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Change history shows storage was created unencrypted during the period despite an enforcement policy that was described as preventing it."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "The export covers only part of the storage estate, so unencrypted resources elsewhere can be neither confirmed nor ruled out."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.5",
+    "CC6.7"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.1-002"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Storage-layer or backup access yields readable protected information, which is the outcome the control exists to prevent.",
+    "pervasiveness": "One unencrypted log archive differs from an unencrypted primary datastore.",
+    "compensating_controls": [
+      "SOC2-CC6.4-001"
+    ],
+    "detectability": "Highly detectable from a configuration export, provided the export covers the whole estate.",
+    "escalates_when": [
+      "The unencrypted resource is a backup or snapshot, which is the most portable copy",
+      "The resource holds regulated or customer-identifying data",
+      "No enforcement policy exists, so new unencrypted storage can be created freely"
+    ],
+    "de_escalates_when": [
+      "The resource holds no protected information",
+      "Physical and logical access to the storage layer is itself tightly restricted",
+      "The resource was remediated and change history shows the exposure window was short"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Configuration export shows storage resources with encryption disabled.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Backups, snapshots, or replicas absent from the encryption export while primary storage is present.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Key policy shows the same principals holding key administration and routine data access.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent omits backups or describes undifferentiated key access.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q09",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Policy states an encryption standard the configuration does not implement.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly inspect encryption configuration across the storage estate rather than sampling. Because this is a design matter, an uncovered storage class is typically assessed before any operating-effectiveness testing.",
+  "customer_impact": "A copy of the customer's data exists in a form readable by anyone who reaches the storage layer, including through a backup restore.",
+  "remediations": [
+    "REM-CRYPTO-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the resource holds no protected information; confirm classification before concluding.",
+    "Not a gap where encryption is applied at a different layer, such as application-level or filesystem encryption, rather than at the storage service.",
+    "Provider-managed keys are not a deficiency. Assess whether the choice is documented and key access is narrow, not which model was chosen.",
+    "Where the export covers only part of the estate, report insufficient evidence rather than asserting the remainder is unencrypted."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

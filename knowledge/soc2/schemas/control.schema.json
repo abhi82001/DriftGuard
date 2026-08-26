@@ -1,0 +1,339 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/control.schema.json",
+  "title": "DriftGuard SOC 2 Control",
+  "description": "Canonical structure of a single control definition. A control is DriftGuard's articulation of an activity that helps meet one or more trust services criteria. It is NOT the criterion itself and is NOT a SOC 2 requirement: the criteria state objectives, and each service organization selects its own controls.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "record_type": {
+      "const": "control"
+    },
+    "framework": {
+      "type": "string",
+      "const": "SOC2"
+    },
+    "framework_version": {
+      "type": "string"
+    },
+    "control_id": {
+      "$ref": "common.defs.json#/$defs/control_id"
+    },
+    "control_name": {
+      "type": "string",
+      "minLength": 3
+    },
+    "criterion": {
+      "$ref": "common.defs.json#/$defs/criterion_id",
+      "description": "Primary criterion this control addresses."
+    },
+    "secondary_criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/criterion_id"
+      },
+      "uniqueItems": true,
+      "description": "Additional criteria the control contributes to. Contribution to a criterion is rarely exclusive."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "security",
+        "availability",
+        "processing_integrity",
+        "confidentiality",
+        "privacy"
+      ]
+    },
+    "domain": {
+      "type": "string",
+      "description": "DriftGuard operational grouping, e.g. access_management, change_management, vulnerability_management."
+    },
+    "objective": {
+      "type": "string",
+      "description": "What the control is intended to achieve, in DriftGuard's own words. Must not reproduce criterion text."
+    },
+    "description": {
+      "type": "string",
+      "description": "How the control operates: who does what, when, using which system."
+    },
+    "control_type": {
+      "type": "string",
+      "enum": [
+        "preventive",
+        "detective",
+        "corrective",
+        "compensating"
+      ]
+    },
+    "automation_level": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "semi_automated",
+        "automated"
+      ]
+    },
+    "frequency": {
+      "$ref": "common.defs.json#/$defs/frequency"
+    },
+    "owner_role": {
+      "type": "string",
+      "description": "Typical accountable role, not a named individual."
+    },
+    "applicability": {
+      "type": "object",
+      "description": "When this control is relevant. Prevents DriftGuard reporting gaps for controls that do not apply.",
+      "properties": {
+        "always": {
+          "type": "boolean"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_applicable_when": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "implementation_guidance": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Practical steps to implement. Tier 4/5 content; must be phrased as guidance."
+    },
+    "design_considerations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What determines whether this control is suitably designed."
+    },
+    "operating_considerations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What determines whether it operated effectively throughout a period."
+    },
+    "evidence_examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "evidence_id": {
+            "$ref": "common.defs.json#/$defs/evidence_id"
+          },
+          "necessity": {
+            "type": "string",
+            "enum": [
+              "primary",
+              "supporting",
+              "optional"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "evidence_id",
+          "necessity"
+        ],
+        "additionalProperties": false
+      },
+      "description": "References into knowledge/soc2/evidence/. Evidence detail lives there, not here."
+    },
+    "policy_examples": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/policy_id"
+      },
+      "uniqueItems": true
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "risk_id": {
+            "type": "string",
+            "pattern": "^RSK-[A-Z0-9]+-[0-9]{3}$"
+          },
+          "description": {
+            "type": "string"
+          },
+          "inherent_severity": {
+            "$ref": "common.defs.json#/$defs/severity"
+          }
+        },
+        "required": [
+          "risk_id",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "description": "Risks that materialise when this control is absent or ineffective."
+    },
+    "common_findings": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/finding_id"
+      },
+      "uniqueItems": true
+    },
+    "remediation": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/remediation_id"
+      },
+      "uniqueItems": true
+    },
+    "questionnaire_questions": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/question_id"
+      },
+      "uniqueItems": true
+    },
+    "related_controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "control_id": {
+            "$ref": "common.defs.json#/$defs/control_id"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "depends_on",
+              "supports",
+              "compensates_for",
+              "overlaps_with",
+              "supersedes"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "control_id",
+          "relationship"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "description": "Cross-framework references. Identifiers only; external control text is not reproduced.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "framework": {
+            "type": "string",
+            "enum": [
+              "NIST-SP800-53r5",
+              "NIST-CSF-2.0",
+              "ISO-27001-2022",
+              "CIS-v8",
+              "COSO-2013"
+            ]
+          },
+          "external_id": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "equivalent",
+              "partial",
+              "informs"
+            ]
+          },
+          "source_id": {
+            "$ref": "common.defs.json#/$defs/source_id"
+          },
+          "confidence": {
+            "$ref": "common.defs.json#/$defs/confidence"
+          }
+        },
+        "required": [
+          "framework",
+          "external_id",
+          "relationship",
+          "source_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sources": {
+      "$ref": "common.defs.json#/$defs/source_id_list"
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/source_ref"
+      }
+    },
+    "authority_tier_dominant": {
+      "$ref": "common.defs.json#/$defs/authority_tier"
+    },
+    "verification_status": {
+      "$ref": "common.defs.json#/$defs/verification_status"
+    },
+    "version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "schema_version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "status": {
+      "$ref": "common.defs.json#/$defs/record_status"
+    },
+    "created": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "last_reviewed": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "superseded_by": {
+      "$ref": "common.defs.json#/$defs/control_id"
+    },
+    "notes": {
+      "$ref": "common.defs.json#/$defs/notes"
+    }
+  },
+  "required": [
+    "record_type",
+    "framework",
+    "control_id",
+    "control_name",
+    "criterion",
+    "category",
+    "objective",
+    "description",
+    "control_type",
+    "sources",
+    "authority_tier_dominant",
+    "verification_status",
+    "version",
+    "schema_version",
+    "status",
+    "created",
+    "last_reviewed"
+  ],
+  "additionalProperties": false,
+  "x-driftguard-schema-version": "0.1.0"
+}

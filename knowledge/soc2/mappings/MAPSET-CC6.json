@@ -1,0 +1,3672 @@
+{
+  "$schema": "../schemas/mapping.schema.json",
+  "record_type": "mapping_set",
+  "mapping_set_id": "MAPSET-CC6",
+  "name": "CC6 Logical and Physical Access Controls Relationship Set",
+  "description": "Authoritative relationship graph for the CC6 vertical slice. Extends, and does not replace, MAPSET-ACCESS-CORE: edges already declared there are not repeated here. The relationship vocabulary is identical across both sets and the validator enforces that identically-named relationship types carry identical definitions.",
+  "relationship_model": {
+    "chain": [
+      "criterion",
+      "control",
+      "evidence",
+      "policy",
+      "questionnaire",
+      "finding",
+      "remediation"
+    ],
+    "traversal_notes": [
+      "Edges are derived from the entity records themselves, so the convenience references on controls, evidence, questions, findings, and remediations and the authoritative graph cannot diverge. The validator checks the agreement in both directions.",
+      "Every relationship is traversable in reverse via its declared inverse; 'which evidence supports this control' and 'which controls does this evidence support' are the same edge read from opposite ends.",
+      "finding_affects_criterion exists so a gap can be reported against a criterion even where the entity has articulated no control at all.",
+      "Policy-to-criterion and evidence-to-criterion relationships remain derived by traversal through controls rather than stored, so there is no second source of truth to drift."
+    ]
+  },
+  "relationship_types": [
+    {
+      "type": "addresses_criterion",
+      "from_entity": "control",
+      "to_entity": "criterion",
+      "inverse": "criterion_addressed_by",
+      "cardinality": "many_to_many",
+      "answers_question": "Which controls address this criterion?"
+    },
+    {
+      "type": "supported_by_evidence",
+      "from_entity": "control",
+      "to_entity": "evidence",
+      "inverse": "supports_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which evidence supports this control, and which controls does this evidence support?"
+    },
+    {
+      "type": "documented_by_policy",
+      "from_entity": "control",
+      "to_entity": "policy",
+      "inverse": "documents_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which policies support this control?"
+    },
+    {
+      "type": "assessed_by_question",
+      "from_entity": "control",
+      "to_entity": "question",
+      "inverse": "assesses_control",
+      "cardinality": "many_to_many",
+      "answers_question": "Which questionnaire questions relate to this control?"
+    },
+    {
+      "type": "indicates_finding",
+      "from_entity": "evidence",
+      "to_entity": "finding",
+      "inverse": "detected_by_evidence",
+      "cardinality": "many_to_many",
+      "answers_question": "What findings can this evidence reveal?"
+    },
+    {
+      "type": "question_indicates_finding",
+      "from_entity": "question",
+      "to_entity": "finding",
+      "inverse": "indicated_by_question",
+      "cardinality": "many_to_many",
+      "answers_question": "Which answers signal a potential gap?"
+    },
+    {
+      "type": "finding_affects_control",
+      "from_entity": "finding",
+      "to_entity": "control",
+      "inverse": "control_affected_by_finding",
+      "cardinality": "many_to_many",
+      "answers_question": "What findings can indicate a gap in this control?"
+    },
+    {
+      "type": "finding_affects_criterion",
+      "from_entity": "finding",
+      "to_entity": "criterion",
+      "inverse": "criterion_affected_by_finding",
+      "cardinality": "many_to_many",
+      "answers_question": "Which criteria are at risk from this finding?"
+    },
+    {
+      "type": "remediated_by",
+      "from_entity": "finding",
+      "to_entity": "remediation",
+      "inverse": "remediates",
+      "cardinality": "many_to_many",
+      "answers_question": "What remediation addresses this finding?"
+    },
+    {
+      "type": "verified_by_evidence",
+      "from_entity": "remediation",
+      "to_entity": "evidence",
+      "inverse": "verifies_remediation",
+      "cardinality": "many_to_many",
+      "answers_question": "How do we confirm the remediation actually landed?"
+    }
+  ],
+  "mappings": [
+    {
+      "mapping_id": "MAP-0047",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-Factor Authentication for Access to In-Scope Systems contributes to CC6.7 in addition to its primary criterion CC6.1; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0048",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Encryption of Data at Rest and Cryptographic Key Management is DriftGuard's primary control articulation for CC6.1: Reduce the value of physical or storage-layer access to protected information by rendering stored data unreadable without a key, and keep the keys themselves under controlled, attributable custody.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0049",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.5"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Encryption of Data at Rest and Cryptographic Key Management contributes to CC6.5 in addition to its primary criterion CC6.1; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0050",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Encryption of Data at Rest and Cryptographic Key Management contributes to CC6.7 in addition to its primary criterion CC6.1; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0051",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Encryption at Rest and Key Management Configuration is primary evidence for Encryption of Data at Rest and Cryptographic Key Management: Encryption settings and key policy across in-scope storage.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0052",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Change History and Drift Record is supporting evidence for Encryption of Data at Rest and Cryptographic Key Management: Converts point-in-time encryption state into period coverage.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0053",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-CRYPTO-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Cryptography and Key Management Policy is where the standard Encryption of Data at Rest and Cryptographic Key Management is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0054",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-DATA-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Data Classification and Handling Policy is where the standard Encryption of Data at Rest and Cryptographic Key Management is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0055",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q09"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Encryption of Data at Rest and Cryptographic Key Management. Question intent: Establish encryption coverage including backups, and whether key custody is separated from data access, which determines what the control actually mitigates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0056",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Authorized Registration and Provisioning of Internal and External Users is DriftGuard's primary control articulation for CC6.2: Ensure that credentials are issued only to identities that have been verified and whose access has been authorised by someone with the standing to grant it, before access is granted rather than after.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0057",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Authorized Registration and Provisioning of Internal and External Users contributes to CC6.1 in addition to its primary criterion CC6.2; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0058",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Authorized Registration and Provisioning of Internal and External Users contributes to CC6.3 in addition to its primary criterion CC6.2; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0059",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Provisioning Authorization Record is primary evidence for Authorized Registration and Provisioning of Internal and External Users: The approval record itself, joined to the account creation event.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0060",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is supporting evidence for Authorized Registration and Provisioning of Internal and External Users: Identity provider export establishes the account population to reconcile approvals against.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0061",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-ACCESS-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Control Policy is where the standard Authorized Registration and Provisioning of Internal and External Users is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0062",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q07"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Authorized Registration and Provisioning of Internal and External Users. Question intent: Establish whether authorisation precedes provisioning and whether it names the entitlement, which is what makes an approval evidential rather than ceremonial.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0063",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Timely Removal of Access on Termination and Role Change is DriftGuard's primary control articulation for CC6.2: Ensure credentials and entitlements cease to be usable once the authorisation basis for them ends, within a timeframe the entity has committed to and can measure.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0064",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Timely Removal of Access on Termination and Role Change contributes to CC6.3 in addition to its primary criterion CC6.2; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0065",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "User Access Review Record is primary evidence for Timely Removal of Access on Termination and Role Change: Entitlement state and revocation records reconciled to the termination population.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0066",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is supporting evidence for Timely Removal of Access on Termination and Role Change: Identity provider account state corroborating revocation.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0067",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-ACCESS-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Control Policy is where the standard Timely Removal of Access on Termination and Role Change is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0068",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q06"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Timely Removal of Access on Termination and Role Change. Question intent: Establish the self-defined commitment and whether adherence to it is measurable at all.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0069",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Periodic User Access Review contributes to CC6.1 in addition to its primary criterion CC6.3; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0070",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Role-Based Least Privilege and Privileged Access Management is DriftGuard's primary control articulation for CC6.3: Ensure entitlements are granted against defined roles rather than ad hoc, that privilege is no broader than the role requires, and that administrative capability is held temporarily and attributably rather than standing.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0071",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Role-Based Least Privilege and Privileged Access Management contributes to CC6.1 in addition to its primary criterion CC6.3; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0072",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Role-Based Least Privilege and Privileged Access Management contributes to CC6.2 in addition to its primary criterion CC6.3; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0073",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-003"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Privileged Access Inventory and Elevation Record is primary evidence for Role-Based Least Privilege and Privileged Access Management: Privileged entitlement inventory and elevation records across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0074",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "User Access Review Record is supporting evidence for Role-Based Least Privilege and Privileged Access Management: Review record corroborates role assignment appropriateness.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0075",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access Provisioning Authorization Record is supporting evidence for Role-Based Least Privilege and Privileged Access Management: Approvals show whether grants referenced defined roles.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0076",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-ACCESS-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Control Policy is where the standard Role-Based Least Privilege and Privileged Access Management is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0077",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q08"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Role-Based Least Privilege and Privileged Access Management. Question intent: Distinguish standing privilege from just-in-time elevation, which is the single largest differentiator in CC6.3 risk.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0078",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q10"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Role-Based Least Privilege and Privileged Access Management. Question intent: Surface attribution gaps, which undermine every access control that depends on knowing who did something.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0079",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.4"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Physical Access Restriction to Facilities and Protected Information Assets is DriftGuard's primary control articulation for CC6.4: Restrict physical entry to facilities and locations holding protected information assets to people whose role requires it, and be able to show who held that access and why throughout the period.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0080",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.5"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Physical Access Restriction to Facilities and Protected Information Assets contributes to CC6.5 in addition to its primary criterion CC6.4; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0081",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Physical Access Roster and Review Record is primary evidence for Physical Access Restriction to Facilities and Protected Information Assets: Access roster and the periodic review of it, with revocation records.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0082",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Subservice Organization Assurance Report is primary evidence for Physical Access Restriction to Facilities and Protected Information Assets: Where facilities are hosted, the subservice organization's assurance report is the primary evidence.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0083",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-PHYSEC-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Physical Security Policy is where the standard Physical Access Restriction to Facilities and Protected Information Assets is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0084",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q01"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Physical Access Restriction to Facilities and Protected Information Assets. Question intent: Establish whether CC6.4 is met through the entity's own controls, through subservice organization reliance, or both. This determines what evidence is even relevant.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0085",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q02"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Physical Access Restriction to Facilities and Protected Information Assets. Question intent: Detect the split-lifecycle pattern, where logical deprovisioning is automated and physical revocation is a separate manual step that is forgotten.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0086",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q03"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Physical Access Restriction to Facilities and Protected Information Assets. Question intent: Establish that the review occurs on cadence and produces correction, rather than existing as an inventory exercise.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0087",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.5"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Secure Decommissioning and Media Sanitization is DriftGuard's primary control articulation for CC6.5: Ensure that protections are not withdrawn from an asset until the data on it can no longer be read or recovered, so that end-of-life equipment and media do not become an uncontrolled disclosure path.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0088",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Secure Decommissioning and Media Sanitization contributes to CC6.1 in addition to its primary criterion CC6.5; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0089",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.4"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Secure Decommissioning and Media Sanitization contributes to CC6.4 in addition to its primary criterion CC6.5; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0090",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ASSET-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Media Sanitization and Asset Disposal Record is primary evidence for Secure Decommissioning and Media Sanitization: Per-asset sanitization and destruction records reconciled to inventory departures.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0091",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Encryption at Rest and Key Management Configuration is supporting evidence for Secure Decommissioning and Media Sanitization: Where cryptographic erasure is relied on, key custody and destruction evidence is required.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0092",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-ASSET-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Asset Management and Media Sanitization Policy is where the standard Secure Decommissioning and Media Sanitization is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0093",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-DATA-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Data Classification and Handling Policy is where the standard Secure Decommissioning and Media Sanitization is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0094",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q04"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Secure Decommissioning and Media Sanitization. Question intent: Establish whether sanitization is evidenced per asset and whether all departure routes are covered, not only destruction at end of life.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0095",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q05"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Secure Decommissioning and Media Sanitization. Question intent: Test the cloud-equivalent path for CC6.5, which is frequently assumed to need no evidence at all.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0096",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "External Boundary Protection is DriftGuard's primary control articulation for CC6.6: Reduce exposure of in-scope systems to threats originating outside the system boundary by constraining what can be reached from outside, protecting credentials crossing the boundary, and detecting attempts against external access points.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0097",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "External Boundary Protection contributes to CC6.1 in addition to its primary criterion CC6.6; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0098",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "External Boundary Protection contributes to CC6.7 in addition to its primary criterion CC6.6; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0099",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-NETSEC-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Network Boundary Configuration Export is primary evidence for External Boundary Protection: Boundary rule export showing sources, ports, and exposure.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0100",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Configuration Change History and Drift Record is primary evidence for External Boundary Protection: Change history and drift detection converting point-in-time state into period coverage.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0101",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is supporting evidence for External Boundary Protection: Additional authentication for access from outside the boundary.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0102",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-NETSEC-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Network and Boundary Security Policy is where the standard External Boundary Protection is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0103",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q01"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses External Boundary Protection. Question intent: Surface the highest-impact boundary exposure, and separate intended exposure from accidental exposure, which look identical in a rule export.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0104",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q02"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses External Boundary Protection. Question intent: Establish whether drift is detected continuously or discovered at review time, which determines whether the control can evidence a period at all.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0105",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q03"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses External Boundary Protection. Question intent: Test for the most common drift mechanism: a temporary rule with no expiry and no owner.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0106",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Protection of Information During Transmission, Movement, and Removal is DriftGuard's primary control articulation for CC6.7: Restrict who and what may move protected information out of the environment, and keep that information protected while it is in motion or on portable media.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0107",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protection of Information During Transmission, Movement, and Removal contributes to CC6.1 in addition to its primary criterion CC6.7; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0108",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protection of Information During Transmission, Movement, and Removal contributes to CC6.6 in addition to its primary criterion CC6.7; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0109",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Transport Encryption Configuration and Validation is primary evidence for Protection of Information During Transmission, Movement, and Removal: Transport configuration and independent validation of deployed protocol and cipher support.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0110",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Configuration Change History and Drift Record is supporting evidence for Protection of Information During Transmission, Movement, and Removal: Change history evidencing that the transport configuration held through the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0111",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Endpoint and Workload Protection Coverage Report is supporting evidence for Protection of Information During Transmission, Movement, and Removal: Endpoint management coverage evidencing removable media enforcement.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0112",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-DATA-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Data Classification and Handling Policy is where the standard Protection of Information During Transmission, Movement, and Removal is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0113",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-CRYPTO-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Cryptography and Key Management Policy is where the standard Protection of Information During Transmission, Movement, and Removal is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0114",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q04"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Protection of Information During Transmission, Movement, and Removal. Question intent: Separate configured intent from deployed behaviour, and establish whether verification covers API and integration endpoints or only the public web endpoint.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0115",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q05"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Protection of Information During Transmission, Movement, and Removal. Question intent: Establish whether egress routes have been enumerated at all, which must precede any judgement about whether they are adequately restricted.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0116",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.8"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Prevention and Detection of Unauthorized and Malicious Software is DriftGuard's primary control articulation for CC6.8: Prevent unauthorised or malicious software from being introduced into the environment where practical, detect it where prevention is not, and act on what is detected.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0117",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "addresses_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Prevention and Detection of Unauthorized and Malicious Software contributes to CC6.1 in addition to its primary criterion CC6.8; DriftGuard models the overlap as a secondary edge rather than duplicating the control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0118",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Endpoint and Workload Protection Coverage Report is primary evidence for Prevention and Detection of Unauthorized and Malicious Software: Coverage and agent health reconciled to the asset inventory across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0119",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Malicious Software Detection and Triage Record is primary evidence for Prevention and Detection of Unauthorized and Malicious Software: Detection and triage records demonstrating the control produced action.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0120",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "policy",
+        "id": "POL-ENDPOINT-001"
+      },
+      "relationship": "documented_by_policy",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Endpoint Protection Policy is where the standard Prevention and Detection of Unauthorized and Malicious Software is measured against originates.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0121",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "to": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q06"
+      },
+      "relationship": "assessed_by_question",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Assesses Prevention and Detection of Unauthorized and Malicious Software. Question intent: Establish whether coverage is measured against the asset inventory rather than the tool's own list, and whether detections produce action.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0122",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-002"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Access Provisioning Authorization Record indicates Access granted without evidenced prior authorization.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0123",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-003"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Privileged Access Inventory and Elevation Record indicates Standing privileged access without a least-privilege basis.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0124",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-ASSET-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Media Sanitization and Asset Disposal Record indicates No record of media sanitization before assets left the entity's control.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0125",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the completeness check on Configuration Change History and Drift Record indicates Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0126",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Encryption at Rest and Key Management Configuration indicates Protected information at rest unencrypted or key custody not demonstrable.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0127",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Transport Encryption Configuration and Validation indicates Transport encryption not enforced or below the entity's own standard.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0128",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Endpoint and Workload Protection Coverage Report indicates Protective software coverage below the authoritative asset inventory.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0129",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-002"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Malicious Software Detection and Triage Record indicates Detections raised with no evidence of triage or disposition.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0130",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Network Boundary Configuration Export indicates Boundary rules permit broader external access than intended.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0131",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the sufficiency check on Network Boundary Configuration Export indicates Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0132",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-001"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Physical Access Roster and Review Record indicates Physical access not revoked or roster not reviewed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0133",
+      "from": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-002"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-002"
+      },
+      "relationship": "indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Failure of the existence check on Subservice Organization Assurance Report indicates Subservice organization assurance not obtained or complementary controls not assessed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0134",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q07"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer indicates no approval record exists prior to provisioning' signals Access granted without evidenced prior authorization.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0135",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q08"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer == 'Standing privilege, not systematically reviewed'' signals Standing privileged access without a least-privilege basis.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0136",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q09"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer omits backups, snapshots, or replicas' signals Protected information at rest unencrypted or key custody not demonstrable.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0137",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q10"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer == 'Shared accounts exist without individual attribution'' signals Shared or generic accounts without individual attribution.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0138",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-ACCESS-001-Q11"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer relies on a single configuration capture with no change history or repeated snapshots' signals Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0139",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q01"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer identifies exposed administrative interfaces with no stated intent or compensating restriction' signals Boundary rules permit broader external access than intended.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0140",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q02"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer == 'No baseline; current configuration is the baseline'' signals Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0141",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q03"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer indicates closure depends on someone remembering' signals Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0142",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q04"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer states a standard with no independent verification of deployed endpoints' signals Transport encryption not enforced or below the entity's own standard.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0143",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q05"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-DATA-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer indicates routes have not been systematically enumerated' signals Routes by which information can leave the environment not enumerated or restricted.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0144",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q06"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer measures coverage against the protection tool's own enrolled device list' signals Protective software coverage below the authoritative asset inventory.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0145",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-NETSEC-001-Q06"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer identifies no named responder or triage timeframe' signals Detections raised with no evidence of triage or disposition.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0146",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q01"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-002"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer indicates all facilities are hosted and no provider assurance report is obtained' signals Subservice organization assurance not obtained or complementary controls not assessed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0147",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q02"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer indicates physical revocation is a separate manual process with no committed timeframe' signals Physical access not revoked or roster not reviewed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0148",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q03"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer indicates no defined cadence' signals Physical access not revoked or roster not reviewed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0149",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q04"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Answer condition 'answer indicates no per-asset record is created' signals No record of media sanitization before assets left the entity's control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0150",
+      "from": {
+        "entity_type": "question",
+        "id": "QN-PHYSEC-001-Q05"
+      },
+      "to": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "relationship": "question_indicates_finding",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Answer condition 'answer relies on cryptographic erasure with no evidence of key destruction' signals No record of media sanitization before assets left the entity's control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0151",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-002"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access not revoked within the committed timeframe after termination bears on the control operating gap assessment of Timely Removal of Access on Termination and Role Change.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0152",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access not revoked within the committed timeframe after termination places CC6.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0153",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access not revoked within the committed timeframe after termination places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0154",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access review performed without evidence of follow-through places CC6.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0155",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access review performed without evidence of follow-through places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0156",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-003"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access review population incomplete places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0157",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-003"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access review population incomplete places CC6.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0158",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-003"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access review population incomplete places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0159",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.2-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access granted without evidenced prior authorization bears on the control operating gap assessment of Authorized Registration and Provisioning of Internal and External Users.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0160",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access granted without evidenced prior authorization places CC6.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0161",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Access granted without evidenced prior authorization places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0162",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-004"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Make authorization a precondition of provisioning addresses Access granted without evidenced prior authorization.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0163",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Standing privileged access without a least-privilege basis bears on the control design gap assessment of Role-Based Least Privilege and Privileged Access Management.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0164",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Standing privileged access without a least-privilege basis places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0165",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Standing privileged access without a least-privilege basis places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0166",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-005"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Move privileged access to defined roles and time-bounded elevation addresses Standing privileged access without a least-privilege basis.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0167",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.5-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "No record of media sanitization before assets left the entity's control bears on the missing evidence assessment of Secure Decommissioning and Media Sanitization.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0168",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.5"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "No record of media sanitization before assets left the entity's control places CC6.5 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0169",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ASSET-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-ASSET-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Make media sanitization evidenced per asset across every departure route addresses No record of media sanitization before assets left the entity's control.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0170",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-002"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Protected information at rest unencrypted or key custody not demonstrable bears on the control design gap assessment of Encryption of Data at Rest and Cryptographic Key Management.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0171",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protected information at rest unencrypted or key custody not demonstrable places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0172",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.5"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protected information at rest unencrypted or key custody not demonstrable places CC6.5 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0173",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protected information at rest unencrypted or key custody not demonstrable places CC6.7 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0174",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-CRYPTO-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Enforce encryption at rest with separated key custody addresses Protected information at rest unencrypted or key custody not demonstrable.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0175",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Transport encryption not enforced or below the entity's own standard bears on the control design gap assessment of Protection of Information During Transmission, Movement, and Removal.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0176",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Transport encryption not enforced or below the entity's own standard places CC6.6 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0177",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Transport encryption not enforced or below the entity's own standard places CC6.7 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0178",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-CRYPTO-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Enforce and verify transport encryption across all information paths addresses Transport encryption not enforced or below the entity's own standard.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0179",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-DATA-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.7-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Routes by which information can leave the environment not enumerated or restricted bears on the informational observation assessment of Protection of Information During Transmission, Movement, and Removal.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0180",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-DATA-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.7"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Routes by which information can leave the environment not enumerated or restricted places CC6.7 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0181",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-DATA-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-DATA-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Enumerate information egress routes and restrict them proportionately addresses Routes by which information can leave the environment not enumerated or restricted.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0182",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Protective software coverage below the authoritative asset inventory bears on the control operating gap assessment of Prevention and Detection of Unauthorized and Malicious Software.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0183",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.8"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Protective software coverage below the authoritative asset inventory places CC6.8 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0184",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-ENDPOINT-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Measure protection coverage against the asset inventory and close the shortfall addresses Protective software coverage below the authoritative asset inventory.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0185",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.8-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Detections raised with no evidence of triage or disposition bears on the insufficient evidence assessment of Prevention and Detection of Unauthorized and Malicious Software.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0186",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.8"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Detections raised with no evidence of triage or disposition places CC6.8 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0187",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-ENDPOINT-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-ENDPOINT-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Make detection triage evidenced and time-bounded addresses Detections raised with no evidence of triage or disposition.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0188",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-factor authentication not enforced across all authentication paths places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0189",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Multi-factor authentication not enforced across all authentication paths places CC6.6 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0190",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-002"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Shared or generic accounts without individual attribution bears on the control design gap assessment of Role-Based Least Privilege and Privileged Access Management.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0191",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Shared or generic accounts without individual attribution places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0192",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Shared or generic accounts without individual attribution places CC6.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0193",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.3"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Shared or generic accounts without individual attribution places CC6.3 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0194",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-IAM-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-IAM-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Establish individual attribution for shared and generic accounts addresses Shared or generic accounts without individual attribution.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0195",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Boundary rules permit broader external access than intended bears on the control design gap assessment of External Boundary Protection.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0196",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Boundary rules permit broader external access than intended places CC6.6 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0197",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-NETSEC-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Establish a boundary baseline and close unintended exposure addresses Boundary rules permit broader external access than intended.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0198",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Boundary configuration drift not detected across the period bears on the potentially ineffective control assessment of External Boundary Protection.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0199",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.6"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Boundary configuration drift not detected across the period places CC6.6 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0200",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Boundary configuration drift not detected across the period places CC6.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0201",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-NETSEC-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Detect configuration drift continuously and bound temporary changes addresses Boundary configuration drift not detected across the period.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0202",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Physical access not revoked or roster not reviewed bears on the control operating gap assessment of Physical Access Restriction to Facilities and Protected Information Assets.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0203",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.4"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Physical access not revoked or roster not reviewed places CC6.4 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0204",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-001"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-PHYSEC-001"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Unify physical access revocation with the offboarding trigger and evidence roster review addresses Physical access not revoked or roster not reviewed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0205",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-002"
+      },
+      "to": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.4-001"
+      },
+      "relationship": "finding_affects_control",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Subservice organization assurance not obtained or complementary controls not assessed bears on the informational observation assessment of Physical Access Restriction to Facilities and Protected Information Assets.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0206",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-002"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC6.4"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Subservice organization assurance not obtained or complementary controls not assessed places CC6.4 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0207",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-PHYSEC-002"
+      },
+      "to": {
+        "entity_type": "remediation",
+        "id": "REM-PHYSEC-002"
+      },
+      "relationship": "remediated_by",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Obtain and assess subservice organization assurance, and map complementary controls addresses Subservice organization assurance not obtained or complementary controls not assessed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0208",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-VULN-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.1"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerabilities unresolved beyond the organization's own remediation timeframe places CC7.1 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0209",
+      "from": {
+        "entity_type": "finding",
+        "id": "FND-VULN-001"
+      },
+      "to": {
+        "entity_type": "criterion",
+        "id": "CC7.2"
+      },
+      "relationship": "finding_affects_criterion",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "Vulnerabilities unresolved beyond the organization's own remediation timeframe places CC7.2 at risk; the edge exists so a gap can be reported even where the entity has named no control.",
+      "sources": [
+        "SRC-AICPA-TSC-2017-R2022"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0210",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is how DriftGuard confirms Automate deprovisioning from the HR system of record actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0211",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-003"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "User Access Review Record is how DriftGuard confirms Reconcile the access review population to authoritative identity sources actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0212",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Provisioning Authorization Record is how DriftGuard confirms Make authorization a precondition of provisioning actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0213",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-004"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is how DriftGuard confirms Make authorization a precondition of provisioning actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0214",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-003"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Privileged Access Inventory and Elevation Record is how DriftGuard confirms Move privileged access to defined roles and time-bounded elevation actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0215",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ACCESS-005"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "User Access Review Record is how DriftGuard confirms Move privileged access to defined roles and time-bounded elevation actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0216",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ASSET-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ASSET-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Media Sanitization and Asset Disposal Record is how DriftGuard confirms Make media sanitization evidenced per asset across every departure route actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0217",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Encryption at Rest and Key Management Configuration is how DriftGuard confirms Enforce encryption at rest with separated key custody actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0218",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-CRYPTO-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Configuration Change History and Drift Record is how DriftGuard confirms Enforce encryption at rest with separated key custody actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0219",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-CRYPTO-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Transport Encryption Configuration and Validation is how DriftGuard confirms Enforce and verify transport encryption across all information paths actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0220",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-DATA-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Transport Encryption Configuration and Validation is how DriftGuard confirms Enumerate information egress routes and restrict them proportionately actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0221",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-DATA-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Endpoint and Workload Protection Coverage Report is how DriftGuard confirms Enumerate information egress routes and restrict them proportionately actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0222",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-DATA-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Access Provisioning Authorization Record is how DriftGuard confirms Enumerate information egress routes and restrict them proportionately actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0223",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ENDPOINT-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Endpoint and Workload Protection Coverage Report is how DriftGuard confirms Measure protection coverage against the asset inventory and close the shortfall actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0224",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-ENDPOINT-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ENDPOINT-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Malicious Software Detection and Triage Record is how DriftGuard confirms Make detection triage evidenced and time-bounded actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0225",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-IAM-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-003"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Privileged Access Inventory and Elevation Record is how DriftGuard confirms Establish individual attribution for shared and generic accounts actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0226",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-IAM-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-IAM-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Multi-Factor Authentication Enforcement Configuration is how DriftGuard confirms Establish individual attribution for shared and generic accounts actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0227",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-NETSEC-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-NETSEC-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Network Boundary Configuration Export is how DriftGuard confirms Establish a boundary baseline and close unintended exposure actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0228",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-NETSEC-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Configuration Change History and Drift Record is how DriftGuard confirms Detect configuration drift continuously and bound temporary changes actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0229",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-PHYSEC-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-001"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Physical Access Roster and Review Record is how DriftGuard confirms Unify physical access revocation with the offboarding trigger and evidence roster review actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0230",
+      "from": {
+        "entity_type": "remediation",
+        "id": "REM-PHYSEC-002"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-PHYSEC-002"
+      },
+      "relationship": "verified_by_evidence",
+      "strength": "primary",
+      "confidence": "high",
+      "rationale": "Subservice Organization Assurance Report is how DriftGuard confirms Obtain and assess subservice organization assurance, and map complementary controls actually landed.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0231",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.1-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CONFIG-001"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "EV-CONFIG-001 is supporting evidence for Multi-Factor Authentication for Access to In-Scope Systems: Configuration change history evidencing that the authentication policy held throughout the period.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0232",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.3-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-ACCESS-003"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "EV-ACCESS-003 is supporting evidence for Periodic User Access Review: Privileged entitlement inventory ensures the privileged population is present in the review.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    },
+    {
+      "mapping_id": "MAP-0233",
+      "from": {
+        "entity_type": "control",
+        "id": "SOC2-CC6.6-001"
+      },
+      "to": {
+        "entity_type": "evidence",
+        "id": "EV-CRYPTO-002"
+      },
+      "relationship": "supported_by_evidence",
+      "strength": "supporting",
+      "confidence": "medium",
+      "rationale": "EV-CRYPTO-002 is supporting evidence for External Boundary Protection: Credential and traffic protection at external access points is evidenced from the transport configuration.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ],
+      "status": "draft"
+    }
+  ],
+  "version": "0.2.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Edge rationales are composed from the source entity records rather than written independently, which is deliberate: a hand-written rationale that drifts from the record it describes is worse than none. The substantive judgement lives in the entity record and is cited here.",
+    "MAP identifiers continue the single sequence begun in MAPSET-ACCESS-CORE. Identifiers are permanent and are never renumbered when edges are added.",
+    "Cross-framework mappings to NIST, ISO, and CIS remain attributes of the control records rather than edges here.",
+    "MAP-0231 to MAP-0233 added after the validator's bidirectional evidence check identified three evidence records asserting applicability to controls that did not reciprocate. The controls were corrected rather than the evidence, since the relationships were legitimate."
+  ]
+}

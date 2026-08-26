@@ -1,0 +1,135 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-PHYSEC-002",
+  "name": "Subservice organization assurance not obtained or complementary controls not assessed",
+  "description": "The entity depends on a subservice organization for a criterion it does not control itself \u2014 typically data centre physical security \u2014 and has either not obtained that organization's assurance report, or has obtained it without mapping the complementary user entity controls it identifies onto the entity's own control set.",
+  "domain": "third_party_risk",
+  "finding_category": "third_party_deficiency",
+  "observation_class": "informational_observation",
+  "conclusion_rules": {
+    "may_assert": [
+      "That the entity depends on a named subservice organization for a criterion, and that no assessment record of that organization's report exists.",
+      "That complementary user entity controls identified in an obtained report have no corresponding control on the entity's side.",
+      "That a coverage interval exists between the subservice organization's report period and the entity's own period."
+    ],
+    "must_not_assert": [
+      "That the subservice organization's controls are deficient. DriftGuard has no basis to assess them and the entity does not control them.",
+      "That the entity's criterion is unmet. Reliance on a subservice organization is a legitimate way to meet a criterion; the observation is that the reliance is unassessed.",
+      "That a bridge letter closes a coverage gap. It is unaudited management representation and provides no assurance."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "A complementary user entity control identified in the report is a control the entity must implement itself and demonstrably has not, meaning the criterion is unmet on the entity's own side."
+      },
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "The report has been obtained but its scope cannot be confirmed to cover the services actually relied on."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.4"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.4-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "The entity cannot demonstrate that a criterion it does not control itself is being met, or has not assumed obligations transferred to it.",
+    "pervasiveness": "An unmapped complementary control differs from having never obtained the report at all.",
+    "compensating_controls": [],
+    "detectability": "Detectable by comparing the vendor register against the set of assessed reports; commonly missed because obtaining the report feels like completing the task.",
+    "escalates_when": [
+      "No report has been obtained for a subservice organization the entity depends on for an in-scope criterion",
+      "Complementary user entity controls are unmapped and one of them is clearly not implemented",
+      "The report is a Type 1 while the entity requires operating-effectiveness assurance",
+      "A further subservice organization is carved out of that report, chaining the gap downstream"
+    ],
+    "de_escalates_when": [
+      "The report is current, in scope, and every complementary user entity control is mapped",
+      "The dependency is on a service that touches no protected information"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Subservice organization identified as a dependency with no assurance report on file.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-PHYSEC-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Report obtained with no record of review or of complementary user entity control mapping.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-PHYSEC-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Report period ends before the entity's examination period, leaving an uncovered interval.",
+      "source_of_signal": "report_parsing",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Report scope covers services or regions other than those the entity actually uses.",
+      "source_of_signal": "report_parsing",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent reports fully hosted facilities with no provider assurance report obtained.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-PHYSEC-001-Q01",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Where a subservice organization is carved out, its controls sit outside the entity's opinion, and auditors commonly test that the entity monitors the relationship and has addressed the complementary user entity controls. The monitoring is the entity's control; the provider's controls are not.",
+  "customer_impact": "Part of the assurance the customer is relying on rests with a fourth party, and the vendor has not confirmed that reliance is sound or that it has assumed the obligations transferred to it.",
+  "remediations": [
+    "REM-PHYSEC-002"
+  ],
+  "false_positive_guidance": [
+    "Classified as an informational observation by default because reliance on a subservice organization is legitimate; the observation concerns the entity's assessment activity, not the provider's controls.",
+    "Not a gap where the report is current, covers the services used, and complementary user entity controls are mapped, even if the report itself contains exceptions.",
+    "Not a gap where the dependency touches no protected information and no in-scope criterion.",
+    "Never characterise the subservice organization's control environment. DriftGuard has no basis for that and the entity does not control it.",
+    "Do not treat a public compliance badge or certification page as an obtained report; also do not treat its absence as evidence the provider lacks controls."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.4",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Carve-out treatment, complementary user entity control expectations, and the observation that obtaining a report is not the control.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

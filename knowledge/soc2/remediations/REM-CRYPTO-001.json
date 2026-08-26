@@ -1,0 +1,110 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-CRYPTO-001",
+  "name": "Enforce encryption at rest with separated key custody",
+  "description": "Make encryption a platform default that cannot be bypassed at resource creation, extend it across the whole storage estate including derived copies, and separate the ability to administer keys from the ability to read data.",
+  "domain": "cryptography",
+  "remediation_type": "implement_control",
+  "durability": "structural",
+  "responsible_role": "Platform Engineering, with Security Engineering accountable for key policy",
+  "addresses_findings": [
+    "FND-CRYPTO-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.1-002"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.5",
+    "CC6.7"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Inventory every storage resource holding protected information, explicitly including backups, snapshots, replicas, and log archives.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CRYPTO-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Enable encryption on unencrypted resources, sequencing by whether the operation requires recreation or migration.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Apply an organisation-level policy that prevents creation of unencrypted storage, so the default is enforced rather than conventional.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CRYPTO-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Separate key administration from key use in the key policy, and reduce the administrative principal set to a named few.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-CRYPTO-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Enable key use logging and route it into the evidence collection alongside the configuration export.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Document the key custody model and the basis for choosing provider-managed or customer-managed keys.",
+      "owner_role": "Compliance owner"
+    },
+    {
+      "step": 7,
+      "action": "Schedule dated configuration captures so period coverage accumulates rather than being reconstructed at audit time.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Some storage types cannot be encrypted in place and require recreation and migration; this drives the timeline far more than the policy work.",
+    "Customer-managed keys add operational risk: a key deleted in error destroys data irrecoverably. Do not adopt them purely because they sound stronger.",
+    "Enforcement policy applied before remediation will block legitimate work. Remediate existing resources first, then enforce.",
+    "Backups held by a managed backup service may be encrypted under a separate key hierarchy that needs its own assessment."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks; longer where in-place encryption is unavailable and data must be migrated.",
+  "prerequisites": [
+    "A storage inventory that includes derived copies",
+    "Agreement on the key custody model before key policy changes are made"
+  ],
+  "verification_method": {
+    "how": "Re-export encryption state across the estate and confirm every resource holding protected information is encrypted, that the creation policy blocks unencrypted resources, and that key administration and data access principals are disjoint.",
+    "verifying_evidence": [
+      "EV-CRYPTO-001",
+      "EV-CONFIG-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Encryption at rest does not mitigate a compromised application identity that legitimately holds decryption rights. It bounds storage-layer and backup exposure, not application-layer compromise.",
+  "period_limitation_note": "Encrypting storage now does not change the state of that storage during an elapsed examination period. Where a Type 2 period has passed with unencrypted resources, the condition existed and this remediation does not alter it.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Encryption at rest is not a SOC 2 requirement. This is DriftGuard's recommended way to meet the CC6.1 objective for stored information."
+  ]
+}

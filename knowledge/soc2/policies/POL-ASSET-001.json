@@ -1,0 +1,156 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-ASSET-001",
+  "name": "Asset Management and Media Sanitization Policy",
+  "description": "Defines how assets holding protected information are inventoried, tracked through their life, and sanitized before protections over them are discontinued.",
+  "domain": "asset_management",
+  "policy_type": "policy",
+  "purpose": "Establish the inventory that scope-based controls depend on, and define the sanitization standard applied before an asset leaves the entity's control.",
+  "scope_guidance": "Should cover endpoints, servers, storage media, removable media, and cloud storage resources, and should address every route by which an asset can leave the entity's control including lease return, resale, transfer, and destruction.",
+  "supported_controls": [
+    "SOC2-CC6.5-001"
+  ],
+  "supported_criteria": [
+    "CC6.5",
+    "CC6.4"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Definition of the authoritative asset inventory and who maintains it",
+      "necessity": "expected",
+      "rationale": "Several other controls derive their scope from this inventory; if it is not authoritative, their coverage cannot be assessed.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Asset classification indicating which assets hold protected information",
+      "necessity": "expected",
+      "rationale": "Determines which assets the sanitization requirement applies to.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Sanitization methods by media type, and when each applies",
+      "necessity": "expected",
+      "rationale": "Overwriting, degaussing, destruction, and cryptographic erasure are not interchangeable.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Requirement to record sanitization per asset, with identifier, method, date, and performer",
+      "necessity": "expected",
+      "rationale": "Without a per-asset record, correct practice is indistinguishable from no practice.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Third-party destruction requirements, including itemised certificates",
+      "necessity": "expected",
+      "rationale": "A certificate that does not identify assets cannot be reconciled to what was sent.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Treatment of leased, returned, resold, and transferred assets",
+      "necessity": "expected",
+      "rationale": "Departure routes other than destruction are the ones most often uncontrolled.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Cloud storage equivalent, covering provider deletion commitments and cryptographic erasure",
+      "necessity": "expected",
+      "rationale": "Otherwise the policy silently excludes where most data actually lives.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Requirement to close the inventory record with a disposal status",
+      "necessity": "recommended",
+      "rationale": "Prevents disposal being inferred from an asset simply disappearing.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-ASSET-001"
+    ]
+  },
+  "communication_expectation": "Communicated to IT operations and to anyone who can dispose of or return equipment, including office managers handling lease returns.",
+  "common_gaps": [
+    "Policy covers owned assets reaching end of life but not leased equipment returned to the lessor.",
+    "Cryptographic erasure permitted with no corresponding key destruction requirement.",
+    "No requirement to record sanitization per asset, so the control is unevidenced by design.",
+    "Cloud storage entirely out of scope."
+  ],
+  "related_policies": [
+    "POL-PHYSEC-001",
+    "POL-CRYPTO-001",
+    "POL-DATA-001"
+  ],
+  "evidence_examples": [
+    "EV-ASSET-001"
+  ],
+  "common_findings": [
+    "FND-ASSET-001"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.5",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The asset inventory defined here is the scope basis for several controls outside CC6, including vulnerability scanning and endpoint coverage. Treat it as a shared dependency rather than a physical-security concern."
+  ]
+}

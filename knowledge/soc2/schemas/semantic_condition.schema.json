@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/semantic_condition.schema.json",
+  "x-driftguard-schema-version": "1.0.0",
+  "title": "DriftGuard Semantic Questionnaire Condition",
+  "description": "Machine-readable representation of a gap-signal condition whose answer is free text and therefore cannot be evaluated by the deterministic gap signal grammar. The record decomposes the condition into the discrete elements an answer must evidence. It contains data only: no expressions, no code, no template strings. It does not specify how an evaluator reaches its judgement, only what the judgement is about.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "record_type": { "const": "semantic_condition" },
+    "condition_id": { "type": "string", "pattern": "^SEMCOND-[0-9]{4}$" },
+    "evaluation_type": { "const": "semantic" },
+    "question_id": {
+      "$ref": "common.defs.json#/$defs/question_id",
+      "description": "The questionnaire question this condition evaluates. Must exist."
+    },
+    "indicates_finding": {
+      "$ref": "common.defs.json#/$defs/finding_id",
+      "description": "The finding archetype signalled when this condition fires. Mirrors the gap_signal it derives from."
+    },
+    "source_condition": {
+      "type": "string",
+      "description": "The original prose condition, preserved verbatim. This is the statement of intent the structured form must not change."
+    },
+    "fires_when": {
+      "type": "string",
+      "enum": ["any_required_element_missing", "all_required_elements_missing"],
+      "description": "Polarity of the condition. Without it the decomposition is ambiguous: omitting one expected element and omitting every expected element are different signals."
+    },
+    "expected_elements": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The discrete things an answer must evidence. Descriptions are prose for a human or an evaluator to read; they are never parsed or executed.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "element_id": { "type": "string", "pattern": "^SE-[0-9]{3}$" },
+          "description": { "type": "string", "minLength": 3 },
+          "required": {
+            "type": "boolean",
+            "description": "Whether absence of this element contributes to the condition firing. Optional elements strengthen an answer without being necessary."
+          }
+        },
+        "required": ["element_id", "description", "required"],
+        "additionalProperties": false
+      }
+    },
+    "manual_review": {
+      "type": "object",
+      "description": "Present only where the decomposition itself is uncertain and a human should confirm it before the condition is relied on.",
+      "properties": {
+        "required": { "type": "boolean" },
+        "reason": { "type": "string" }
+      },
+      "required": ["required", "reason"],
+      "additionalProperties": false
+    },
+    "sources": { "$ref": "common.defs.json#/$defs/source_id_list" },
+    "authority_tier_dominant": { "$ref": "common.defs.json#/$defs/authority_tier" },
+    "verification_status": { "$ref": "common.defs.json#/$defs/verification_status" },
+    "version": { "$ref": "common.defs.json#/$defs/semver" },
+    "schema_version": { "$ref": "common.defs.json#/$defs/semver" },
+    "status": { "$ref": "common.defs.json#/$defs/record_status" },
+    "created": { "$ref": "common.defs.json#/$defs/date" },
+    "last_reviewed": { "$ref": "common.defs.json#/$defs/date" },
+    "notes": { "$ref": "common.defs.json#/$defs/notes" }
+  },
+  "required": [
+    "record_type", "condition_id", "evaluation_type", "question_id", "indicates_finding",
+    "source_condition", "fires_when", "expected_elements", "sources",
+    "authority_tier_dominant", "verification_status", "version", "schema_version",
+    "status", "created", "last_reviewed"
+  ],
+  "additionalProperties": false
+}

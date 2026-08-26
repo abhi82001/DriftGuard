@@ -1,0 +1,154 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.2-001",
+  "control_name": "Authorized Registration and Provisioning of Internal and External Users",
+  "criterion": "CC6.2",
+  "secondary_criteria": [
+    "CC6.1",
+    "CC6.3"
+  ],
+  "category": "security",
+  "domain": "access_management",
+  "objective": "Ensure that credentials are issued only to identities that have been verified and whose access has been authorised by someone with the standing to grant it, before access is granted rather than after.",
+  "description": "Before system credentials are issued, the requester's identity is established and the specific access requested is approved by the accountable system owner or the requester's manager. Approval is recorded in the ticketing system and references the role or entitlement set being granted. The same path applies to internal employees, contractors, and external users whose access the entity administers. Provisioning is performed from the approved request rather than by direct administrative action.",
+  "control_type": "preventive",
+  "automation_level": "semi_automated",
+  "frequency": "event_driven",
+  "owner_role": "IT / Identity and Access Management owner",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The entity administers credentials for any user population"
+    ],
+    "not_applicable_when": [
+      "All access is self-service under a customer-administered identity system and the entity issues no credentials at all"
+    ]
+  },
+  "implementation_guidance": [
+    "Make the approval a precondition of provisioning in the workflow, not a parallel record. Where they are parallel, they diverge.",
+    "Approvals should name the entitlement or role granted, not just 'access'. An approval that does not say what was approved cannot evidence authorisation.",
+    "Define who may approve what. Self-approval and peer approval for privileged entitlements are the most common weaknesses.",
+    "Cover external users and contractors on the same path; they are routinely handled by exception and therefore unevidenced.",
+    "Retain the approval for at least the examination period; approvals living only in chat are effectively unretained."
+  ],
+  "design_considerations": [
+    "Is the approver positioned to know whether the access is appropriate?",
+    "Can access be provisioned outside the approved path, and if so what detects it?",
+    "Does the process cover external and non-employee populations?"
+  ],
+  "operating_considerations": [
+    "Does every account created during the period trace back to an approval that predates it?",
+    "Were any accounts created by direct administrative action, and were those reviewed?",
+    "Do the entitlements actually granted match what was approved?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-ACCESS-002",
+      "necessity": "primary",
+      "note": "The approval record itself, joined to the account creation event."
+    },
+    {
+      "evidence_id": "EV-IAM-001",
+      "necessity": "supporting",
+      "note": "Identity provider export establishes the account population to reconcile approvals against."
+    }
+  ],
+  "policy_examples": [
+    "POL-ACCESS-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ACCESS-005",
+      "description": "Access is granted informally and accumulates without anyone having judged it appropriate.",
+      "inherent_severity": "high"
+    },
+    {
+      "risk_id": "RSK-ACCESS-006",
+      "description": "Credentials are issued to an identity that was never verified, including to an external party misrepresenting itself.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-ACCESS-004"
+  ],
+  "remediation": [
+    "REM-ACCESS-004"
+  ],
+  "questionnaire_questions": [
+    "QN-ACCESS-001-Q07"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.3-002",
+      "relationship": "supports",
+      "note": "Role definitions are what an approver approves against."
+    },
+    {
+      "control_id": "SOC2-CC6.2-002",
+      "relationship": "overlaps_with",
+      "note": "Provisioning and removal are the two ends of the same lifecycle."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "AC-2(a)",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.5.16",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "6.1",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.2",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "CC6.2 concerns registration and authorisation prior to issuing credentials, and removal when access is no longer authorised. DriftGuard splits those into two controls (this one and SOC2-CC6.2-002) because they are designed, operated, and evidenced independently."
+  ]
+}

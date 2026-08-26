@@ -1,0 +1,55 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-ACCESS-001",
+  "name": "Access Control Policy",
+  "description": "Defines how identities are established, entitlements are granted, modified, reviewed, and removed, and what authentication is required for access to in-scope systems.",
+  "domain": "access_management",
+  "policy_type": "policy",
+  "purpose": "Give the access controls a documented, approved, and communicated basis, so that the organization's own stated commitments are the standard against which its controls are evaluated.",
+  "scope_guidance": "Should cover all in-scope systems and every category of identity: employees, contractors, service accounts, shared accounts, administrative accounts, and third-party support access.",
+  "supported_controls": ["SOC2-CC6.1-001", "SOC2-CC6.3-001"],
+  "supported_criteria": ["CC6.1", "CC6.2", "CC6.3"],
+  "required_elements": [
+    { "element_id": "PE-001", "element": "Scope statement identifying the systems and identity types covered", "necessity": "expected", "rationale": "Undefined scope makes it impossible to assess whether a control covered everything it should have.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-002", "element": "Authentication requirements, including where a second factor is required and any permitted exceptions", "necessity": "expected", "rationale": "The policy is what the MFA control is measured against; exceptions must be anticipated in policy rather than improvised.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-003", "element": "Provisioning process with a defined approval authority", "necessity": "expected", "rationale": "Access granted without documented approval is a recurring deficiency.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-004", "element": "Deprovisioning process with a stated timeframe for revocation on termination or role change", "necessity": "expected", "rationale": "The stated timeframe becomes the commitment the organization is held to; without one, timeliness cannot be assessed.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-005", "element": "Access review cadence, reviewer accountability, and required treatment of flagged items", "necessity": "expected", "rationale": "The review control cannot be tested against an undefined cadence, and undefined closure expectations produce reviews with no follow-through.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-006", "element": "Least privilege and segregation of duties principles as applied in this environment", "necessity": "expected", "rationale": "Supports the entitlement-appropriateness judgement reviewers are asked to make.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-007", "element": "Privileged and administrative access handling, including break-glass procedures", "necessity": "expected", "rationale": "Privileged access carries the highest impact and is examined most closely.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-008", "element": "Service account and non-human identity governance, including ownership and credential rotation", "necessity": "recommended", "rationale": "Non-human identities are the population most often omitted from access controls.", "sources": ["SRC-DG-BEST-PRACTICE"] },
+    { "element_id": "PE-009", "element": "Named policy owner, approval record, and review cadence", "necessity": "expected", "rationale": "An unapproved or undated policy is treated as a documentation deficiency.", "sources": ["SRC-DG-AUDITOR-PRACTICE"] },
+    { "element_id": "PE-010", "element": "Consequences of non-compliance and the exception process", "necessity": "recommended", "rationale": "Gives exceptions a governed path instead of silent tolerance.", "sources": ["SRC-DG-BEST-PRACTICE"] }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": ["EV-ACCESS-001"]
+  },
+  "communication_expectation": "Made available to all personnel with system access and acknowledged at onboarding and on material revision. Relevant to the CC2 communication criteria.",
+  "common_gaps": [
+    "Policy approved after the examination period began, so it did not govern the period it is offered as evidence for.",
+    "Deprovisioning timeframe stated in the policy differs from the timeframe the process actually achieves.",
+    "Access review cadence in the policy differs from the cadence actually performed.",
+    "Service accounts and contractors not addressed at all."
+  ],
+  "related_policies": ["POL-VULN-001"],
+  "evidence_examples": ["EV-ACCESS-001", "EV-IAM-001"],
+  "common_findings": ["FND-ACCESS-001", "FND-ACCESS-002", "FND-IAM-001"],
+  "sources": ["SRC-AICPA-TSC-2017-R2022", "SRC-DG-AUDITOR-PRACTICE", "SRC-DG-BEST-PRACTICE"],
+  "source_refs": [
+    { "source_id": "SRC-AICPA-TSC-2017-R2022", "locator": "TSC CC6.1, CC6.2, CC6.3", "authority_tier": 1, "supports": "The criteria this policy's controls contribute to.", "verification_status": "verified" },
+    { "source_id": "SRC-DG-BEST-PRACTICE", "authority_tier": 5, "supports": "The required_elements model. SOC 2 does not prescribe policy contents.", "verification_status": "opinion" }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-11",
+  "notes": [
+    "SOC 2 does not require a document called an Access Control Policy, nor prescribe its contents. 'expected' in required_elements means DriftGuard expects it in a policy that is to support these controls; it is not a SOC 2 requirement."
+  ]
+}

@@ -1,0 +1,180 @@
+{
+  "$schema": "../schemas/policy.schema.json",
+  "record_type": "policy",
+  "policy_id": "POL-INCIDENT-001",
+  "name": "Incident Response Policy",
+  "description": "Defines how security events are evaluated for incident status, how declared incidents are worked, who communicates what to whom, and how recovery and post-incident remediation are handled.",
+  "domain": "security_operations",
+  "policy_type": "policy",
+  "purpose": "Establish the declaration criteria, response roles, and notification commitments that CC7.3, CC7.4, and CC7.5 controls are measured against.",
+  "scope_guidance": "Should cover the full lifecycle from event evaluation through recovery, and should include intake paths for events not surfaced by monitoring.",
+  "supported_controls": [
+    "SOC2-CC7.3-001",
+    "SOC2-CC7.4-001",
+    "SOC2-CC7.5-001"
+  ],
+  "supported_criteria": [
+    "CC7.3",
+    "CC7.4",
+    "CC7.5"
+  ],
+  "required_elements": [
+    {
+      "element_id": "PE-001",
+      "element": "Severity and impact criteria determining when a security event is declared an incident",
+      "necessity": "expected",
+      "rationale": "An undocumented threshold cannot be applied consistently and cannot be tested.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-002",
+      "element": "Who may declare an incident and who may stand one down",
+      "necessity": "expected",
+      "rationale": "Both decisions must be attributable, and the stand-down is the one usually left undefined.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-003",
+      "element": "Response roles, including a named incident commander role",
+      "necessity": "expected",
+      "rationale": "Roles assigned during an incident are roles nobody has practised.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-004",
+      "element": "Response and containment timeframes by severity",
+      "necessity": "expected",
+      "rationale": "These are the commitments timeliness is assessed against; the criteria prescribe none.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-005",
+      "element": "Internal and external communication obligations, with triggers, recipients, and timeframes",
+      "necessity": "expected",
+      "rationale": "Customer and regulatory notification is where the consequences of an incident usually land.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-006",
+      "element": "Intake paths for events reported outside monitoring, such as customer or researcher reports",
+      "necessity": "expected",
+      "rationale": "These arrive regularly and are otherwise handled informally and unevidenced.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-007",
+      "element": "Plan test cadence and test type",
+      "necessity": "expected",
+      "rationale": "The stated cadence is the benchmark for whether testing occurred as described.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-008",
+      "element": "Post-incident review trigger, timeframe, and requirement to track actions to closure",
+      "necessity": "expected",
+      "rationale": "Actions held only in a review document lapse, and closure cannot be demonstrated.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-009",
+      "element": "Recovery expectations, including verification that restoration succeeded",
+      "necessity": "recommended",
+      "rationale": "Distinguishes a completed restore from an attempted one.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-010",
+      "element": "Evidence retention requirements for incident records",
+      "necessity": "recommended",
+      "rationale": "Incident records are frequently held in tools with short default retention.",
+      "sources": [
+        "SRC-DG-BEST-PRACTICE"
+      ]
+    },
+    {
+      "element_id": "PE-011",
+      "element": "Named policy owner, approval record, and review cadence",
+      "necessity": "expected",
+      "rationale": "An unapproved or undated policy is treated as a documentation deficiency.",
+      "sources": [
+        "SRC-DG-AUDITOR-PRACTICE"
+      ]
+    }
+  ],
+  "approval_expectation": {
+    "approver_role": "Executive accountable for security (CISO or equivalent)",
+    "review_frequency": "annual",
+    "evidence_of_approval": [
+      "EV-INCIDENT-002"
+    ]
+  },
+  "communication_expectation": "Communicated to everyone who may be called into a response, and exercised rather than only distributed.",
+  "common_gaps": [
+    "Declaration criteria absent, so incident status is decided case by case.",
+    "Notification obligations described without triggers or timeframes.",
+    "Test cadence stated but no test performed within the period.",
+    "Post-incident review required with no requirement to track resulting actions."
+  ],
+  "related_policies": [
+    "POL-LOG-001",
+    "POL-VULN-001"
+  ],
+  "evidence_examples": [
+    "EV-INCIDENT-001",
+    "EV-INCIDENT-002"
+  ],
+  "common_findings": [
+    "FND-INCIDENT-001",
+    "FND-INCIDENT-002",
+    "FND-INCIDENT-003",
+    "FND-INCIDENT-004"
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.3, CC7.4, CC7.5",
+      "authority_tier": 1,
+      "supports": "The criteria the controls this policy documents contribute to.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "The required_elements model. SOC 2 prescribes no policy contents.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criteria prescribe no response timeframes, test cadence, or notification windows. Each is the entity's own commitment and is the only benchmark DriftGuard assesses against."
+  ]
+}

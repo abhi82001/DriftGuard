@@ -1,0 +1,176 @@
+{
+  "$schema": "../schemas/questionnaire.schema.json",
+  "record_type": "questionnaire",
+  "questionnaire_id": "QN-PHYSEC-001",
+  "name": "Physical Security and Asset Disposal Readiness Questionnaire",
+  "description": "Establishes how physical access is controlled and reviewed, how reliance on hosting providers is governed, and how assets are sanitized before leaving the entity's control.",
+  "purpose": "readiness_assessment",
+  "audience": "service_organization",
+  "domain": "physical_security",
+  "covers_criteria": [
+    "CC6.4",
+    "CC6.5"
+  ],
+  "questions": [
+    {
+      "question_id": "QN-PHYSEC-001-Q01",
+      "text": "Which facilities do you operate yourself where protected information assets or endpoints with access to them are present, and which are operated by a hosting or colocation provider?",
+      "intent": "Establish whether CC6.4 is met through the entity's own controls, through subservice organization reliance, or both. This determines what evidence is even relevant.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.4-001"
+      ],
+      "related_criteria": [
+        "CC6.4"
+      ],
+      "expected_evidence": [
+        "EV-PHYSEC-001",
+        "EV-PHYSEC-002"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates all facilities are hosted and no provider assurance report is obtained",
+          "indicates_finding": "FND-PHYSEC-002",
+          "severity": "medium",
+          "confidence": "high"
+        }
+      ],
+      "required": true,
+      "guidance": "A fully remote entity still has CC6.4 in scope. It is met through provider assurance rather than badge administration, and answering 'not applicable' is incorrect."
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q02",
+      "text": "When someone leaves or changes role, what triggers removal of their physical access, and is it the same trigger that removes their logical access?",
+      "intent": "Detect the split-lifecycle pattern, where logical deprovisioning is automated and physical revocation is a separate manual step that is forgotten.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.4-001"
+      ],
+      "related_criteria": [
+        "CC6.4"
+      ],
+      "expected_evidence": [
+        "EV-PHYSEC-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates physical revocation is a separate manual process with no committed timeframe",
+          "indicates_finding": "FND-PHYSEC-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q03",
+      "text": "How often is the physical access roster reviewed, who reviews it, and what happened to the access identified for removal in the most recent review?",
+      "intent": "Establish that the review occurs on cadence and produces correction, rather than existing as an inventory exercise.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.4-001"
+      ],
+      "related_criteria": [
+        "CC6.4"
+      ],
+      "expected_evidence": [
+        "EV-PHYSEC-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates no defined cadence",
+          "indicates_finding": "FND-PHYSEC-001",
+          "severity": "medium",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer describes a review with no record of resulting revocations",
+          "indicates_finding": "FND-PHYSEC-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q04",
+      "text": "When a device or storage medium holding protected information leaves your control \u2014 destroyed, returned to a lessor, resold, or transferred \u2014 what record is created showing the data was rendered unrecoverable first?",
+      "intent": "Establish whether sanitization is evidenced per asset and whether all departure routes are covered, not only destruction at end of life.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.5-001"
+      ],
+      "related_criteria": [
+        "CC6.5"
+      ],
+      "expected_evidence": [
+        "EV-ASSET-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer indicates no per-asset record is created",
+          "indicates_finding": "FND-ASSET-001",
+          "severity": "medium",
+          "confidence": "high"
+        },
+        {
+          "condition": "answer covers destruction only and omits lease return, resale, or transfer",
+          "indicates_finding": "FND-ASSET-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": true,
+      "guidance": "The absence of a record does not establish that sanitization did not happen. It establishes that it cannot be demonstrated, which is a different observation."
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q05",
+      "text": "Where you rely on cryptographic erasure or on a cloud provider's deletion commitment instead of physically destroying media, how do you evidence that the data is genuinely unrecoverable?",
+      "intent": "Test the cloud-equivalent path for CC6.5, which is frequently assumed to need no evidence at all.",
+      "answer_type": "text",
+      "related_controls": [
+        "SOC2-CC6.5-001",
+        "SOC2-CC6.1-002"
+      ],
+      "related_criteria": [
+        "CC6.5"
+      ],
+      "expected_evidence": [
+        "EV-ASSET-001",
+        "EV-CRYPTO-001"
+      ],
+      "gap_signals": [
+        {
+          "condition": "answer relies on cryptographic erasure with no evidence of key destruction",
+          "indicates_finding": "FND-ASSET-001",
+          "severity": "medium",
+          "confidence": "medium"
+        }
+      ],
+      "required": false,
+      "guidance": "Only material where the entity relies on cryptographic erasure or provider deletion. Skip where all media is physically destroyed."
+    }
+  ],
+  "scoring_model": {
+    "method": "criterion_coverage",
+    "description": "Answers are aggregated per criterion. A criterion is marked 'evidence needed' where a gap signal fires, and 'covered' only where the answer is corroborated by evidence that passes its validation rules.",
+    "disclaimer": "This score is a DriftGuard readiness signal only. It is not an audit conclusion, not an opinion on control effectiveness, and carries no assurance. Only an independent service auditor can conclude on whether criteria were met."
+  },
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Question formulations are original DriftGuard wording. No proprietary questionnaire content is reproduced.",
+    "gap_signal conditions migrated to grammar 1.0.0. Conditions on enumerated answer types carry a machine-readable condition_expr; conditions on free-text answers retain prose only, because evaluating them requires semantic judgement that a deterministic grammar cannot express. The prose `condition` is unchanged in every case."
+  ],
+  "gap_signal_grammar_version": "1.0.0"
+}

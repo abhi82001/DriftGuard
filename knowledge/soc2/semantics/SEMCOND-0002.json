@@ -1,0 +1,36 @@
+{
+  "$schema": "../schemas/semantic_condition.schema.json",
+  "record_type": "semantic_condition",
+  "condition_id": "SEMCOND-0002",
+  "evaluation_type": "semantic",
+  "question_id": "QN-OPS-001-Q03",
+  "indicates_finding": "FND-MONITOR-001",
+  "source_condition": "no named responder or analysis timeframe",
+  "fires_when": "any_required_element_missing",
+  "expected_elements": [
+    {
+      "element_id": "SE-001",
+      "description": "The answer identifies who analyses an alert, as a named role or an on-call rotation rather than a team in general.",
+      "required": true
+    },
+    {
+      "element_id": "SE-002",
+      "description": "The answer states a timeframe within which analysis is expected to occur.",
+      "required": true
+    }
+  ],
+  "sources": [
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "1.0.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Pattern: absent process attributes. The prose names two attributes a described process must have; the condition fires when either is absent.",
+    "Chosen as a second exemplar because it decomposes differently from SEMCOND-0001: the elements are properties of one described process rather than members of an enumerated scope."
+  ]
+}

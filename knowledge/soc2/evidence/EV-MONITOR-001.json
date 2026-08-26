@@ -1,0 +1,173 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-MONITOR-001",
+  "name": "Security Alert and Event Evaluation Record",
+  "description": "The population of security alerts raised during the period and the recorded outcome of analysing each: who assessed it, when, and whether it was judged to be a security event or incident.",
+  "domain": "security_operations",
+  "evidence_type": "ticket_record",
+  "evidence_role": "operational",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Unfiltered alert population for the examination period",
+      "required": true,
+      "why": "A filtered export hides the unanalysed backlog, which is the substance of the control."
+    },
+    {
+      "element": "Alert timestamp, source, and affected component",
+      "required": true,
+      "why": "Places the alert in the period and connects it to the in-scope boundary."
+    },
+    {
+      "element": "Analyst identity and analysis timestamp",
+      "required": true,
+      "why": "Demonstrates a defined responder acted, which is what distinguishes monitoring from collection."
+    },
+    {
+      "element": "Disposition with its basis: benign, security event, or declared incident",
+      "required": true,
+      "why": "The discriminating judgement CC7.2 and CC7.3 both rest on."
+    },
+    {
+      "element": "Link to the incident record where the event was declared an incident",
+      "required": true,
+      "why": "Connects the evaluation to the response, so the chain is traceable end to end."
+    },
+    {
+      "element": "Elapsed time from alert to analysis measured against the entity's committed timeframe",
+      "required": true,
+      "why": "Timeliness is assessed against the entity's own commitment, which is the only benchmark."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC7.2-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC7.3-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC7.2",
+    "CC7.3"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "Security Engineering",
+  "source_system_examples": [
+    "SIEM case or alert queue export",
+    "Security ticketing queue",
+    "On-call alerting platform incident log"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "period_bound",
+    "rationale": "DriftGuard default: the record must reach the end of the period under assessment."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "Alert detail can describe live weaknesses; restrict distribution.",
+    "Retain analyst identity for attribution; affected user identities may be tokenised."
+  ],
+  "retention_guidance": "Retain for the full examination period; shorter retention leaves an interval where analysis cannot be demonstrated.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "An alert population export exists covering the examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-MONITOR-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "The export is unfiltered rather than limited to closed or escalated items.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-MONITOR-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Each alert carries an analyst, a disposition, and the basis for that disposition.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-MONITOR-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Analysis occurred within the entity's committed timeframe for the alert severity.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-MONITOR-001"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "relevance",
+      "rule": "Alerts judged to be incidents link to a corresponding incident record.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-INCIDENT-001"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The export originates from the alerting or ticketing platform rather than a summary narrative.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Only escalated alerts exported, so the unanalysed remainder is invisible.",
+      "impact": "The population is incomplete and analysis coverage cannot be assessed.",
+      "related_finding": "FND-MONITOR-001"
+    },
+    {
+      "issue": "Alerts auto-closed by rule with no recorded basis.",
+      "impact": "Informed suppression cannot be distinguished from alerts nobody examined.",
+      "related_finding": "FND-MONITOR-001"
+    },
+    {
+      "issue": "Dispositions recorded with no criteria stating what makes an alert an incident.",
+      "impact": "Declaration is inconsistent and untestable.",
+      "related_finding": "FND-INCIDENT-001"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Distinct from EV-ENDPOINT-002, which is the malware-specific detection population feeding this process. This record is the consolidated alert and event evaluation layer; do not duplicate one into the other."
+  ]
+}

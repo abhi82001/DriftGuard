@@ -1,0 +1,110 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ENDPOINT-001",
+  "name": "Measure protection coverage against the asset inventory and close the shortfall",
+  "description": "Change the denominator from the protection tool's own device list to the authoritative asset inventory, report agent health rather than installation, and apply the appropriate control model to each workload type.",
+  "domain": "endpoint_security",
+  "remediation_type": "expand_scope",
+  "durability": "structural",
+  "responsible_role": "IT Operations, with Security Engineering accountable for the standard",
+  "addresses_findings": [
+    "FND-ENDPOINT-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.8-001"
+  ],
+  "affected_criteria": [
+    "CC6.8"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Establish the asset inventory as the authoritative denominator for coverage, and reconcile the protection tool's device list against it.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Classify assets by workload type, separating managed endpoints and servers from immutable ephemeral workloads.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Deploy or repair agents on uncovered endpoints and servers.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "For immutable ephemeral workloads, implement image provenance and integrity verification in the build pipeline instead of resident agents.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Report agent health and check-in currency, not installation status, and alert on stale agents.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Decide and document whether contractor and personally owned devices are inside or outside the boundary, and control accordingly.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 7,
+      "action": "Capture coverage on a schedule across the period so degradation is visible rather than discovered at period end.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "If the asset inventory is itself incomplete, fixing coverage measurement will surface that first. Expect the inventory to be the real project.",
+    "Applying an endpoint agent model to containers produces cost, noise, and little assurance. Choose the model from the workload type before deploying anything.",
+    "Contractor devices are usually the hardest decision, not the hardest deployment. Deciding they are outside the boundary is legitimate provided the boundary genuinely excludes them.",
+    "Stale-agent alerting will initially fire on long-decommissioned assets still in the inventory; reconcile inventory currency alongside."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks for deployment; longer where the asset inventory must be rebuilt first.",
+  "prerequisites": [
+    "An authoritative asset inventory",
+    "Agreement on the boundary treatment of contractor and personal devices"
+  ],
+  "verification_method": {
+    "how": "Reconcile the coverage report against the asset inventory for the same date and confirm every in-scope asset is covered by an appropriate control model, with agents reporting within the stated currency expectation.",
+    "verifying_evidence": [
+      "EV-ENDPOINT-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ENDPOINT-002"
+  ],
+  "residual_risk_note": "Coverage assures that a control is present, not that it is effective against a given threat. Detection quality and triage remain the substance of the control.",
+  "period_limitation_note": "Closing coverage now does not change coverage during an elapsed period. Where assets were unprotected through a Type 2 period, that condition existed.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No product category is required by SOC 2. Image integrity verification is a legitimate alternative to resident agents for immutable workloads and should not be reported as an absent control."
+  ]
+}

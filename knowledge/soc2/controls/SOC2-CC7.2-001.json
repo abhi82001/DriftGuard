@@ -1,0 +1,166 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC7.2-001",
+  "control_name": "Security Monitoring and Anomaly Analysis",
+  "criterion": "CC7.2",
+  "secondary_criteria": [
+    "CC7.1",
+    "CC7.3"
+  ],
+  "category": "security",
+  "domain": "security_operations",
+  "objective": "Collect the telemetry needed to notice abnormal activity across in-scope components, and analyse what is noticed so that anomalies are assessed rather than merely recorded.",
+  "description": "Security-relevant logs are collected from in-scope infrastructure, applications, identity systems, and endpoints into a central store with retention at least matching the examination period. Detection rules or thresholds generate alerts, which are routed to a named responder with a defined analysis timeframe. Each alert receives a recorded disposition indicating whether it represents a security event. Log source coverage is measured against the asset inventory rather than against the sources the platform happens to be receiving.",
+  "control_type": "detective",
+  "automation_level": "semi_automated",
+  "frequency": "continuous",
+  "owner_role": "Security Engineering",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The in-scope system produces observable activity, which is effectively universal"
+    ]
+  },
+  "implementation_guidance": [
+    "Measure log source coverage against the asset inventory. A monitoring platform cannot alert on a source that never onboarded, and its own source list always looks complete.",
+    "Set retention to at least the examination period plus a margin; default retention is the most common silent failure of this control.",
+    "Give alerts a named responder and an analysis timeframe. Alert volume without recorded disposition evidences collection, not monitoring.",
+    "Distinguish an anomaly from a security event explicitly, so the handoff to CC7.3 evaluation is defined rather than implicit.",
+    "Protect log integrity where feasible, so records of an incident cannot be altered by the same access that caused it."
+  ],
+  "design_considerations": [
+    "Is coverage defined by the asset inventory?",
+    "Is retention at least as long as the examination period?",
+    "Is there a named responder and a defined analysis timeframe?"
+  ],
+  "operating_considerations": [
+    "Did log collection persist across the period, or did sources drop out?",
+    "Were alerts analysed within the stated timeframe, with dispositions recorded?",
+    "Can the entity show the alert population is unfiltered?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-LOG-001",
+      "necessity": "primary",
+      "note": "Log source coverage, retention, and integrity configuration."
+    },
+    {
+      "evidence_id": "EV-MONITOR-001",
+      "necessity": "primary",
+      "note": "Alert population with analysis and disposition across the period."
+    },
+    {
+      "evidence_id": "EV-ENDPOINT-002",
+      "necessity": "supporting",
+      "note": "Endpoint detections are one anomaly source feeding the same analysis process."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "supporting",
+      "note": "Evidences that monitoring configuration held through the period."
+    }
+  ],
+  "policy_examples": [
+    "POL-LOG-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-MONITOR-001",
+      "description": "Malicious activity occurs in an unmonitored component and is never observed.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-MONITOR-002",
+      "description": "Alerts are generated at a volume nobody can process, so detection exists on paper only.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-LOG-001",
+    "FND-LOG-002",
+    "FND-MONITOR-001"
+  ],
+  "remediation": [
+    "REM-LOG-001",
+    "REM-LOG-002",
+    "REM-MONITOR-001"
+  ],
+  "questionnaire_questions": [
+    "QN-OPS-001-Q02",
+    "QN-OPS-001-Q03"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.8-001",
+      "relationship": "supports",
+      "note": "Endpoint detections are a feed into this monitoring process."
+    },
+    {
+      "control_id": "SOC2-CC7.3-001",
+      "relationship": "supports",
+      "note": "Anomalies assessed here are what CC7.3 evaluates for incident status."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "SI-4",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.16",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "8.2",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.2",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criteria name no logging technology, retention period, or detection rule set. Retention adequacy is assessed against the entity's own examination period, not against an external benchmark."
+  ]
+}

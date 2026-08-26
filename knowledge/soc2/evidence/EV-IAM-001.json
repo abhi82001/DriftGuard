@@ -1,0 +1,167 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-IAM-001",
+  "name": "Multi-Factor Authentication Enforcement Configuration",
+  "description": "Export of the identity provider's authentication policy showing which factors are enforced, which user populations and applications the policy applies to, and every exclusion from it.",
+  "domain": "access_management",
+  "evidence_type": "configuration_export",
+  "evidence_role": "configuration",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "point_in_time",
+  "type2_pairing_requirement": [
+    "EV-CONFIG-001"
+  ],
+  "expected_content": [
+    {
+      "element": "Policy definition showing the required authentication factors",
+      "required": true,
+      "why": "Establishes what the control actually enforces, as distinct from what the policy document says."
+    },
+    {
+      "element": "Assignment scope: user groups, applications, and network conditions the policy applies to",
+      "required": true,
+      "why": "Coverage is the substance of this control; a policy applied to a subset is a design deficiency."
+    },
+    {
+      "element": "Complete list of exclusions, exceptions, and bypass conditions",
+      "required": true,
+      "why": "Exclusions are where this control usually fails. Their absence from the export is itself a red flag."
+    },
+    {
+      "element": "Enumeration of authentication paths not governed by the identity provider (direct logins, VPN, SSH/bastion, cloud CLI, long-lived API tokens, vendor admin portals)",
+      "required": true,
+      "why": "Uncovered paths defeat the control regardless of how strong the governed path is."
+    },
+    {
+      "element": "Tenant or organization identifier and export timestamp",
+      "required": true,
+      "why": "Attribution and dating; an undated configuration screenshot cannot be placed within the period."
+    },
+    {
+      "element": "Configuration change history covering the examination period",
+      "required": false,
+      "why": "Required in practice for a Type 2 conclusion: point-in-time state alone cannot show the setting held throughout the period."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.1-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.1",
+    "CC6.6"
+  ],
+  "collection_frequency": "continuous",
+  "owner": "IT / Identity and Access Management owner",
+  "source_system_examples": [
+    "Identity provider conditional access policy export",
+    "Cloud provider IAM policy and account settings API",
+    "Infrastructure-as-code definition of the identity configuration"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 30,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default for a continuously enforced configuration. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Never include enrolled factor secrets, recovery codes, seed values, or break-glass credentials.",
+    "Group and user names may be pseudonymised provided scope coverage remains demonstrable."
+  ],
+  "retention_guidance": "Capture on a schedule and retain each dated snapshot; a series of snapshots is what converts point-in-time state into period coverage.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A configuration export exists for the in-scope identity provider.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-IAM-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Every authentication path into the declared system boundary is either covered by the policy or listed as an exclusion with a compensating control.",
+      "check_type": "llm_assisted",
+      "failure_severity": "critical",
+      "failure_finding": "FND-IAM-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "timeliness",
+      "rule": "The export is dated within the examination period, or within the DriftGuard freshness window for continuous monitoring.",
+      "check_type": "deterministic",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "For a Type 2 conclusion, the export is accompanied by configuration change history or repeated dated snapshots covering the period.",
+      "check_type": "heuristic",
+      "failure_severity": "high"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "The artifact is an API or console export identifying the tenant, not an uncontextualised screenshot.",
+      "check_type": "human_review",
+      "failure_severity": "low"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Policy enforced only for a pilot group or a single application while presented as environment-wide.",
+      "impact": "Coverage claimed in the system description exceeds coverage actually configured.",
+      "related_finding": "FND-IAM-001"
+    },
+    {
+      "issue": "Break-glass and service accounts excluded with no compensating control and no alerting on use.",
+      "impact": "An unmonitored bypass exists around the control.",
+      "related_finding": "FND-IAM-001"
+    },
+    {
+      "issue": "Long-lived API tokens or personal access tokens treated as out of scope.",
+      "impact": "A credential-only authentication path persists, defeating the control's objective.",
+      "related_finding": "FND-IAM-001"
+    },
+    {
+      "issue": "Single undated screenshot offered as evidence for a twelve-month period.",
+      "impact": "Point-in-time state cannot support an operating-effectiveness conclusion."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "The point-in-time versus period pairing expectation and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window and snapshot retention approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Exercises the point_in_time period_coverage case. The Phase 1 gap is now closed: EV-CONFIG-001 supplies the configuration change history needed to convert point-in-time state into period coverage for a Type 2 conclusion.",
+    "Backfilled with evidence_role and origin in the CC6 phase (schema 0.2.0). Content otherwise unchanged."
+  ]
+}

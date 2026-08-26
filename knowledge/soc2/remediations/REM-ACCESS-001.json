@@ -1,0 +1,96 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ACCESS-001",
+  "name": "Automate deprovisioning from the HR system of record",
+  "description": "Make termination in the HR system the trigger for access removal, so revocation is a deterministic system event with a measurable timestamp rather than a coordinated manual task.",
+  "domain": "access_management",
+  "remediation_type": "automate",
+  "durability": "structural",
+  "responsible_role": "IT / Identity and Access Management owner",
+  "addresses_findings": [
+    "FND-ACCESS-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.3-001"
+  ],
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Establish the HR system as the authoritative source for employment status, including contractors.",
+      "owner_role": "People Operations"
+    },
+    {
+      "step": 2,
+      "action": "Integrate the HR system with the identity provider so termination automatically disables the identity and revokes active sessions and tokens.",
+      "owner_role": "IT / IAM owner",
+      "produces_evidence": [
+        "EV-IAM-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Map downstream applications to identity provider lifecycle events, and enumerate any application that cannot be integrated.",
+      "owner_role": "IT / IAM owner"
+    },
+    {
+      "step": 4,
+      "action": "Define a documented manual path with the same committed timeframe for applications that cannot be integrated.",
+      "owner_role": "IT / IAM owner"
+    },
+    {
+      "step": 5,
+      "action": "Instrument the elapsed time between termination and revocation so adherence is measurable rather than asserted.",
+      "owner_role": "IT / IAM owner",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Set the committed timeframe in the access control policy to a value the automated process reliably achieves.",
+      "owner_role": "CISO or equivalent"
+    }
+  ],
+  "implementation_considerations": [
+    "The HR-to-identity-provider link is usually the easy part; the schedule is set by how many downstream applications cannot consume lifecycle events.",
+    "Contractors are frequently absent from the HR system entirely. Resolve where contractor status is authoritative before building on it.",
+    "Set the committed timeframe after measuring what the automation actually achieves, not before."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks, dominated by application integration rather than the HR-to-IdP link itself.",
+  "prerequisites": [
+    "An HR system that reliably records terminations promptly",
+    "An identity provider that is genuinely authoritative for the applications in scope"
+  ],
+  "verification_method": {
+    "how": "Sample terminations after the change and compare HR termination timestamps to identity provider revocation timestamps and downstream entitlement state. Confirm the measured interval is within the committed timeframe.",
+    "verifying_evidence": [
+      "EV-ACCESS-001",
+      "EV-IAM-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [],
+  "residual_risk_note": "Applications outside the identity provider retain a manual dependency and remain the most likely source of future overruns. Track them as a named exception list rather than assuming coverage.",
+  "period_limitation_note": "Automating deprovisioning does not remove an overrun that already occurred during an elapsed examination period. The exception will be reported; this remediation reduces recurrence and supports management's response.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Automation is one way to meet the objective, not a required control. A reliably operated manual process with measurable timestamps can be equally acceptable.",
+    "Backfilled with responsible_role and implementation_considerations in the CC6 phase (schema 0.2.0)."
+  ]
+}

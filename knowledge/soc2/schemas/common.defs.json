@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/common.defs.json",
+  "title": "DriftGuard SOC 2 Common Definitions",
+  "description": "Shared definitions referenced by every DriftGuard SOC 2 knowledge schema. Exists so that identifier, versioning, and source-citation semantics are defined once. See framework/metadata.json decision SD-003.",
+  "$defs": {
+    "semver": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of this individual record. Bump patch for editorial fixes, minor for added content, major for breaking meaning or field changes."
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "record_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "in_review",
+        "approved",
+        "deprecated"
+      ],
+      "description": "Editorial lifecycle state. Only 'approved' records should drive customer-facing conclusions."
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "verified",
+        "needs_verification",
+        "interpretation",
+        "opinion",
+        "disputed"
+      ],
+      "description": "Whether the factual content has been checked against its source. See framework/source_governance.md."
+    },
+    "authority_tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "1 authoritative_requirement, 2 official_guidance, 3 industry_guidance, 4 auditor_interpretation, 5 driftguard_best_practice."
+    },
+    "source_id": {
+      "type": "string",
+      "pattern": "^SRC-[A-Z0-9.-]+$",
+      "description": "Reference to an entry in framework/references.json. Bibliographic detail is never repeated in the citing record."
+    },
+    "source_id_list": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source_id"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "source_ref": {
+      "type": "object",
+      "description": "A citation attached to a specific assertion rather than to the record as a whole.",
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/source_id"
+        },
+        "locator": {
+          "type": "string",
+          "description": "Criterion identifier, section, or paragraph within the source, e.g. 'TSC CC6.1'."
+        },
+        "authority_tier": {
+          "$ref": "#/$defs/authority_tier"
+        },
+        "supports": {
+          "type": "string",
+          "description": "Which assertion in this record the citation supports."
+        },
+        "verification_status": {
+          "$ref": "#/$defs/verification_status"
+        }
+      },
+      "required": [
+        "source_id",
+        "authority_tier",
+        "supports"
+      ],
+      "additionalProperties": false
+    },
+    "criterion_id": {
+      "type": "string",
+      "pattern": "^(CC[1-9]\\.[0-9]+|A1\\.[0-9]+|PI1\\.[0-9]+|C1\\.[0-9]+|P[1-8]\\.[0-9]+)$",
+      "description": "A trust services criterion identifier. Must exist in framework/trust_services_criteria.json."
+    },
+    "control_id": {
+      "type": "string",
+      "pattern": "^SOC2-[A-Z]{1,2}[0-9]\\.[0-9]+-[0-9]{3}$"
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EV-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "policy_id": {
+      "type": "string",
+      "pattern": "^POL-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "questionnaire_id": {
+      "type": "string",
+      "pattern": "^QN-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "question_id": {
+      "type": "string",
+      "pattern": "^QN-[A-Z0-9]+-[0-9]{3}-Q[0-9]{2}$"
+    },
+    "finding_id": {
+      "type": "string",
+      "pattern": "^FND-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "remediation_id": {
+      "type": "string",
+      "pattern": "^REM-[A-Z0-9]+-[0-9]{3}$"
+    },
+    "mapping_id": {
+      "type": "string",
+      "pattern": "^MAP-[0-9]{4}$"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "control",
+        "evidence",
+        "policy",
+        "questionnaire",
+        "question",
+        "finding",
+        "remediation",
+        "criterion",
+        "source"
+      ]
+    },
+    "versioning_block": {
+      "type": "object",
+      "description": "Every knowledge record carries these fields. Enforced as required at the top level of each schema.",
+      "properties": {
+        "version": {
+          "$ref": "#/$defs/semver"
+        },
+        "schema_version": {
+          "$ref": "#/$defs/semver"
+        },
+        "status": {
+          "$ref": "#/$defs/record_status"
+        },
+        "created": {
+          "$ref": "#/$defs/date"
+        },
+        "last_reviewed": {
+          "$ref": "#/$defs/date"
+        },
+        "superseded_by": {
+          "type": "string"
+        },
+        "change_note": {
+          "type": "string"
+        }
+      }
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "informational",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "description": "DriftGuard severity signal. NOT an audit opinion and never presented as one."
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "continuous",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "semiannual",
+        "annual",
+        "event_driven",
+        "point_in_time"
+      ]
+    },
+    "sensitivity": {
+      "type": "string",
+      "enum": [
+        "public",
+        "internal",
+        "confidential",
+        "restricted"
+      ]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "description": "DriftGuard's confidence in an inferred relationship or assessment."
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Free-text caveats, open questions, and authoring context. Never used as a substitute for a structured field."
+    }
+  },
+  "x-driftguard-schema-version": "0.1.0"
+}

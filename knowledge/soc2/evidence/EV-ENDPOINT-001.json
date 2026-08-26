@@ -1,0 +1,176 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ENDPOINT-001",
+  "name": "Endpoint and Workload Protection Coverage Report",
+  "description": "Coverage and health of protective software across endpoints and servers in scope, reconciled to the authoritative asset inventory rather than to the protection tool's own device list.",
+  "domain": "endpoint_security",
+  "evidence_type": "system_generated_report",
+  "evidence_role": "operational",
+  "origin": "system_generated",
+  "collection_mode": "automated_api",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "List of devices and workloads with protective software installed, with last check-in time",
+      "required": true,
+      "why": "Installation without recent check-in is functionally the same as absence."
+    },
+    {
+      "element": "Authoritative asset inventory for the same date, with reconciliation against the protected list",
+      "required": true,
+      "why": "A tool cannot report on assets it never enrolled, so its own list always looks complete."
+    },
+    {
+      "element": "Agent health and definition or signature currency where applicable",
+      "required": true,
+      "why": "A stale agent evidences deployment, not protection."
+    },
+    {
+      "element": "Coverage measured across the period rather than at a single date",
+      "required": true,
+      "why": "Coverage degrades as assets are added; a point-in-time figure hides that."
+    },
+    {
+      "element": "Explicit treatment of contractor and personally owned devices, or a statement that they are outside the boundary",
+      "required": true,
+      "why": "Silence here is the most common coverage ambiguity."
+    },
+    {
+      "element": "Where workloads are immutable and ephemeral, image provenance and integrity verification instead of resident agents",
+      "required": false,
+      "why": "For containerised workloads this is usually the stronger control, and applying an endpoint model to them produces a false gap."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.8-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.7-001",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.7",
+    "CC6.8"
+  ],
+  "collection_frequency": "monthly",
+  "owner": "IT Operations, with Security Engineering accountable for the standard",
+  "source_system_examples": [
+    "Endpoint detection and response console coverage report",
+    "Mobile device management compliance report",
+    "Container image scanning and signing pipeline records",
+    "Configuration management agent inventory"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 45,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default of one monthly cadence plus a 15-day grace window. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Device names frequently identify individuals; tokenise where reconciliation to the inventory is preserved.",
+    "Do not include detection detail or threat artifacts in a coverage report."
+  ],
+  "retention_guidance": "Retain monthly coverage snapshots across the period so degradation over time is visible.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A coverage report exists for each in-scope asset class.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Protected devices reconcile to the authoritative asset inventory for the same date.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Agent health and check-in currency are reported, not installation alone.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Coverage is evidenced across the period rather than at a single date.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "relevance",
+      "rule": "The protection approach matches the workload type; resident agents are not expected on immutable ephemeral workloads.",
+      "check_type": "human_review",
+      "failure_severity": "low"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The report is exported from the management console rather than compiled manually.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Coverage reported as a percentage of the tool's own enrolled devices.",
+      "impact": "Always approaches 100% and says nothing about unenrolled assets.",
+      "related_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "issue": "Agents installed but not checking in for months.",
+      "impact": "Deployment is evidenced; protection is not.",
+      "related_finding": "FND-ENDPOINT-001"
+    },
+    {
+      "issue": "Contractor devices neither covered nor declared out of boundary.",
+      "impact": "Coverage of the in-scope population cannot be concluded either way."
+    },
+    {
+      "issue": "Endpoint agent expectations applied to ephemeral container workloads.",
+      "impact": "Produces a false gap where image integrity is the appropriate control."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard names no product category as required. Where an entity meets the objective through immutable infrastructure and verified images, the absence of a resident agent is not a deficiency."
+  ]
+}

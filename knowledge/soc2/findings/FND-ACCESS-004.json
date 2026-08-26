@@ -1,0 +1,145 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ACCESS-004",
+  "name": "Access granted without evidenced prior authorization",
+  "description": "Accounts or entitlements were provisioned without an approval record that predates the grant and names the entitlement, or the approver was the requester, or contractors and external users were onboarded outside the request workflow entirely.",
+  "domain": "access_management",
+  "finding_category": "operating_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That a named account was created with no approval record, where the account population and approval population have both been supplied and reconciled.",
+      "That an approval postdates the provisioning it purports to authorise, where both timestamps are evidenced.",
+      "That requester and approver were the same person, where the approval record shows it."
+    ],
+    "must_not_assert": [
+      "That access was inappropriate. The observation concerns the authorisation record, not the merits of the access.",
+      "That SOC 2 requires a ticketing system. It requires no particular mechanism."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "Provisioning can be performed outside the approval path by design, with no detective control over direct administrative action."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "missing_evidence",
+        "when": "The approval population has not been supplied, so absence of an approval for a given account cannot be distinguished from absence of the export."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.2-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Credentials were issued without a recorded judgement that the access was appropriate, which is the substance of the criterion.",
+    "pervasiveness": "One approval captured in email differs from an entire contractor population onboarded by direct administrative action.",
+    "compensating_controls": [
+      "SOC2-CC6.3-001"
+    ],
+    "detectability": "Detectable by reconciling account creation events against the approval population; invisible where approvals are not held in a system of record.",
+    "escalates_when": [
+      "The unapproved grant was privileged",
+      "Self-approval occurred for privileged entitlements",
+      "A whole population, such as contractors, sits outside the workflow"
+    ],
+    "de_escalates_when": [
+      "A subsequent access review confirmed the access was appropriate",
+      "The approval exists but in a different system and can be reconciled",
+      "The grant was a role assignment matching a previously approved role definition"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Account or entitlement created during the period with no corresponding approval record.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-002",
+        "EV-IAM-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Approval timestamp postdates the provisioning timestamp.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Requester and approver are the same identity.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Approval names no specific entitlement, so granted access cannot be reconciled to approved access.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ACCESS-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent describes approvals held only in chat or email, or no approval step at all.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-ACCESS-001-Q07",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample new accounts and trace each to its approval. Approvals that postdate provisioning, or that do not name the entitlement, are frequently reported as exceptions.",
+  "customer_impact": "People obtained access to systems holding the customer's data without anyone accountable having judged that access appropriate.",
+  "remediations": [
+    "REM-ACCESS-004"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the grant is a role assignment matching a role definition that was itself approved; the approval sits at the role level.",
+    "Not a gap where the approval exists in a different system and can be reconciled to the grant.",
+    "Not a gap for accounts created by an automated pipeline from an approved infrastructure-as-code change; the pull request approval is the authorisation.",
+    "Where the approval population has not been supplied at all, this is missing evidence. Request it before asserting that grants were unapproved."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.2",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

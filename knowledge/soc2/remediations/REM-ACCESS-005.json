@@ -1,0 +1,109 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ACCESS-005",
+  "name": "Move privileged access to defined roles and time-bounded elevation",
+  "description": "Replace ad hoc permission grants with role definitions built from job function, and convert standing administrative privilege into elevation that is requested, justified, time-bounded, and logged.",
+  "domain": "access_management",
+  "remediation_type": "redesign_control",
+  "durability": "structural",
+  "responsible_role": "IT / Identity and Access Management owner, with system owners accountable for role definitions",
+  "addresses_findings": [
+    "FND-ACCESS-005"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.3-002"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Inventory identities holding privileged entitlements, including non-human identities, and separate standing privilege from elevated privilege.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Define roles from job function rather than from the permissions that currently exist, which would simply encode present over-privilege.",
+      "owner_role": "System owner"
+    },
+    {
+      "step": 3,
+      "action": "Identify the specific entitlement combinations that would defeat segregation of duties, concretely rather than as a principle.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 4,
+      "action": "Introduce time-bounded elevation for administrative and production-data access where the platform supports it, capturing a justification at request.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Reduce residual standing privilege to a documented, named set with a stated reason for each.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-003"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Bring the privileged population, including service accounts, into the periodic access review.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 7,
+      "action": "Alert on elevation renewal patterns that amount to continuous privilege, so nominal time-bounding does not mask standing access.",
+      "owner_role": "Security Engineering"
+    }
+  ],
+  "implementation_considerations": [
+    "Role definitions derived from current access will reproduce existing over-privilege. Building them from job function is slower and is the entire value of the exercise.",
+    "Just-in-time elevation adds friction to incident response. Design and test the break-glass path before enforcing, or the first outage will route around the control.",
+    "Service accounts frequently hold the broadest privilege and are the hardest to reduce, because nobody knows what will break. Sequence them after human roles, with monitoring first.",
+    "Segregation-of-duties conflicts are only actionable when named specifically; a general policy statement produces no detections."
+  ],
+  "effort": "high",
+  "typical_duration": "Months where a role model must be built from scratch; weeks where roles exist and only elevation is being added.",
+  "prerequisites": [
+    "A privileged entitlement inventory covering non-human identities",
+    "Platform support for time-bounded elevation, or an accepted vaulting alternative"
+  ],
+  "verification_method": {
+    "how": "Re-derive the privileged population and confirm each entitlement traces to a role definition or a documented standing exception, and that elevation records carry justification and bounded duration without renewal patterns amounting to continuous access.",
+    "verifying_evidence": [
+      "EV-ACCESS-003",
+      "EV-ACCESS-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ACCESS-004"
+  ],
+  "residual_risk_note": "Elevation controls when privilege is held, not what is done with it. A user elevated legitimately retains full capability for the elevation window, so session logging remains the detective counterpart.",
+  "period_limitation_note": "Reducing standing privilege now does not change who held it during an elapsed period. Where excessive privilege existed through a Type 2 period, that condition stands.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Just-in-time elevation is a DriftGuard recommendation, not a SOC 2 requirement. Narrow, attributable, reviewed standing privilege can meet the objective and should not be reported as deficient."
+  ]
+}

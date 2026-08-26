@@ -1,0 +1,142 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-NETSEC-001",
+  "name": "Boundary rules permit broader external access than intended",
+  "description": "Ingress rules at the external boundary permit access from any source to ports or services that do not require public exposure, most consequentially administrative or management interfaces, and the exposure carries no documented intent or compensating restriction.",
+  "domain": "network_security",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That a named rule permits unrestricted ingress to an administrative or management port, where the boundary export shows it and no documented intent accompanies it.",
+      "That the boundary export does not cover all accounts, regions, or networks within the declared system boundary."
+    ],
+    "must_not_assert": [
+      "That the exposure was exploited or that any compromise occurred.",
+      "That broad ingress is prohibited. A public-facing service is broad by design and that is not a deficiency.",
+      "That any specific port or protocol is prohibited by SOC 2."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Change history shows the rule was opened during the period contrary to the entity's own baseline and change process, and nothing detected it."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Rules are broad but no documented intent is available either way, so exposure by design cannot be distinguished from exposure by accident."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.6"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.6-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Systems within the boundary are reachable from outside it more widely than the entity's own design intends.",
+    "pervasiveness": "One over-broad rule on a non-production network differs from unrestricted management access across production.",
+    "compensating_controls": [
+      "SOC2-CC6.1-001"
+    ],
+    "detectability": "Highly detectable from a complete boundary export; invisible for accounts or regions the export omits.",
+    "escalates_when": [
+      "Administrative or management ports are exposed to any source",
+      "The affected environment holds protected information",
+      "No baseline exists, so the exposure cannot be characterised as deviation at all",
+      "Adjacent non-production accounts have network paths into production"
+    ],
+    "de_escalates_when": [
+      "The exposure is documented as intended for a public-facing service",
+      "Access from outside the boundary requires additional authentication",
+      "A compensating restriction such as an authenticating proxy sits in front of the exposed service"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Boundary export contains rules permitting ingress from any source to administrative or management ports.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-NETSEC-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Broad rules present with no documented intent, so design cannot be distinguished from accident.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-NETSEC-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Export omits accounts, regions, or networks that fall within the declared system boundary.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-NETSEC-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent identifies exposed administrative interfaces with no stated intent or compensating restriction.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q01",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Network security policy states a default-deny posture the configuration does not reflect.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly inspect the boundary rule base rather than sampling it, and ask for the business justification of broad rules. A documented, reviewed justification is generally accepted; an undocumented broad rule generally is not.",
+  "customer_impact": "The environment holding the customer's data presents a wider surface to the internet than the vendor's described architecture implies.",
+  "remediations": [
+    "REM-NETSEC-001"
+  ],
+  "false_positive_guidance": [
+    "A broad ingress rule is not automatically a deficiency. A public web or API tier is meant to be reachable from anywhere; establish intent before concluding.",
+    "Not a gap where an authenticating proxy, WAF, or bastion sits in front of the exposed service and is itself the control.",
+    "Not a gap where the rule applies to an environment holding no protected information and with no network path into one; confirm against the system boundary.",
+    "Where intent is simply unavailable, report insufficient evidence rather than asserting the exposure is unintended.",
+    "Do not flag a rule as exposed based on its definition alone where a higher-precedence rule or network ACL denies the traffic; assess effective reachability."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.6",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

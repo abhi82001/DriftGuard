@@ -1,0 +1,98 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ACCESS-003",
+  "name": "Reconcile the access review population to authoritative identity sources",
+  "description": "Build the review population by reconciling the identity provider, the HR system, and each in-scope application, and record the reconciliation so completeness is demonstrable rather than assumed.",
+  "domain": "access_management",
+  "remediation_type": "expand_scope",
+  "durability": "structural",
+  "responsible_role": "IAM function",
+  "addresses_findings": [
+    "FND-ACCESS-003"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.3-001"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enumerate every in-scope system holding entitlements, working from the declared system boundary rather than from memory.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 2,
+      "action": "Identify the authoritative source for each identity class: employees, contractors, service accounts, shared accounts, and privileged roles.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 3,
+      "action": "Extract entitlements per system and reconcile against those sources, documenting and explaining every difference.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-001",
+        "EV-IAM-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Assign a named human owner to every service account and shared account so the review has an accountable reviewer.",
+      "owner_role": "System owner"
+    },
+    {
+      "step": 5,
+      "action": "Record the population generation method \u2014 system, query, date, and filters \u2014 as a standing part of the review record.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Re-run the reconciliation each cycle so newly added systems enter the population automatically.",
+      "owner_role": "IAM function"
+    }
+  ],
+  "implementation_considerations": [
+    "Reconciliation is only meaningful against a current system boundary. If the boundary is stale, fix it first.",
+    "Assigning human owners to service accounts is usually the slowest step and is best done incrementally by risk."
+  ],
+  "effort": "medium",
+  "typical_duration": "One cycle to build the reconciliation, thereafter incremental.",
+  "prerequisites": [
+    "A current system boundary definition",
+    "Read access to entitlement data in each in-scope system"
+  ],
+  "verification_method": {
+    "how": "Independently re-derive the population from the authoritative sources and confirm it matches the reviewed population, with all differences explained.",
+    "verifying_evidence": [
+      "EV-ACCESS-001",
+      "EV-IAM-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ACCESS-002"
+  ],
+  "residual_risk_note": "Newly onboarded systems remain the recurring source of population drift; without a link from system onboarding to review scope, the gap reopens.",
+  "period_limitation_note": "A reconstructed population does not retroactively make an earlier review complete. Reviews performed during the period over an incomplete population remain incomplete.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Backfilled with responsible_role and implementation_considerations in the CC6 phase (schema 0.2.0)."
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ACCESS-001",
+  "name": "User Access Review Record",
+  "description": "The complete record of a periodic entitlement review: the population reviewed, the reviewer's per-entitlement decisions, and evidence that changes flagged during the review were applied in the underlying system.",
+  "domain": "access_management",
+  "evidence_type": "system_generated_report",
+  "evidence_role": "review",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Complete entitlement listing for the reviewed system, including account identifier, owner, role or permission set, and account status",
+      "required": true,
+      "why": "Establishes the population; without it the auditor cannot assess whether the review was complete."
+    },
+    {
+      "element": "Statement of how the population was generated (system, query or report name, extraction date, filters applied)",
+      "required": true,
+      "why": "Population completeness and accuracy is assessed before any sample is drawn."
+    },
+    {
+      "element": "Reviewer identity and review date for each section of the population",
+      "required": true,
+      "why": "Establishes that an appropriate person performed the review and when."
+    },
+    {
+      "element": "Explicit per-entitlement decision (retain / modify / revoke)",
+      "required": true,
+      "why": "Distinguishes a genuine review from a bulk acknowledgement."
+    },
+    {
+      "element": "Ticket or change record for every item flagged for modification or revocation",
+      "required": true,
+      "why": "Demonstrates follow-through; a review with no closure evidence is the most common failure of this control."
+    },
+    {
+      "element": "Post-change confirmation from the system showing the access was actually removed or reduced",
+      "required": true,
+      "why": "Ticket closure alone does not demonstrate the entitlement changed."
+    },
+    {
+      "element": "Inclusion of service accounts, shared accounts, contractors, and privileged roles",
+      "required": true,
+      "why": "Their omission is the most common scope defect in this evidence."
+    },
+    {
+      "element": "Reconciliation of the population to HR records or the identity provider",
+      "required": false,
+      "why": "Strengthens the completeness assertion where the source system is not itself authoritative."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.3-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.1-001",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.1",
+    "CC6.2",
+    "CC6.3"
+  ],
+  "collection_frequency": "quarterly",
+  "owner": "System owner, coordinated by the IAM function",
+  "source_system_examples": [
+    "Identity provider entitlement export",
+    "Identity governance platform review campaign",
+    "Application-native user administration report",
+    "Cloud provider IAM listing"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 120,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default of one quarterly cadence plus a 30-day grace window. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Personal identifiers beyond what is needed to attribute an account may be masked, provided attribution remains verifiable.",
+    "Never include credentials, secrets, API keys, or session tokens in an access review export."
+  ],
+  "retention_guidance": "Retain for at least the examination period plus the duration of the subsequent examination, so the artifact remains available when tested.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A review record exists for every scheduled review date falling within the examination period.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-002"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "The reviewed population reconciles to the authoritative identity source with no unexplained omissions, including non-human and privileged accounts.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-003"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Every entitlement flagged for revocation or modification has a corresponding closure record with post-change system confirmation.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-002"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Each review was completed within the cadence defined by the organization's own policy.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ACCESS-002"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "The population is a system-generated export with a stated generation method, not a manually maintained list.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "relevance",
+      "rule": "The reviewed system is within the declared system boundary for the examination.",
+      "check_type": "heuristic",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Reviewer signs off the whole listing without recording per-entitlement decisions.",
+      "impact": "The auditor cannot distinguish a review from an acknowledgement; the control's detective purpose is unevidenced.",
+      "related_finding": "FND-ACCESS-002"
+    },
+    {
+      "issue": "Population drawn from a single application export, omitting a secondary identity provider or contractor directory.",
+      "impact": "Accounts outside the export were never reviewed, so the control does not cover its intended scope.",
+      "related_finding": "FND-ACCESS-003"
+    },
+    {
+      "issue": "Items flagged for revocation are recorded but never closed, or closed only in the ticket.",
+      "impact": "The access identified as inappropriate remained live.",
+      "related_finding": "FND-ACCESS-002"
+    },
+    {
+      "issue": "Review conducted after fieldwork began, covering a period already elapsed.",
+      "impact": "The control did not operate during the period as described.",
+      "related_finding": "FND-ACCESS-002"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No SOC 2 criterion prescribes the format or contents of an access review record. This definition is DriftGuard's model of what makes the artifact persuasive.",
+    "The entitlement listing is system-generated; the per-entitlement decision is a human judgement recorded against it.",
+    "Backfilled with evidence_role and origin in the CC6 phase (schema 0.2.0). Content otherwise unchanged."
+  ]
+}

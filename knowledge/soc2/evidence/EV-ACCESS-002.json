@@ -1,0 +1,177 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-ACCESS-002",
+  "name": "Access Provisioning Authorization Record",
+  "description": "The record showing that a specific access grant was requested, authorised by someone with standing to approve it, and provisioned in accordance with that authorisation.",
+  "domain": "access_management",
+  "evidence_type": "ticket_record",
+  "evidence_role": "approval",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Identity of the requester and the person for whom access was requested",
+      "required": true,
+      "why": "Establishes who the grant benefits, which is what the approver is judging."
+    },
+    {
+      "element": "The specific role or entitlement set requested, not a general request for access",
+      "required": true,
+      "why": "An approval that does not name what was approved cannot evidence authorisation of the access actually granted."
+    },
+    {
+      "element": "Approver identity and approval timestamp",
+      "required": true,
+      "why": "Attribution and sequence; approval after provisioning does not evidence authorisation prior to access."
+    },
+    {
+      "element": "Provisioning action with timestamp, showing what was actually granted",
+      "required": true,
+      "why": "Allows the granted entitlement to be compared against the approved entitlement."
+    },
+    {
+      "element": "Evidence that the approver was authorised to approve that entitlement",
+      "required": false,
+      "why": "Distinguishes a genuine authorisation control from any colleague clicking approve."
+    },
+    {
+      "element": "Coverage of external users and contractors on the same path",
+      "required": true,
+      "why": "These populations are routinely handled by exception and are the most common omission."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.2-001",
+      "necessity": "primary"
+    },
+    {
+      "control_id": "SOC2-CC6.3-002",
+      "necessity": "supporting"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "collection_frequency": "event_driven",
+  "owner": "IT / Identity and Access Management owner",
+  "source_system_examples": [
+    "IT service management ticket",
+    "Identity governance access request workflow",
+    "Version-controlled entitlement definition with pull request approval"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 400,
+    "basis": "event_bound",
+    "rationale": "Approvals are event-bound and are assessed against the population of grants in the period rather than against a calendar window. The value shown is a retention floor, not a staleness threshold."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Free-text justification often contains personnel or commercial detail; redact narrative while retaining the entitlement and approver fields."
+  ],
+  "retention_guidance": "Retain for the examination period plus the following period. Approvals held only in chat or email are effectively unretained and should be migrated to a system of record.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "Every account or entitlement created during the period has a corresponding approval record.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-004"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "timeliness",
+      "rule": "The approval timestamp precedes the provisioning timestamp.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-004"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "relevance",
+      "rule": "The entitlement provisioned matches the entitlement approved.",
+      "check_type": "llm_assisted",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ACCESS-004"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "The approver is distinct from the requester and holds standing to approve that entitlement.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-ACCESS-004"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "completeness",
+      "rule": "External users and contractors appear in the approval population, not only employees.",
+      "check_type": "heuristic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-ACCESS-004"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "Approvals come from a system of record with immutable timestamps rather than from correspondence.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Approval recorded after the account already existed.",
+      "impact": "Evidences ratification, not authorisation prior to access.",
+      "related_finding": "FND-ACCESS-004"
+    },
+    {
+      "issue": "Requester and approver are the same person for privileged entitlements.",
+      "impact": "There is no independent authorisation, so the control has no effect.",
+      "related_finding": "FND-ACCESS-004"
+    },
+    {
+      "issue": "Ticket says 'grant access' with no entitlement named.",
+      "impact": "Granted access cannot be reconciled to approved access.",
+      "related_finding": "FND-ACCESS-004"
+    },
+    {
+      "issue": "Contractors onboarded by direct administrative action outside the request workflow.",
+      "impact": "A whole population of grants is unevidenced.",
+      "related_finding": "FND-ACCESS-004"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Classified origin=hybrid: the ticket is system-generated but its substance is a human judgement. This is the canonical approval-evidence shape and should be reused rather than duplicated for other approval controls."
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-DATA-001",
+  "name": "Routes by which information can leave the environment not enumerated or restricted",
+  "description": "The entity has not systematically identified the routes by which protected information can leave its environment \u2014 bulk export, integrations, email, removable media, endpoint sync \u2014 so restriction of those routes is asserted rather than designed. Frequently accompanied by a removable media prohibition stated in policy with no technical enforcement.",
+  "domain": "data_protection",
+  "finding_category": "design_deficiency",
+  "observation_class": "informational_observation",
+  "conclusion_rules": {
+    "may_assert": [
+      "That egress routes have not been systematically enumerated, where the entity's own answer or documentation shows it.",
+      "That a policy prohibits removable media while no endpoint enforcement exists, where endpoint management evidence shows it.",
+      "That a named export route carries no restriction, logging, or monitoring."
+    ],
+    "must_not_assert": [
+      "That information left the environment. The observation concerns route governance, not any actual transfer.",
+      "That data loss prevention tooling is required by SOC 2. It is not, and an entity with few egress routes may meet the objective through architecture alone.",
+      "That the criterion is unmet. Restriction can be achieved through access control and architecture without a dedicated egress control."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "A named route permits bulk movement of protected information with no authorisation step and no logging, so the objective is demonstrably unaddressed for that route."
+      },
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Bulk exports occurred during the period through a route with no authorisation record."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.7"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.7-001"
+  ],
+  "default_severity": "low",
+  "severity_factors": {
+    "criterion_impact": "Restriction of information movement cannot be designed against routes that have not been identified.",
+    "pervasiveness": "An unenumerated email attachment path differs from an unlogged bulk export API available to all users.",
+    "compensating_controls": [
+      "SOC2-CC6.3-002",
+      "SOC2-CC6.8-001"
+    ],
+    "detectability": "Detectable through the entity's own description of its architecture; not detectable from any single system export.",
+    "escalates_when": [
+      "A bulk export capability exists with no authorisation or logging",
+      "Protected information routinely moves to non-production environments",
+      "Removable media is permitted with no encryption enforcement"
+    ],
+    "de_escalates_when": [
+      "Few egress routes exist and each is behind an access control that is itself evidenced",
+      "Bulk export is restricted to a small named population and logged",
+      "The environment holds limited protected information"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Respondent indicates egress routes have not been systematically enumerated.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q05",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Data handling policy prohibits removable media with no corresponding endpoint enforcement.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Endpoint management evidence shows no removable media policy applied despite a policy prohibition.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Data classification exists with no differentiated handling requirements attached to the levels.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "low"
+    }
+  ],
+  "auditor_impact": "Auditors commonly approach this criterion through the entity's own description of how information moves, then test the controls over the routes described. An entity that has not enumerated its routes tends to struggle to answer the initial question rather than to fail a specific test.",
+  "customer_impact": "The vendor cannot describe all the ways the customer's data could leave its environment, which limits what any assurance about restriction is worth.",
+  "remediations": [
+    "REM-DATA-001"
+  ],
+  "false_positive_guidance": [
+    "Classified as informational by default because CC6.7 concerns the objective, and many entities meet it through access control and architecture without a named egress control.",
+    "Absence of a data loss prevention product is never a finding. Do not treat tooling as the criterion.",
+    "Not a gap where the entity has few egress routes and each sits behind an evidenced access control.",
+    "Not a gap where removable media is physically absent from the environment, such as an all-cloud estate with no removable ports in use.",
+    "Enumerate before judging. Where routes have not been listed, the correct observation is that they are unenumerated, not that they are unrestricted."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.7",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

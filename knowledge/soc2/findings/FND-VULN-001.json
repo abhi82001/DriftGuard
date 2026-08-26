@@ -1,0 +1,142 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-VULN-001",
+  "name": "Vulnerabilities unresolved beyond the organization's own remediation timeframe",
+  "description": "Identified vulnerabilities remained open past the timeframe the organization defined for their severity, with no documented and authorised risk acceptance. Also covers scan coverage narrower than the asset inventory, which produces the same outcome by leaving exposure unidentified.",
+  "domain": "vulnerability_management",
+  "finding_category": "operating_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That findings remained open past the timeframe the organization defined for their severity, where detection and closure dates are evidenced.",
+      "That scanned assets did not reconcile to the asset inventory for the same date."
+    ],
+    "must_not_assert": [
+      "That any particular remediation window is required by SOC 2. None is prescribed.",
+      "That an open finding is a deficiency where an authorised, time-bounded risk acceptance covers it."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "potentially_ineffective_control",
+        "when": "Overruns are systemic across all severities, indicating the SLA is not operating as a control at all."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "missing_evidence",
+        "when": "Remediation tracking records are unavailable, so timeliness cannot be assessed in either direction."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.1",
+    "CC7.2"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.1-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "The organization is not operating the control at the standard it defined for itself, which is the benchmark operating effectiveness is judged against.",
+    "pervasiveness": "A handful of low-severity overruns differs from systemic non-adherence across all severities.",
+    "compensating_controls": [],
+    "detectability": "Detectable where SLA clocks are tracked on tickets; invisible where they are not.",
+    "escalates_when": [
+      "Overdue findings are critical or high severity",
+      "Overdue findings affect internet-facing assets",
+      "The overrun spans multiple scan cycles",
+      "Scan scope is materially narrower than the asset inventory"
+    ],
+    "de_escalates_when": [
+      "A documented, authorised, time-bounded risk acceptance exists",
+      "A compensating control demonstrably mitigates the specific exposure",
+      "The finding is a confirmed false positive with documented analysis"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Closure date exceeds detection date plus the policy-defined timeframe for that severity.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-VULN-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Findings remain open at period end with no risk acceptance record.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-VULN-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Scanned asset list does not reconcile to the asset inventory for the same date.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-VULN-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Scan cadence gaps within the examination period with no stated explanation.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-VULN-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Exception relating to vulnerability remediation timeliness appears in Section 4 of a parsed SOC 2 report.",
+      "source_of_signal": "report_parsing",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample findings and test closure against the organization's stated timeframes. Because the benchmark is self-defined, an organization with aggressive published timeframes can generate exceptions that a peer with realistic timeframes would not.",
+  "customer_impact": "Known weaknesses persisted in an environment holding the customer's data for longer than the vendor's own policy allows.",
+  "remediations": [
+    "REM-VULN-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where a documented, authorised, time-bounded risk acceptance covers the overrun.",
+    "Not a gap where the finding is a confirmed false positive with recorded analysis.",
+    "Not a gap where the asset is outside the declared system boundary; reconcile to the boundary before flagging.",
+    "Do not apply an industry-standard remediation window as though SOC 2 prescribed one. The organization's own defined timeframe is the only benchmark."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.1",
+      "authority_tier": 1,
+      "supports": "The criterion potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Testing approach and the self-defined-benchmark observation.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype; not an audit finding.",
+    "Backfilled with observation_class and conclusion_rules in the CC6 phase (schema 0.2.0)."
+  ]
+}

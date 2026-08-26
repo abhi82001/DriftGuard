@@ -1,0 +1,137 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC7.1-001",
+  "control_name": "Vulnerability Identification and Remediation",
+  "criterion": "CC7.1",
+  "secondary_criteria": [
+    "CC7.2",
+    "CC8.1"
+  ],
+  "category": "security",
+  "domain": "vulnerability_management",
+  "objective": "Identify vulnerabilities and unauthorised configuration change across the in-scope environment and drive them to resolution within defined timeframes, so that known weaknesses do not persist unaddressed.",
+  "description": "Authenticated vulnerability scanning runs on a defined cadence against the full in-scope asset inventory, covering hosts, container images, and dependencies. Findings are risk-ranked and automatically raised as tickets carrying a remediation deadline derived from severity. Deadlines that cannot be met are escalated and either extended with documented approval or formally risk-accepted by an authorised owner with an expiry date.",
+  "control_type": "detective",
+  "automation_level": "semi_automated",
+  "frequency": "monthly",
+  "owner_role": "Security Engineering",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The service organization operates infrastructure or software within the system boundary"
+    ]
+  },
+  "implementation_guidance": [
+    "Drive scan scope from the authoritative asset inventory, and reconcile scanned assets against it. Scope narrower than the inventory is the most common defect in this control.",
+    "Use authenticated scanning where possible; unauthenticated scans understate exposure.",
+    "Define severity-based remediation timeframes in policy and enforce them with an SLA clock on the ticket.",
+    "Make risk acceptance an explicit, authorised, time-bounded artifact rather than an unremediated ticket left open.",
+    "Cover container images and third-party dependencies, not only host operating systems."
+  ],
+  "design_considerations": [
+    "Is scan coverage defined by an authoritative inventory rather than a static target list?",
+    "Are remediation timeframes defined, and by whom were they approved?",
+    "Is there a defined path for exceptions, or does the process silently tolerate overdue items?"
+  ],
+  "operating_considerations": [
+    "Did scans run on cadence for every period, with no unexplained gaps?",
+    "Were remediation timeframes met, and where missed, was there documented approval?",
+    "Did scanned coverage match the asset inventory at each point in the period?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-VULN-001",
+      "necessity": "primary",
+      "note": "Scan results with asset coverage and remediation tracking through to closure."
+    }
+  ],
+  "policy_examples": [
+    "POL-VULN-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-VULN-001",
+      "description": "A known, publicly exploitable vulnerability remains in production beyond the window in which it is actively exploited.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-VULN-002",
+      "description": "Assets outside scan scope carry unknown exposure that no process is positioned to detect.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-VULN-001"
+  ],
+  "remediation": [
+    "REM-VULN-001"
+  ],
+  "questionnaire_questions": [
+    "QN-OPS-001-Q07"
+  ],
+  "related_controls": [],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "RA-5",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.8",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "7.5",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.1",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Scan scope versus asset inventory as the dominant point of auditor challenge.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Recommended use of authenticated scanning and time-bounded risk acceptance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Monthly cadence and severity-based timeframes are organizational choices. The criteria do not specify scan frequency or remediation SLAs; the organization defines them and is then held to what it defined.",
+    "Added as a third exemplar control so that the vulnerability scan evidence object required by the evidence data model has a valid control to reference. See framework/metadata.json decision SD-006.",
+    "questionnaire_questions populated in the CC7 phase. The control predates the questionnaire model and had no question coverage; QN-OPS-001-Q07 closes that."
+  ]
+}

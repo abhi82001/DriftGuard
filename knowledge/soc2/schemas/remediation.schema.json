@@ -1,0 +1,223 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/remediation.schema.json",
+  "title": "DriftGuard SOC 2 Remediation Playbook",
+  "description": "A recommended course of action addressing one or more finding archetypes. Remediations are DriftGuard recommendations (tier 5) unless a higher-tier source is cited; they are never presented as SOC 2 requirements.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "record_type": {
+      "const": "remediation"
+    },
+    "remediation_id": {
+      "$ref": "common.defs.json#/$defs/remediation_id"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "remediation_type": {
+      "type": "string",
+      "enum": [
+        "implement_control",
+        "redesign_control",
+        "improve_operation",
+        "improve_evidence",
+        "update_documentation",
+        "expand_scope",
+        "automate",
+        "accept_risk"
+      ]
+    },
+    "durability": {
+      "type": "string",
+      "enum": [
+        "tactical",
+        "structural"
+      ],
+      "description": "tactical closes the immediate gap; structural prevents recurrence."
+    },
+    "responsible_role": {
+      "type": "string",
+      "description": "The role accountable for the remediation as a whole, distinct from the per-step owner_role. A named role, never a named individual."
+    },
+    "addresses_findings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "common.defs.json#/$defs/finding_id"
+      },
+      "uniqueItems": true
+    },
+    "strengthens_controls": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/control_id"
+      },
+      "uniqueItems": true
+    },
+    "affected_criteria": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/criterion_id"
+      },
+      "uniqueItems": true
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "action": {
+            "type": "string"
+          },
+          "owner_role": {
+            "type": "string"
+          },
+          "produces_evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.defs.json#/$defs/evidence_id"
+            }
+          }
+        },
+        "required": [
+          "step",
+          "action"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "implementation_considerations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Constraints, trade-offs, and sequencing concerns a team should weigh before starting. Not steps."
+    },
+    "effort": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "typical_duration": {
+      "type": "string",
+      "description": "Relative estimate. Not a commitment."
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "verification_method": {
+      "type": "object",
+      "properties": {
+        "how": {
+          "type": "string"
+        },
+        "verifying_evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "common.defs.json#/$defs/evidence_id"
+          }
+        },
+        "automatable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "how"
+      ],
+      "additionalProperties": false
+    },
+    "paired_remediations": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/remediation_id"
+      },
+      "description": "The tactical/structural counterpart."
+    },
+    "residual_risk_note": {
+      "type": "string"
+    },
+    "period_limitation_note": {
+      "type": "string",
+      "description": "Mandatory where the finding may relate to an elapsed examination period: remediation does not remove an exception that already occurred."
+    },
+    "sources": {
+      "$ref": "common.defs.json#/$defs/source_id_list"
+    },
+    "source_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "common.defs.json#/$defs/source_ref"
+      }
+    },
+    "authority_tier_dominant": {
+      "$ref": "common.defs.json#/$defs/authority_tier"
+    },
+    "verification_status": {
+      "$ref": "common.defs.json#/$defs/verification_status"
+    },
+    "version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "schema_version": {
+      "$ref": "common.defs.json#/$defs/semver"
+    },
+    "status": {
+      "$ref": "common.defs.json#/$defs/record_status"
+    },
+    "created": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "last_reviewed": {
+      "$ref": "common.defs.json#/$defs/date"
+    },
+    "superseded_by": {
+      "$ref": "common.defs.json#/$defs/remediation_id"
+    },
+    "notes": {
+      "$ref": "common.defs.json#/$defs/notes"
+    }
+  },
+  "required": [
+    "record_type",
+    "remediation_id",
+    "name",
+    "description",
+    "remediation_type",
+    "durability",
+    "responsible_role",
+    "addresses_findings",
+    "steps",
+    "effort",
+    "verification_method",
+    "sources",
+    "authority_tier_dominant",
+    "verification_status",
+    "version",
+    "schema_version",
+    "status",
+    "created",
+    "last_reviewed"
+  ],
+  "additionalProperties": false,
+  "x-driftguard-schema-version": "0.2.0"
+}

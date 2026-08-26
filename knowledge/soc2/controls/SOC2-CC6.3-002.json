@@ -1,0 +1,161 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.3-002",
+  "control_name": "Role-Based Least Privilege and Privileged Access Management",
+  "criterion": "CC6.3",
+  "secondary_criteria": [
+    "CC6.1",
+    "CC6.2"
+  ],
+  "category": "security",
+  "domain": "access_management",
+  "objective": "Ensure entitlements are granted against defined roles rather than ad hoc, that privilege is no broader than the role requires, and that administrative capability is held temporarily and attributably rather than standing.",
+  "description": "Entitlements are packaged into documented roles mapped to job functions, and access is granted by assigning a role rather than by composing permissions per person. Administrative and production-data privileges are not held standing: they are requested, approved, time-bounded, and logged, with the elevation record showing who elevated, when, why, and for how long. Combinations of entitlements that would defeat segregation of duties are identified and prevented or detected.",
+  "control_type": "preventive",
+  "automation_level": "semi_automated",
+  "frequency": "continuous",
+  "owner_role": "IT / Identity and Access Management owner, with system owners defining roles",
+  "applicability": {
+    "always": false,
+    "conditions": [
+      "Entitlements can be differentiated by job function"
+    ],
+    "not_applicable_when": [
+      "The system exposes a single undifferentiated permission level to all users, in which case least privilege is met by restricting who holds that level at all"
+    ]
+  },
+  "implementation_guidance": [
+    "Define roles from actual job functions rather than from the permissions that happen to exist; role catalogs derived from current state simply encode existing over-privilege.",
+    "Make privileged access just-in-time where the platform allows it. Standing administrative access is the single most common CC6.3 weakness.",
+    "Capture a reason on elevation. An elevation log without justification evidences that elevation happened, not that it was appropriate.",
+    "Identify the specific entitlement combinations that matter for segregation of duties rather than asserting the principle generally.",
+    "Review role definitions themselves periodically, not only who holds them."
+  ],
+  "design_considerations": [
+    "Do roles reflect job function, or were they reverse-engineered from existing access?",
+    "Is administrative privilege standing or elevated on demand?",
+    "Are segregation-of-duties conflicts defined concretely enough to be detected?"
+  ],
+  "operating_considerations": [
+    "Were entitlements granted outside the role model during the period, and were those exceptions reviewed?",
+    "Do elevation records cover the full period with justification captured?",
+    "Did anyone hold a conflicting entitlement combination, and for how long?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-ACCESS-003",
+      "necessity": "primary",
+      "note": "Privileged entitlement inventory and elevation records across the period."
+    },
+    {
+      "evidence_id": "EV-ACCESS-001",
+      "necessity": "supporting",
+      "note": "Review record corroborates role assignment appropriateness."
+    },
+    {
+      "evidence_id": "EV-ACCESS-002",
+      "necessity": "supporting",
+      "note": "Approvals show whether grants referenced defined roles."
+    }
+  ],
+  "policy_examples": [
+    "POL-ACCESS-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ACCESS-009",
+      "description": "Broad standing administrative privilege turns any single account compromise into full environment compromise.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-ACCESS-010",
+      "description": "A single person can both make and approve a consequential change, defeating segregation of duties.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-ACCESS-005",
+    "FND-IAM-002"
+  ],
+  "remediation": [
+    "REM-ACCESS-005"
+  ],
+  "questionnaire_questions": [
+    "QN-ACCESS-001-Q08",
+    "QN-ACCESS-001-Q10"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.3-001",
+      "relationship": "supports",
+      "note": "Review is the detective counterpart to this preventive control."
+    },
+    {
+      "control_id": "SOC2-CC6.2-001",
+      "relationship": "depends_on",
+      "note": "Role-based provisioning presumes an approval step that references roles."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "AC-6",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.2",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "5.4",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.3",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Just-in-time elevation is a DriftGuard recommendation, not a requirement. Standing privilege that is narrow, attributable, reviewed, and logged can also meet the objective."
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-CRYPTO-002",
+  "name": "Transport encryption not enforced or below the entity's own standard",
+  "description": "Endpoints carrying protected information accept connections below the entity's stated minimum protocol version or cipher standard, or transport enforcement covers only the public web endpoint while API, webhook, integration, and internal service paths are unassessed.",
+  "domain": "cryptography",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That a named endpoint negotiates below the entity's own stated standard, where validation output shows it.",
+      "That transport enforcement has not been verified for endpoints carrying protected information, where the validation scope omits them."
+    ],
+    "must_not_assert": [
+      "That any specific protocol version is required by SOC 2. None is named; the benchmark is the entity's own documented standard.",
+      "That traffic was intercepted. The observation concerns the available negotiation, not any actual compromise."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Change history shows the transport configuration was weakened during the period, or a deployment reverted it and nothing detected that."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Only the configuration is supplied with no independent validation, so deployed behaviour can be neither confirmed nor refuted."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.6",
+    "CC6.7"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.7-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Protected information crosses the boundary over a channel weaker than the entity claims to require.",
+    "pervasiveness": "A deprecated cipher on a legacy endpoint differs from plaintext accepted on the primary API.",
+    "compensating_controls": [
+      "SOC2-CC6.6-001"
+    ],
+    "detectability": "Highly detectable through endpoint validation, and routinely missed where only configuration is inspected.",
+    "escalates_when": [
+      "Plaintext connections are accepted rather than refused",
+      "The affected endpoint carries bulk or authentication traffic",
+      "The gap exists on internal service-to-service paths carrying protected information"
+    ],
+    "de_escalates_when": [
+      "The endpoint carries no protected information",
+      "The weaker option exists for a documented legacy integration with a compensating restriction",
+      "The endpoint is unreachable from outside the boundary"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Validation output shows an endpoint negotiating below the entity's stated minimum.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Validation covers only the public web endpoint while other endpoints carry protected information.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Plaintext connections redirected rather than refused, presented as enforcement.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-CRYPTO-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes a standard with no independent verification, or covers only the web tier.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q04",
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Cryptography policy states a minimum the deployed configuration does not meet.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly accept configuration evidence for this control, so an entity may pass testing while the deployed behaviour differs. DriftGuard's independent validation is therefore more stringent than typical fieldwork and should be presented as a risk signal, not as a predicted exception.",
+  "customer_impact": "Data in transit between the customer and the vendor, or between the vendor's own services, may be carried over a weaker channel than the vendor's public commitments imply.",
+  "remediations": [
+    "REM-CRYPTO-002"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the endpoint carries no protected information; confirm what traffic it serves first.",
+    "Not a gap where a documented legacy integration requires the weaker option and a compensating restriction limits who can reach it.",
+    "Do not apply an external industry recommendation as the benchmark. The entity's own documented standard is what adherence is measured against; a standard DriftGuard considers weak is a separate, clearly-labelled recommendation.",
+    "Where only configuration is available with no validation, report insufficient evidence rather than asserting non-enforcement."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.7",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

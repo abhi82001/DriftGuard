@@ -1,0 +1,158 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.1-001",
+  "control_name": "Multi-Factor Authentication for Access to In-Scope Systems",
+  "criterion": "CC6.1",
+  "secondary_criteria": [
+    "CC6.6",
+    "CC6.7"
+  ],
+  "category": "security",
+  "domain": "access_management",
+  "objective": "Reduce the likelihood that a compromised credential alone grants access to in-scope systems, by requiring a second authentication factor on every path into the environment.",
+  "description": "All human access to in-scope production systems, the identity provider, the cloud management console, and the source code repository requires a second authentication factor. Enforcement is applied centrally at the identity provider through conditional access policy rather than per-application, and applies to employees, contractors, and administrative accounts. Break-glass accounts are excluded from the policy only where technically unavoidable, and are compensated by vaulted credentials and alerted use.",
+  "control_type": "preventive",
+  "automation_level": "automated",
+  "frequency": "continuous",
+  "owner_role": "IT / Identity and Access Management owner",
+  "applicability": {
+    "always": false,
+    "conditions": [
+      "The service organization operates systems reachable with user credentials",
+      "Security category is in scope (always true for SOC 2)"
+    ],
+    "not_applicable_when": [
+      "No interactive human authentication path exists into the in-scope boundary; in that case the equivalent objective is met by workload identity controls instead"
+    ]
+  },
+  "implementation_guidance": [
+    "Enforce at the identity provider with conditional access rather than per-application toggles, so coverage is provable from one place.",
+    "Enumerate every authentication path first: SSO, direct application logins, VPN, SSH/bastion, cloud console, cloud CLI, API tokens, and vendor-managed admin portals. Uncovered paths are the usual cause of a design deficiency.",
+    "Prefer phishing-resistant factors (FIDO2/WebAuthn) for administrative and privileged access.",
+    "Document break-glass accounts explicitly, vault the credentials, and alert on any use.",
+    "Treat long-lived API tokens as an authentication path requiring its own compensating control, not as out of scope."
+  ],
+  "design_considerations": [
+    "Does enforcement cover every authentication path into the boundary, including non-SSO and administrative paths?",
+    "Does it cover contractors, service desk accounts, and third-party support access, not only employees?",
+    "Are exclusions from the policy enumerated, justified, and compensated?"
+  ],
+  "operating_considerations": [
+    "Was the policy in force for the entire examination period, or introduced partway through?",
+    "Were exclusions added during the period, and were they approved?",
+    "Can the organization demonstrate the configuration did not change, or produce configuration history?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-IAM-001",
+      "necessity": "primary",
+      "note": "Identity provider policy export showing enforcement scope and any exclusions."
+    },
+    {
+      "evidence_id": "EV-ACCESS-001",
+      "necessity": "supporting",
+      "note": "Access review record corroborates the user population the policy applies to."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "supporting",
+      "note": "Configuration change history evidencing that the authentication policy held throughout the period."
+    }
+  ],
+  "policy_examples": [
+    "POL-ACCESS-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ACCESS-001",
+      "description": "Credential compromise through phishing or reuse grants direct access to production systems and customer data.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-ACCESS-002",
+      "description": "An unenforced authentication path becomes an unmonitored bypass around the intended control.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-IAM-001"
+  ],
+  "remediation": [
+    "REM-IAM-001"
+  ],
+  "questionnaire_questions": [
+    "QN-ACCESS-001-Q01",
+    "QN-ACCESS-001-Q02"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.3-001",
+      "relationship": "supports",
+      "note": "Access review verifies the population that MFA enforcement applies to."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "IA-2(1)",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.5.17",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "medium"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "6.3",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the observation that uncovered authentication paths are a frequent deficiency.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Preference for phishing-resistant factors and central conditional-access enforcement.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "MFA is not named as a required control by the trust services criteria. CC6.1 states an objective about logical access security measures; MFA is a common and effective way to help meet it, not a mandate. DriftGuard must phrase it that way.",
+    "This control is an exemplar of the canonical control structure, not a catalog entry.",
+    "evidence_examples extended to EV-CONFIG-001 in the CC6 phase. EV-IAM-001 is point-in-time; the pairing is what supports a Type 2 conclusion, and the foundation phase recorded its absence as a known gap."
+  ]
+}

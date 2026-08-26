@@ -1,0 +1,100 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-DATA-001",
+  "name": "Enumerate information egress routes and restrict them proportionately",
+  "description": "Identify every route by which protected information can leave the environment, then apply authorisation, logging, or monitoring to each in proportion to its risk \u2014 without assuming a dedicated tooling purchase is the answer.",
+  "domain": "data_protection",
+  "remediation_type": "implement_control",
+  "durability": "structural",
+  "responsible_role": "Security Engineering, with data owners accountable for classification",
+  "addresses_findings": [
+    "FND-DATA-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.7-001"
+  ],
+  "affected_criteria": [
+    "CC6.7"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enumerate egress routes: bulk export features, API access, outbound integrations, email, removable media, endpoint sync, and copies into non-production environments.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 2,
+      "action": "Classify each route by the volume and sensitivity of information it can move.",
+      "owner_role": "Data owner"
+    },
+    {
+      "step": 3,
+      "action": "Restrict high-volume routes to a named population and require authorisation for bulk movement.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-ACCESS-002"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Log use of each significant route, and route those logs somewhere a person actually looks.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Enforce the removable media stance technically on managed endpoints rather than stating it in policy alone.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-ENDPOINT-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Address production data copied into non-production environments, which is a route out of the controlled environment without leaving the entity.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 7,
+      "action": "Record the enumerated routes and their controls in the data handling policy, so the design is inspectable.",
+      "owner_role": "Compliance owner"
+    }
+  ],
+  "implementation_considerations": [
+    "Enumeration is the whole exercise. Most entities find routes they had not considered, and the list is more valuable than any tool bought before it exists.",
+    "Data loss prevention tooling is expensive, noisy, and frequently deployed in monitor-only mode indefinitely. Reach for it only where enumeration shows routes that access control cannot bound.",
+    "Restricting bulk export often collides with legitimate customer needs such as data portability. Design an authorised path rather than removing the capability.",
+    "Production data in non-production environments is usually the largest uncontrolled route and is best addressed by masking at the copy step rather than by controlling the destination."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks for enumeration and restriction of the significant routes; longer where non-production data handling must change.",
+  "prerequisites": [
+    "A data classification scheme with differentiated handling requirements",
+    "Endpoint management, where removable media enforcement is intended"
+  ],
+  "verification_method": {
+    "how": "Confirm the enumerated route list exists and is current, and that each significant route carries a restriction, an authorisation step, or logging that someone reviews.",
+    "verifying_evidence": [
+      "EV-CRYPTO-002",
+      "EV-ENDPOINT-001",
+      "EV-ACCESS-002"
+    ],
+    "automatable": false
+  },
+  "residual_risk_note": "Enumeration is a point-in-time exercise; new integrations and features create new routes. Without a check at design or release time, the list decays.",
+  "period_limitation_note": "Establishing route controls now does not evidence restriction during an elapsed period. Where information moved unlogged during that period, no record can be reconstructed.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "SOC 2 does not require data loss prevention tooling and this remediation deliberately does not assume it. An entity with few egress routes can meet the objective through access control and architecture."
+  ]
+}

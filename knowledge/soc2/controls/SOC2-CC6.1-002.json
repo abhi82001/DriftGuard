@@ -1,0 +1,157 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.1-002",
+  "control_name": "Encryption of Data at Rest and Cryptographic Key Management",
+  "criterion": "CC6.1",
+  "secondary_criteria": [
+    "CC6.5",
+    "CC6.7"
+  ],
+  "category": "security",
+  "domain": "cryptography",
+  "objective": "Reduce the value of physical or storage-layer access to protected information by rendering stored data unreadable without a key, and keep the keys themselves under controlled, attributable custody.",
+  "description": "Protected information at rest \u2014 primary datastores, object storage, backups, snapshots, and log archives \u2014 is encrypted using a documented algorithm and key length. Keys are held in a managed key service, access to key material is restricted to a defined set of principals, key use is logged, and rotation follows a defined schedule. Encryption is enforced at the platform level so that new storage inherits it by default rather than depending on per-resource configuration.",
+  "control_type": "preventive",
+  "automation_level": "automated",
+  "frequency": "continuous",
+  "owner_role": "Platform Engineering, with Security Engineering accountable for key policy",
+  "applicability": {
+    "always": false,
+    "conditions": [
+      "Protected information is persisted to storage the entity controls or contracts for"
+    ],
+    "not_applicable_when": [
+      "No protected information is persisted within the system boundary; transient in-memory processing only"
+    ]
+  },
+  "implementation_guidance": [
+    "Enforce encryption as a platform default or organisation policy, so an engineer cannot create unencrypted storage rather than merely being asked not to.",
+    "Decide and document whether provider-managed or customer-managed keys are used, and be able to explain why; both are defensible, silence is not.",
+    "Restrict key administration separately from key use. The ability to decrypt and the ability to delete or export a key are different privileges.",
+    "Ensure backups, snapshots, and replicas inherit encryption. These are the objects most often left unencrypted while the primary datastore is compliant.",
+    "Log key use and make the log part of the evidence package; an encryption setting alone says nothing about who could decrypt.",
+    "Define a rotation cadence you will actually meet, and treat rotation failures as tracked exceptions rather than silent drift."
+  ],
+  "design_considerations": [
+    "Does enforcement cover every storage class holding protected information, including backups and derived copies?",
+    "Is key administration segregated from the population that routinely reads data?",
+    "Would a compromise of the application layer also yield the keys, and if so what does the control actually mitigate?"
+  ],
+  "operating_considerations": [
+    "Was encryption enforced for the full period, or introduced partway through?",
+    "Were any resources created unencrypted during the period, and how would the organization know?",
+    "Did key rotation occur on the stated cadence, and were exceptions authorised?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-CRYPTO-001",
+      "necessity": "primary",
+      "note": "Encryption settings and key policy across in-scope storage."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "supporting",
+      "note": "Converts point-in-time encryption state into period coverage."
+    }
+  ],
+  "policy_examples": [
+    "POL-CRYPTO-001",
+    "POL-DATA-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-CRYPTO-001",
+      "description": "Storage-layer or backup media access yields readable protected information.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-CRYPTO-002",
+      "description": "Key custody is broad enough that encryption provides no meaningful separation from a compromised application identity.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-CRYPTO-001"
+  ],
+  "remediation": [
+    "REM-CRYPTO-001"
+  ],
+  "questionnaire_questions": [
+    "QN-ACCESS-001-Q09"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.5-001",
+      "relationship": "supports",
+      "note": "Cryptographic erasure is only a valid sanitization method where key custody is controlled."
+    },
+    {
+      "control_id": "SOC2-CC6.7-001",
+      "relationship": "overlaps_with",
+      "note": "At-rest and in-transit protection are commonly governed by the same policy but tested separately."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "SC-28",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.24",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "medium"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "3.11",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.1",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Encryption at rest is not named as a required control by the criteria. CC6.1 states an objective about logical access security over protected information assets; encryption is a common way to help meet it.",
+    "Mapped secondarily to CC6.5 because cryptographic erasure depends on this control, and to CC6.7 because the same key management governs data in motion."
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC7.5-001",
+  "control_name": "Incident Recovery and Post-Incident Remediation",
+  "criterion": "CC7.5",
+  "secondary_criteria": [
+    "CC7.4",
+    "CC7.1"
+  ],
+  "category": "security",
+  "domain": "security_operations",
+  "objective": "Restore affected systems to a known good state after an incident, and ensure the underlying cause is identified and addressed so the same failure does not recur.",
+  "description": "After containment, affected components are restored from verified sources and confirmed to be operating as intended. A post-incident review identifies the root cause and the contributing conditions, and produces remediation actions with named owners and target dates that are tracked to closure through the entity's normal work management. Where recovery depends on backups, restoration is tested rather than assumed. Findings from reviews feed back into detection rules, baselines, and the response plan.",
+  "control_type": "corrective",
+  "automation_level": "manual",
+  "frequency": "event_driven",
+  "owner_role": "Incident commander for recovery; engineering owners for tracked remediation",
+  "applicability": {
+    "always": true,
+    "conditions": [
+      "The entity operates a system that can be affected by a security incident"
+    ]
+  },
+  "implementation_guidance": [
+    "Track post-incident actions in the same system as normal engineering work. Actions held only in a review document are not tracked and reliably lapse.",
+    "Test restoration rather than assuming a successful backup implies a successful restore.",
+    "Feed root causes back into detection rules and configuration baselines, or the same event recurs undetected.",
+    "Hold the review on a defined timeframe after closure; reviews deferred indefinitely do not happen."
+  ],
+  "design_considerations": [
+    "Is there a defined trigger and timeframe for post-incident review?",
+    "Are recovery paths identified for the components that matter?",
+    "Do review actions enter a tracked backlog with owners?"
+  ],
+  "operating_considerations": [
+    "Did incidents in the period have a recorded review?",
+    "Were identified actions closed, and how long did closure take?",
+    "Was restoration verified rather than assumed?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-INCIDENT-001",
+      "necessity": "primary",
+      "note": "Recovery actions, post-incident review, and tracked remediation to closure."
+    },
+    {
+      "evidence_id": "EV-CONFIG-001",
+      "necessity": "supporting",
+      "note": "Evidences that configuration was restored to and held at the intended baseline."
+    },
+    {
+      "evidence_id": "EV-VULN-001",
+      "necessity": "supporting",
+      "note": "Where the root cause was an unremediated vulnerability, closure is evidenced here."
+    }
+  ],
+  "policy_examples": [
+    "POL-INCIDENT-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-INCIDENT-005",
+      "description": "Systems are restored without the cause being addressed and the same incident recurs.",
+      "inherent_severity": "high"
+    },
+    {
+      "risk_id": "RSK-INCIDENT-006",
+      "description": "Recovery depends on a backup that has never been restored and proves unusable when needed.",
+      "inherent_severity": "critical"
+    }
+  ],
+  "common_findings": [
+    "FND-INCIDENT-004"
+  ],
+  "remediation": [
+    "REM-INCIDENT-004"
+  ],
+  "questionnaire_questions": [
+    "QN-OPS-001-Q06"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC7.4-001",
+      "relationship": "depends_on",
+      "note": "Recovery follows the response process."
+    },
+    {
+      "control_id": "SOC2-CC7.1-002",
+      "relationship": "supports",
+      "note": "Root causes feed back into the configuration baseline."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "IR-4(1)",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "medium"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.5.27",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "NIST-CSF-2.0",
+      "external_id": "RC.RP",
+      "relationship": "informs",
+      "source_id": "SRC-NIST-CSF-2.0",
+      "confidence": "medium"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.5",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Where no incident occurred during the period, this control has no operating population. That is not a deficiency; design suitability and the availability of the recovery process are what remain assessable."
+  ]
+}

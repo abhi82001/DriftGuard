@@ -1,0 +1,95 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-INCIDENT-002",
+  "name": "Exercise the incident response plan on a stated cadence",
+  "description": "Run a documented exercise of the response plan within each period, capture what did not work, and track the resulting improvements to closure.",
+  "domain": "security_operations",
+  "remediation_type": "implement_control",
+  "durability": "structural",
+  "responsible_role": "Incident commander role, with the CISO or equivalent accountable",
+  "addresses_findings": [
+    "FND-INCIDENT-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.4-001"
+  ],
+  "affected_criteria": [
+    "CC7.4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "State a test cadence and test type in the incident response policy.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 2,
+      "action": "Build a scenario against the entity's own systems and plausible threats rather than a generic template.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Run the exercise with the people the plan actually names, early in the period rather than near its end.",
+      "owner_role": "Incident commander",
+      "produces_evidence": [
+        "EV-INCIDENT-002"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Record observations including what did not work, not only that the exercise took place.",
+      "owner_role": "Incident commander",
+      "produces_evidence": [
+        "EV-INCIDENT-002"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Raise improvement actions with owners and target dates in the normal work tracker.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-INCIDENT-002"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Confirm closure of the prior exercise's actions at the start of the next one.",
+      "owner_role": "Incident commander"
+    }
+  ],
+  "implementation_considerations": [
+    "A tabletop is cheap and sufficient for a first cycle; a functional test costs far more and is worth deferring until the plan survives a tabletop.",
+    "Schedule early in the period. A test run near period end leaves no room if it slips, which is how this control most often fails.",
+    "A real incident worked through the plan and documented frequently satisfies the same objective, though treatment varies by firm.",
+    "Scheduling the exercise is easy; getting the named roles into the room is the constraint. Book them first."
+  ],
+  "effort": "low",
+  "typical_duration": "Half a day for a tabletop, plus a few days of preparation and write-up.",
+  "prerequisites": [
+    "A documented response plan with assigned roles"
+  ],
+  "verification_method": {
+    "how": "Confirm a test record dated within the examination period exists, containing scenario, participants covering the plan's roles, observations, and improvement actions with owners.",
+    "verifying_evidence": [
+      "EV-INCIDENT-002"
+    ],
+    "automatable": false
+  },
+  "residual_risk_note": "A tabletop exercises decision-making, not technical capability. It will not reveal that a recovery mechanism does not work.",
+  "period_limitation_note": "A test cannot be performed retrospectively. Where no exercise occurred within an elapsed period, running one now evidences the next period, not the last.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No test cadence is prescribed by SOC 2. The cadence the entity states is the benchmark for whether testing occurred as described."
+  ]
+}

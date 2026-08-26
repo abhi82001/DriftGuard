@@ -1,0 +1,98 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-LOG-001",
+  "name": "Drive log coverage from the asset inventory and set retention to the period",
+  "description": "Make the asset inventory the denominator for log source coverage, alert on sources that stop forwarding, and extend retention to at least the examination period.",
+  "domain": "security_operations",
+  "remediation_type": "expand_scope",
+  "durability": "structural",
+  "responsible_role": "Security Engineering",
+  "addresses_findings": [
+    "FND-LOG-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.2-001"
+  ],
+  "affected_criteria": [
+    "CC7.2"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Reconcile active log sources against the authoritative asset inventory and list the gaps.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-LOG-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Onboard missing sources across identity, infrastructure, application, and endpoint domains.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-LOG-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Alert when a source stops forwarding, so silent dropout is detected rather than discovered.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 4,
+      "action": "Set retention to at least the examination period plus a margin, checking platform defaults explicitly.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-LOG-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Record the source list and retention commitment in the logging policy.",
+      "owner_role": "Compliance owner"
+    },
+    {
+      "step": 6,
+      "action": "Capture dated coverage snapshots so degradation across the period is visible.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Retention cost scales with volume and is usually the real constraint; tiering older data to cheaper storage preserves evidenceability without full-price retention.",
+    "If the asset inventory is incomplete, that becomes the project. Expect it.",
+    "Silent source dropout is more common than never onboarding, and only last-received alerting catches it."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks to onboard sources; retention change is immediate but only accrues coverage forward.",
+  "prerequisites": [
+    "An authoritative asset inventory",
+    "Budget agreement on retention volume"
+  ],
+  "verification_method": {
+    "how": "Reconcile the log source list against the asset inventory for the same date and confirm every in-scope source is forwarding, with configured retention at least as long as the examination period.",
+    "verifying_evidence": [
+      "EV-LOG-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Coverage assures telemetry exists, not that detection rules would surface anything meaningful from it.",
+  "period_limitation_note": "Extending retention now cannot recover logs already aged out. An interval already lost stays lost, and this addresses future periods only.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No retention period is prescribed by SOC 2. The examination period is the benchmark DriftGuard applies."
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-INCIDENT-003",
+  "name": "Capture the incident timeline and communications contemporaneously",
+  "description": "Record detection, containment, and closure timestamps, actions taken, and communications issued as the response happens, rather than reconstructing a narrative after closure.",
+  "domain": "security_operations",
+  "remediation_type": "improve_evidence",
+  "durability": "structural",
+  "responsible_role": "Incident commander role",
+  "addresses_findings": [
+    "FND-INCIDENT-003"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.4-001"
+  ],
+  "affected_criteria": [
+    "CC7.4"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Adopt an incident record template with required timeline fields, so capture is prompted rather than remembered.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Open the incident record at declaration and update it during the response, not at closure.",
+      "owner_role": "Incident commander",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Link the working channel or bridge to the record so the contemporaneous trail is preserved and reconcilable.",
+      "owner_role": "Incident commander"
+    },
+    {
+      "step": 4,
+      "action": "Record each communication issued with recipient, content summary, and time.",
+      "owner_role": "Incident commander",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Measure containment and communication elapsed time against the committed timeframes and report on it.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Assign a scribe role for higher-severity incidents so record-keeping does not compete with response.",
+      "owner_role": "Incident commander"
+    }
+  ],
+  "implementation_considerations": [
+    "Nobody updates a form mid-incident unless it is trivially fast. A pinned channel and a scribe outperform a detailed template every time.",
+    "Linking the working channel is usually more valuable than any structured field, because it is genuinely contemporaneous.",
+    "Set committed timeframes from what past incidents actually achieved, or the record will simply document breaches."
+  ],
+  "effort": "low",
+  "typical_duration": "Days to set up; proven on the next incident.",
+  "prerequisites": [
+    "An incident management or ticketing system used as the record"
+  ],
+  "verification_method": {
+    "how": "For an incident after the change, confirm the record carries detection, containment, and closure timestamps, actions with actors, and communications issued, with creation timestamps contemporaneous with the response.",
+    "verifying_evidence": [
+      "EV-INCIDENT-001"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "A good record demonstrates how the response ran; it does not make the response faster or better.",
+  "period_limitation_note": "Records for incidents already closed cannot be reconstructed into contemporaneous evidence. Backfilling produces a narrative and auditors read it as one.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Addresses an insufficient-evidence observation: the response may have been handled well, but it cannot be demonstrated."
+  ]
+}

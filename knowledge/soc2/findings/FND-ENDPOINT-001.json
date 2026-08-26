@@ -1,0 +1,143 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ENDPOINT-001",
+  "name": "Protective software coverage below the authoritative asset inventory",
+  "description": "Endpoints or workloads within the system boundary are not covered by the protective software the entity describes, or agents are installed but stale and not reporting, or coverage is reported as a proportion of the tool's own enrolled devices rather than of the asset inventory.",
+  "domain": "endpoint_security",
+  "finding_category": "scope_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That named assets present in the authoritative inventory do not appear in the protection coverage report, where both have been supplied for the same date.",
+      "That agents have not checked in within the entity's own stated currency expectation.",
+      "That coverage is measured against the tool's device list rather than the asset inventory."
+    ],
+    "must_not_assert": [
+      "That malicious software was present or executed. The observation concerns coverage, not compromise.",
+      "That any product category is required by SOC 2. The criterion names none.",
+      "That an absent resident agent on an immutable ephemeral workload is a gap; image integrity may be the appropriate control there."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "A whole asset class is outside the protection model with no alternative control, making the shortfall structural rather than a coverage slip."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "No authoritative asset inventory is available, so coverage can be measured against nothing and the shortfall can be neither confirmed nor refuted."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.8"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.8-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Assets outside coverage are outside both the preventive and the detective element of the control.",
+    "pervasiveness": "Three unenrolled laptops differ from an entire server fleet outside the model.",
+    "compensating_controls": [
+      "SOC2-CC6.6-001"
+    ],
+    "detectability": "Detectable only by reconciling to the asset inventory, which is why tool-relative coverage reporting hides it so effectively.",
+    "escalates_when": [
+      "Uncovered assets hold or can reach protected information",
+      "Coverage degraded across the period as assets were added",
+      "Agents are installed but have not reported for months"
+    ],
+    "de_escalates_when": [
+      "Uncovered assets are immutable ephemeral workloads protected through image integrity instead",
+      "Uncovered assets are outside the declared system boundary",
+      "The shortfall is transient and closed within the entity's own remediation window"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Assets in the authoritative inventory absent from the protection coverage report.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Agents present but last check-in materially older than the entity's currency expectation.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Coverage reported only at a single date rather than across the period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent measures coverage against the protection tool's own enrolled device list.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q06",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Contractor or personally owned devices neither covered nor declared outside the boundary.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q06",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly request the coverage report alongside the asset inventory and reconcile them. Coverage figures that cannot be tied to an authoritative inventory are frequently challenged before any conclusion is reached.",
+  "customer_impact": "Part of the estate handling the customer's data sits outside the protective measures the vendor describes.",
+  "remediations": [
+    "REM-ENDPOINT-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where uncovered workloads are immutable and ephemeral and the entity relies on verified base images; applying an endpoint model there produces a false finding.",
+    "Not a gap where the assets are outside the declared system boundary; confirm the boundary before reconciling.",
+    "Not a gap where an alternative control such as execution allowlisting covers the asset instead.",
+    "Where no authoritative asset inventory exists, report insufficient evidence. Coverage cannot be assessed against an absent denominator.",
+    "Do not treat a decommissioned asset still listed in a stale inventory as an uncovered asset; reconcile inventory currency first."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.8",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

@@ -1,0 +1,144 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-ENDPOINT-002",
+  "name": "Detections raised with no evidence of triage or disposition",
+  "description": "Protective software generated detections during the period, but the records do not show that a responder assessed them: dispositions are absent, auto-closed by rule with no human judgement, or recorded without any basis. The control may be detecting; whether it produced action cannot be established.",
+  "domain": "endpoint_security",
+  "finding_category": "evidence_deficiency",
+  "observation_class": "insufficient_evidence",
+  "conclusion_rules": {
+    "may_assert": [
+      "That detection records lack a responder, a disposition, or the basis for that disposition, where the detection export has been supplied.",
+      "That the export is filtered to closed or true-positive items and so does not represent the detection population.",
+      "That triage timing cannot be measured against the entity's committed timeframe."
+    ],
+    "must_not_assert": [
+      "That detections were ignored. Absent records establish that triage cannot be demonstrated, not that it did not occur.",
+      "That malicious software was present or successful.",
+      "That any specific triage timeframe is required by SOC 2. The entity's own commitment is the benchmark."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Complete records positively show detections that passed their committed triage timeframe with no action taken."
+      },
+      {
+        "observation_class": "potentially_ineffective_control",
+        "when": "Zero detections are reported for the period and coverage evidence suggests agents were not reporting, so it is unclear whether the control was operating at all."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC6.8"
+  ],
+  "affected_controls": [
+    "SOC2-CC6.8-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "The criterion concerns acting upon detections; a control that detects without evidenced action leaves the acting element unevidenced.",
+    "pervasiveness": "A few auto-closed low-severity alerts differ from an entire period with no dispositions recorded.",
+    "compensating_controls": [
+      "SOC2-CC6.8-001"
+    ],
+    "detectability": "Visible directly in the detection export, provided the export is unfiltered.",
+    "escalates_when": [
+      "High-severity detections have no disposition",
+      "The export is filtered, so the untriaged backlog is hidden",
+      "No responder or triage timeframe is defined anywhere"
+    ],
+    "de_escalates_when": [
+      "Auto-closure follows a documented suppression rule with a recorded basis",
+      "Detections are routed into an incident process where the triage record lives instead",
+      "Volume is low and each item has a recorded disposition"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Detection records lack responder identity or disposition.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Export contains only closed or true-positive items rather than the full population.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Dispositions recorded as false positive with no stated basis.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Zero detections reported for the period, uncorroborated by coverage evidence.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-ENDPOINT-002",
+        "EV-ENDPOINT-001"
+      ],
+      "confidence": "low"
+    },
+    {
+      "signal_id": "SIG-005",
+      "signal": "Respondent identifies no named responder or triage timeframe.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-NETSEC-001-Q06",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly sample detections and ask what was done about each. Where the answer lives outside the detection tool, in an incident or ticketing system, this resolves quickly; where it lives nowhere, it tends to become reportable.",
+  "customer_impact": "The vendor can show it looks for malicious software but not that it acts on what it finds.",
+  "remediations": [
+    "REM-ENDPOINT-002"
+  ],
+  "false_positive_guidance": [
+    "Classified as insufficient evidence, not an operating gap. Absent triage records do not establish that triage did not happen; request the records first.",
+    "Not a gap where auto-closure follows a documented suppression rule with a recorded basis; that is informed triage at scale, not absence of triage.",
+    "Not a gap where triage records live in an incident management or ticketing system rather than in the detection tool; reconcile across systems before concluding.",
+    "A zero or low detection count is not itself a finding. Corroborate against coverage evidence before treating quiet as either healthy or broken.",
+    "Do not measure triage timeliness against an external benchmark. The entity's own committed timeframe is the only applicable standard."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.8",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

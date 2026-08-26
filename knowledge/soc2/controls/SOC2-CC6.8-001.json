@@ -1,0 +1,151 @@
+{
+  "$schema": "../schemas/control.schema.json",
+  "record_type": "control",
+  "framework": "SOC2",
+  "framework_version": "2017 TSC (revised points of focus 2022)",
+  "control_id": "SOC2-CC6.8-001",
+  "control_name": "Prevention and Detection of Unauthorized and Malicious Software",
+  "criterion": "CC6.8",
+  "secondary_criteria": [
+    "CC6.1"
+  ],
+  "category": "security",
+  "domain": "endpoint_security",
+  "objective": "Prevent unauthorised or malicious software from being introduced into the environment where practical, detect it where prevention is not, and act on what is detected.",
+  "description": "Endpoints and servers within the system boundary run managed protective software with central reporting of coverage and health. Production workload images are built from controlled base images and their integrity is verified before deployment. Where the platform supports it, execution is constrained to approved software. Detections are routed to a defined responder, triaged, and closed with the outcome recorded. Coverage is measured against the authoritative asset inventory rather than against the set of devices the tool happens to know about.",
+  "control_type": "detective",
+  "automation_level": "automated",
+  "frequency": "continuous",
+  "owner_role": "Security Engineering, with IT Operations accountable for endpoint coverage",
+  "applicability": {
+    "always": false,
+    "conditions": [
+      "The environment includes endpoints, servers, or workload images on which software can execute"
+    ],
+    "not_applicable_when": [
+      "Workloads are exclusively immutable, ephemeral, and built from verified images with no interactive access; the objective is then met through image integrity and deployment controls rather than resident protective software, and DriftGuard must assess it on that basis rather than reporting an absent agent"
+    ]
+  },
+  "implementation_guidance": [
+    "Measure coverage against the asset inventory, not against the tool's own device list. A tool cannot report on assets it never enrolled.",
+    "Report on agent health, not just installation. A stale or non-reporting agent is functionally absent.",
+    "For containerised workloads, image provenance and integrity verification is usually the stronger control; resident agents on ephemeral containers often evidence little.",
+    "Route detections to a named responder with a defined timeframe, and record the triage outcome. Alert volume without triage records is the most common weakness here.",
+    "Where execution control or allowlisting is feasible, it is a stronger preventive measure than detection, but it carries real operational cost. Treat the trade-off explicitly.",
+    "Include contractor and bring-your-own devices in the coverage question, or state clearly that they are outside the boundary."
+  ],
+  "design_considerations": [
+    "Does the approach match the workload type, or is an endpoint model being applied to ephemeral infrastructure?",
+    "Is coverage defined by the asset inventory?",
+    "Is there a defined responder and timeframe for detections?"
+  ],
+  "operating_considerations": [
+    "Was coverage maintained across the period, or did it degrade as assets were added?",
+    "Were agents healthy and reporting, or merely installed?",
+    "Were detections during the period triaged, and is the outcome recorded?"
+  ],
+  "evidence_examples": [
+    {
+      "evidence_id": "EV-ENDPOINT-001",
+      "necessity": "primary",
+      "note": "Coverage and agent health reconciled to the asset inventory across the period."
+    },
+    {
+      "evidence_id": "EV-ENDPOINT-002",
+      "necessity": "primary",
+      "note": "Detection and triage records demonstrating the control produced action."
+    }
+  ],
+  "policy_examples": [
+    "POL-ENDPOINT-001"
+  ],
+  "risks": [
+    {
+      "risk_id": "RSK-ENDPOINT-001",
+      "description": "Malicious software executes on a system with access to protected information and is not detected.",
+      "inherent_severity": "critical"
+    },
+    {
+      "risk_id": "RSK-ENDPOINT-002",
+      "description": "Protective software is deployed but unhealthy or uninstalled on part of the estate, giving false assurance.",
+      "inherent_severity": "high"
+    }
+  ],
+  "common_findings": [
+    "FND-ENDPOINT-001",
+    "FND-ENDPOINT-002"
+  ],
+  "remediation": [
+    "REM-ENDPOINT-001",
+    "REM-ENDPOINT-002"
+  ],
+  "questionnaire_questions": [
+    "QN-NETSEC-001-Q06"
+  ],
+  "related_controls": [
+    {
+      "control_id": "SOC2-CC6.7-001",
+      "relationship": "supports",
+      "note": "Endpoint management is the enforcement point for removable media restriction."
+    }
+  ],
+  "mappings": [
+    {
+      "framework": "NIST-SP800-53r5",
+      "external_id": "SI-3",
+      "relationship": "partial",
+      "source_id": "SRC-NIST-SP800-53R5",
+      "confidence": "high"
+    },
+    {
+      "framework": "ISO-27001-2022",
+      "external_id": "A.8.7",
+      "relationship": "partial",
+      "source_id": "SRC-ISO-27001-2022",
+      "confidence": "high"
+    },
+    {
+      "framework": "CIS-v8",
+      "external_id": "10.1",
+      "relationship": "partial",
+      "source_id": "SRC-CIS-CONTROLS-V8",
+      "confidence": "high"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC6.8",
+      "authority_tier": 1,
+      "supports": "Identity of the criterion this control is intended to help meet.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Design and operating considerations, and the points most commonly challenged in testing.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Implementation guidance and DriftGuard's recommended approach.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.1.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criterion concerns preventing or detecting and acting upon unauthorised or malicious software. It does not name antivirus or any product category. An immutable-infrastructure entity meeting the objective through image integrity is not deficient for having no endpoint agent on its workloads."
+  ]
+}

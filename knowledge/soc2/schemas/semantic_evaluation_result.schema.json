@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://driftguard.io/schemas/soc2/semantic_evaluation_result.schema.json",
+  "x-driftguard-schema-version": "1.0.0",
+  "title": "DriftGuard Semantic Evaluation Result",
+  "description": "Structured output a future semantic evaluator may return for one semantic_condition against one answer. The result reports only what the answer does and does not support. It carries no compliance verdict, no audit opinion, and no certification decision: those conclusions belong to a service auditor, not to DriftGuard. The assessment vocabulary is deliberately phrased in terms of support rather than pass or fail.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "record_type": { "const": "semantic_evaluation_result" },
+    "result_id": { "type": "string", "pattern": "^SEMRES-[A-Z0-9-]+$" },
+    "condition_id": { "type": "string", "pattern": "^SEMCOND-[0-9]{4}$" },
+    "question_id": { "$ref": "common.defs.json#/$defs/question_id" },
+    "assessment": {
+      "type": "string",
+      "enum": ["SUPPORTED", "PARTIALLY_SUPPORTED", "INSUFFICIENT", "UNDETERMINED"],
+      "description": "SUPPORTED: every required element is evidenced. PARTIALLY_SUPPORTED: some required elements evidenced, some not. INSUFFICIENT: the answer does not evidence the required elements. UNDETERMINED: the evaluator could not reach a view, for example because the answer was off-topic or unintelligible. None of these is a compliance conclusion."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Evaluator confidence in its own assessment, not a measure of the entity's compliance."
+    },
+    "present_elements": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^SE-[0-9]{3}$" },
+      "uniqueItems": true,
+      "description": "Element IDs the answer evidences. Every entry must exist in the referenced semantic_condition."
+    },
+    "missing_elements": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^SE-[0-9]{3}$" },
+      "uniqueItems": true,
+      "description": "Element IDs the answer does not evidence. Every entry must exist in the referenced semantic_condition and must not also appear in present_elements."
+    },
+    "reason_codes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "element_not_mentioned",
+          "element_ambiguous",
+          "answer_too_brief",
+          "answer_off_topic",
+          "conflicting_statements",
+          "low_confidence"
+        ]
+      },
+      "description": "Controlled vocabulary explaining the assessment. Enumerated rather than free text so the explanation is stable and cannot smuggle in a verdict."
+    },
+    "needs_human_review": {
+      "type": "boolean",
+      "description": "Whether a person should confirm the assessment before it informs anything the entity sees."
+    },
+    "evaluated_on": { "$ref": "common.defs.json#/$defs/date" },
+    "notes": { "$ref": "common.defs.json#/$defs/notes" }
+  },
+  "required": [
+    "record_type", "result_id", "condition_id", "question_id", "assessment",
+    "confidence", "present_elements", "missing_elements", "reason_codes",
+    "needs_human_review"
+  ],
+  "additionalProperties": false,
+  "x-prohibited-verdicts": {
+    "description": "Values the result must never carry anywhere in the record. Enforced by the validator, not only by the assessment enum.",
+    "values": ["SOC2_FAILED", "SOC2_PASSED", "COMPLIANT", "NON_COMPLIANT", "CERTIFIED", "AUDIT_OPINION", "QUALIFIED_OPINION", "UNQUALIFIED_OPINION"]
+  }
+}

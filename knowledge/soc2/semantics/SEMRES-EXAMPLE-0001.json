@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/semantic_evaluation_result.schema.json",
+  "record_type": "semantic_evaluation_result",
+  "result_id": "SEMRES-EXAMPLE-0001",
+  "condition_id": "SEMCOND-0001",
+  "question_id": "QN-ACCESS-001-Q09",
+  "assessment": "PARTIALLY_SUPPORTED",
+  "confidence": 0.68,
+  "present_elements": [
+    "SE-001",
+    "SE-002"
+  ],
+  "missing_elements": [
+    "SE-003"
+  ],
+  "reason_codes": [
+    "element_not_mentioned"
+  ],
+  "needs_human_review": true,
+  "evaluated_on": "2026-08-12",
+  "notes": [
+    "Illustrative only. Models an answer that addresses backups and snapshots but is silent on replicas.",
+    "PARTIALLY_SUPPORTED reports what the answer evidences. It is not a verdict on the control, and silence about replicas is not evidence that replicas are unencrypted.",
+    "needs_human_review is true because a missing required element would raise a gap signal, and a partial result is exactly where an evaluator is most likely to be wrong.",
+    "Note wording deliberately avoids compliance-verdict vocabulary: the validator scans the whole record for prohibited verdict tokens, including inside prose."
+  ]
+}

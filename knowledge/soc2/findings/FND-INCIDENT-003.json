@@ -1,0 +1,127 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-INCIDENT-003",
+  "name": "Incident records do not evidence containment, communication, or timeline",
+  "description": "Declared incidents are recorded, but the records omit the timeline, the containment actions taken, or the communications issued, or were reconstructed after closure rather than captured during the response.",
+  "domain": "security_operations",
+  "finding_category": "evidence_deficiency",
+  "observation_class": "insufficient_evidence",
+  "conclusion_rules": {
+    "may_assert": [
+      "That incident records lack timeline, containment actions, or communication records, where the records have been supplied.",
+      "That record timestamps indicate the narrative was authored after closure rather than during the response.",
+      "That containment or communication timeliness cannot be measured against the entity's committed timeframes."
+    ],
+    "must_not_assert": [
+      "That the incident was mishandled. Absent records establish that handling cannot be demonstrated, not that it was poor.",
+      "That notification obligations were breached. That is a legal conclusion DriftGuard is not positioned to reach.",
+      "That any specific response timeframe is required by SOC 2."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Complete records positively show containment or communication occurring outside the entity's committed timeframes."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "informational_observation",
+        "when": "A single low-severity incident has a thin record while the rest of the population is well documented."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.4"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.4-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "CC7.4 concerns executing a defined programme; a record of the event without the response leaves execution unevidenced.",
+    "pervasiveness": "One thin record differs from an entire population lacking timelines.",
+    "compensating_controls": [
+      "SOC2-CC7.5-001"
+    ],
+    "detectability": "Visible directly in the incident records.",
+    "escalates_when": [
+      "High-severity incidents lack timelines",
+      "No communications are evidenced despite the plan requiring them",
+      "Records were plainly authored during audit preparation"
+    ],
+    "de_escalates_when": [
+      "Timeline and actions exist in a linked chat or ticket record that reconciles",
+      "The incident was low severity and closed quickly"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Incident records missing detection, containment, or closure timestamps.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "No record of communications issued despite the plan defining notification obligations.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Record creation timestamps cluster well after incident closure.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly walk through one or two incidents end to end rather than sampling broadly. A record that cannot support the walkthrough usually prompts a request for the underlying chat or ticket trail before anything is concluded.",
+  "customer_impact": "The vendor cannot demonstrate how quickly it contained an incident affecting the customer's data, or whether the customer was told.",
+  "remediations": [
+    "REM-INCIDENT-003"
+  ],
+  "false_positive_guidance": [
+    "Classified as insufficient evidence. Thin records do not establish poor handling; request the underlying chat, ticket, or bridge records first.",
+    "Not a gap where the timeline exists in a linked system such as a chat channel or ticket and reconciles to the incident record.",
+    "Not a gap where no external communication was evidenced because none was triggered; check the plan's own triggers before flagging.",
+    "A period with no declared incidents produces no population here and is not a finding."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.4",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

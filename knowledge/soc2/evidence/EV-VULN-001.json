@@ -1,0 +1,186 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-VULN-001",
+  "name": "Vulnerability Scan Result and Remediation Tracking",
+  "description": "Scanner output for a scan executed during the examination period, together with the asset coverage basis for that scan and the tracking records showing how identified vulnerabilities were driven to closure or formally accepted.",
+  "domain": "vulnerability_management",
+  "evidence_type": "scan_result",
+  "evidence_role": "operational",
+  "origin": "system_generated",
+  "collection_mode": "automated_export",
+  "persuasiveness_tier": "strong",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Scan execution date, scanner identity, and scan configuration or profile",
+      "required": true,
+      "why": "Places the scan within the period and establishes what kind of scan was run."
+    },
+    {
+      "element": "List of assets actually scanned",
+      "required": true,
+      "why": "Coverage is the substance of the control; results are meaningless without knowing what was covered."
+    },
+    {
+      "element": "Authoritative asset inventory for the same date, with reconciliation against the scanned list",
+      "required": true,
+      "why": "Demonstrates the scan scope matched the environment. Unreconciled scope is the most common defect in this evidence."
+    },
+    {
+      "element": "Findings with severity ranking and affected asset",
+      "required": true,
+      "why": "Drives the remediation timeframe and enables SLA assessment."
+    },
+    {
+      "element": "Whether scanning was authenticated or unauthenticated",
+      "required": true,
+      "why": "Unauthenticated scans systematically understate exposure and change the conclusion that can be drawn."
+    },
+    {
+      "element": "Remediation tracking records showing detection date, target date, and actual closure date per finding",
+      "required": true,
+      "why": "Operating effectiveness rests on timeliness, not on the scan having run."
+    },
+    {
+      "element": "Documented, authorised, time-bounded risk acceptance for any finding not remediated within its timeframe",
+      "required": true,
+      "why": "Distinguishes a governed exception from an unaddressed vulnerability."
+    },
+    {
+      "element": "Rescan or verification confirming the vulnerability is no longer present",
+      "required": false,
+      "why": "Ticket closure alone does not demonstrate the vulnerability was fixed."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC7.1-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC7.1",
+    "CC7.2"
+  ],
+  "collection_frequency": "monthly",
+  "owner": "Security Engineering",
+  "source_system_examples": [
+    "Infrastructure vulnerability scanner",
+    "Container image scanner in the build pipeline",
+    "Cloud-native security posture service",
+    "Software composition analysis tool"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 45,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default of one monthly cadence plus a 15-day grace window. Not an audit rule."
+  },
+  "sensitivity": "restricted",
+  "redaction_guidance": [
+    "Unremediated vulnerability detail is directly exploitable. Restrict distribution, and never attach raw scan output to a customer-facing report.",
+    "Exclude proof-of-concept payloads and exploit detail from any shared artifact.",
+    "Hostnames and IPs may be tokenised provided reconciliation to the asset inventory remains possible."
+  ],
+  "retention_guidance": "Retain scan output and tracking records for the full examination period; retention shorter than the period leaves an untestable interval.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "Scan results exist for every scheduled scan interval within the examination period, with no unexplained gaps.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-VULN-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "Scanned assets reconcile to the authoritative asset inventory for the same date.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-VULN-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "timeliness",
+      "rule": "Findings were closed within the remediation timeframe the organization defined for their severity.",
+      "check_type": "deterministic",
+      "failure_severity": "high",
+      "failure_finding": "FND-VULN-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "sufficiency",
+      "rule": "Every finding exceeding its timeframe carries a documented, authorised, time-bounded risk acceptance.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-VULN-001"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "authenticity",
+      "rule": "Output is a scanner-generated export rather than a manually compiled summary.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "relevance",
+      "rule": "Scanned assets fall within the declared system boundary for the examination.",
+      "check_type": "heuristic",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Scan target list is static while the environment is dynamic, so newly provisioned assets are never scanned.",
+      "impact": "Coverage silently degrades over the period without anyone detecting it.",
+      "related_finding": "FND-VULN-001"
+    },
+    {
+      "issue": "Findings remain open well past the organization's stated remediation timeframe with no risk acceptance.",
+      "impact": "The organization is not meeting the commitment it defined for itself, which is how operating effectiveness is judged.",
+      "related_finding": "FND-VULN-001"
+    },
+    {
+      "issue": "Only host scanning is performed; container images and third-party dependencies are unscanned.",
+      "impact": "A material portion of the attack surface is outside the control.",
+      "related_finding": "FND-VULN-001"
+    },
+    {
+      "issue": "Summary dashboard screenshot provided instead of the underlying findings and tracking records.",
+      "impact": "Neither coverage nor timeliness can be assessed from a summary."
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Scope reconciliation and SLA-adherence expectations, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criteria do not prescribe scan frequency or remediation timeframes. DriftGuard assesses adherence to the timeframes the organization itself defined, which is the basis on which operating effectiveness is judged.",
+    "Scanner output is system-generated; risk-acceptance records within the same package are human-generated and are weighted separately.",
+    "Backfilled with evidence_role and origin in the CC6 phase (schema 0.2.0). Content otherwise unchanged."
+  ]
+}

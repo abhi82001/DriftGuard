@@ -1,0 +1,95 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-INCIDENT-001",
+  "name": "Document incident declaration criteria and intake paths",
+  "description": "Write down the severity and impact thresholds that turn a security event into an incident, name who may declare and stand down, and define intake for events reported outside monitoring.",
+  "domain": "security_operations",
+  "remediation_type": "update_documentation",
+  "durability": "structural",
+  "responsible_role": "CISO or equivalent, with Security Engineering drafting",
+  "addresses_findings": [
+    "FND-INCIDENT-001"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.3-001"
+  ],
+  "affected_criteria": [
+    "CC7.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Define severity levels with concrete impact descriptions covering confidentiality, availability, and integrity.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 2,
+      "action": "State the threshold at which a security event is declared an incident.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 3,
+      "action": "Name who may declare an incident and who may stand one down, making both attributable.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 4,
+      "action": "Define intake paths for customer reports, researcher disclosures, vendor notifications, and staff reports.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Require the declaration basis to reference the criteria in every incident record.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Require non-incident dispositions to be recorded too, so the discriminating judgement is visible.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-MONITOR-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Criteria written too tightly produce declarations nobody makes; written too loosely they produce incidents for every alert. Calibrate against the last year of real events.",
+    "The stand-down decision is the one usually left undefined and is where inconsistency shows up first.",
+    "External intake paths need a monitored address and a named owner, not just a mention in the policy."
+  ],
+  "effort": "low",
+  "typical_duration": "Days to draft; the calibration discussion is the substantive part.",
+  "prerequisites": [
+    "An alert or event population to calibrate thresholds against"
+  ],
+  "verification_method": {
+    "how": "Confirm documented criteria exist, and that incident records created after the change cite them as the declaration basis while non-incident dispositions are also recorded.",
+    "verifying_evidence": [
+      "EV-INCIDENT-001",
+      "EV-MONITOR-001"
+    ],
+    "automatable": false
+  },
+  "paired_remediations": [
+    "REM-MONITOR-001"
+  ],
+  "residual_risk_note": "Documented criteria improve consistency; they do not guarantee the judgement is right in a novel situation.",
+  "period_limitation_note": "Documenting criteria now does not make declarations during an elapsed period consistent or evidenced.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "No severity scheme is prescribed by SOC 2. The entity defines its own and is then measured against it."
+  ]
+}

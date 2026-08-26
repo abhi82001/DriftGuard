@@ -1,0 +1,134 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-LOG-001",
+  "name": "Log source coverage or retention below what the period requires",
+  "description": "Security-relevant log sources are absent for part of the in-scope estate, sources stopped forwarding mid-period, or retention is shorter than the examination period so an interval cannot be evidenced regardless of what was collected.",
+  "domain": "security_operations",
+  "finding_category": "scope_deficiency",
+  "observation_class": "control_operating_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That named in-scope assets do not appear as active log sources, where the source list and asset inventory have both been supplied for the same date.",
+      "That configured retention is shorter than the examination period.",
+      "That a source stopped forwarding during the period, where last-received times show it."
+    ],
+    "must_not_assert": [
+      "That an incident went undetected. The observation concerns telemetry coverage, not any actual event.",
+      "That any specific retention period is required by SOC 2. None is prescribed; the entity's own period is the benchmark."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_design_gap",
+        "when": "A whole component class is outside the logging model with no alternative detection, making the shortfall structural rather than a coverage slip."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "No authoritative asset inventory is available, so coverage can be measured against nothing."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.2"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.2-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "Activity on uncovered components is outside detection entirely, and unretained intervals cannot be examined after the fact.",
+    "pervasiveness": "One quiet source differs from identity or application logging being absent altogether.",
+    "compensating_controls": [
+      "SOC2-CC6.8-001"
+    ],
+    "detectability": "Detectable only by reconciling to the asset inventory; the platform's own source list always looks complete.",
+    "escalates_when": [
+      "Identity or application logging is absent",
+      "Retention is materially shorter than the period",
+      "A source stopped forwarding and nobody noticed"
+    ],
+    "de_escalates_when": [
+      "The uncovered component holds no protected information",
+      "An alternative detection control covers the component",
+      "The shortfall was detected and closed by the entity within its own window"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Assets in the authoritative inventory absent from the active log source list.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-LOG-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Configured retention shorter than the examination period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-LOG-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Source last-received time materially older than expected for an active source.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-LOG-001"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes coverage without reference to an asset inventory, or cannot state the retention period.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-OPS-001-Q02",
+      "confidence": "medium"
+    }
+  ],
+  "auditor_impact": "Auditors commonly request the log source list alongside the asset inventory and reconcile them, and check retention against the period before sampling anything from the logs.",
+  "customer_impact": "Activity affecting the customer's data on part of the vendor's estate produced no record, or a record that no longer exists.",
+  "remediations": [
+    "REM-LOG-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where the component is outside the declared system boundary; confirm the boundary before reconciling.",
+    "Not a gap where an ephemeral asset appeared and was destroyed between inventory snapshots; reconcile inventory currency first.",
+    "Not a gap where an alternative detection control covers the component and the entity has said so.",
+    "Where no authoritative asset inventory exists, report insufficient evidence. Coverage cannot be assessed against an absent denominator."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.2",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

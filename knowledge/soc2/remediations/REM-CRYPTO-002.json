@@ -1,0 +1,97 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-CRYPTO-002",
+  "name": "Enforce and verify transport encryption across all information paths",
+  "description": "Set a transport standard, enforce it centrally at boundary components, and verify what deployed endpoints actually negotiate rather than trusting the configuration.",
+  "domain": "cryptography",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "Platform Engineering",
+  "addresses_findings": [
+    "FND-CRYPTO-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.7-001"
+  ],
+  "affected_criteria": [
+    "CC6.6",
+    "CC6.7"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enumerate every endpoint that terminates or originates protected information traffic, including APIs, webhooks, outbound integrations, and internal service-to-service paths.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CRYPTO-002"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Set a minimum protocol version and cipher suite list in the cryptography policy, and record the basis for the choice.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Enforce the standard at the load balancer, ingress controller, or service mesh so clients inherit it rather than configuring it individually.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 4,
+      "action": "Refuse plaintext connections rather than redirecting them, where the client population allows it.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Run recurring independent validation against every enumerated endpoint and retain the dated output.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-CRYPTO-002"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Alert on validation failures so a deployment that weakens transport is detected rather than discovered at audit.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Raising the minimum protocol version can break older client integrations. Identify affected customers and sequence the change with notice rather than enforcing unilaterally.",
+    "Refusing rather than redirecting plaintext is the more defensible position but produces opaque failures for misconfigured clients; weigh support cost.",
+    "Internal service-to-service traffic is often the largest omission and the hardest to retrofit; treat it as its own workstream.",
+    "Set the standard at a level the estate can actually meet. A policy naming a version legacy integrations cannot support manufactures its own exceptions."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks for external endpoints; internal service mesh adoption is typically longer.",
+  "prerequisites": [
+    "An inventory of endpoints carrying protected information",
+    "Agreement on the minimum standard, including its impact on existing clients"
+  ],
+  "verification_method": {
+    "how": "Run independent validation against every enumerated endpoint and confirm each negotiates at or above the documented standard, and that plaintext is handled as the policy states.",
+    "verifying_evidence": [
+      "EV-CRYPTO-002"
+    ],
+    "automatable": true
+  },
+  "residual_risk_note": "Endpoints created after validation runs are unverified until the next cycle. Continuous validation narrows but does not close that window.",
+  "period_limitation_note": "Strengthening transport configuration now does not change what endpoints negotiated during an elapsed period.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard recommends a standard aligned to current industry guidance but does not assert a required protocol version, because SOC 2 names none."
+  ]
+}

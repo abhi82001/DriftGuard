@@ -1,0 +1,95 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ACCESS-002",
+  "name": "Track access review exceptions to verified closure",
+  "description": "Give every entitlement flagged during an access review a tracked work item with an owner and a due date, and close it only once the change is confirmed in the underlying system rather than in the ticket.",
+  "domain": "access_management",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "IAM function, with system owners accountable for closure",
+  "addresses_findings": [
+    "FND-ACCESS-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.3-001"
+  ],
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Require a per-entitlement decision in the review, replacing bulk sign-off.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 2,
+      "action": "Auto-create a tracked work item for every retain-with-change or revoke decision, with an owner and due date.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Define closure as system-confirmed: the entitlement change must be observed in the target system before the item is closed.",
+      "owner_role": "System owner"
+    },
+    {
+      "step": 4,
+      "action": "Reconcile the post-review entitlement export against the flagged items and retain the reconciliation as part of the review record.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Block review sign-off until all flagged items are closed or explicitly re-decided with a recorded rationale.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 6,
+      "action": "Schedule reviews against the cadence stated in policy, and align policy to the cadence actually sustainable.",
+      "owner_role": "CISO or equivalent"
+    }
+  ],
+  "implementation_considerations": [
+    "Blocking sign-off until closure changes reviewer behaviour more than any amount of guidance; expect initial friction.",
+    "System-side confirmation requires a second export after changes are applied. Build that into the cycle rather than treating it as an extra task."
+  ],
+  "effort": "low",
+  "typical_duration": "One review cycle to implement, one further cycle to demonstrate.",
+  "prerequisites": [
+    "A ticketing system already used as a system of record",
+    "Ability to re-export entitlements after changes are applied"
+  ],
+  "verification_method": {
+    "how": "For a completed review cycle, confirm every flagged item has a work item, a closure record, and a post-change entitlement export showing the change took effect.",
+    "verifying_evidence": [
+      "EV-ACCESS-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ACCESS-003"
+  ],
+  "residual_risk_note": "Closure verification is only as good as the export it is verified against; if the export is incomplete, verified closure over an incomplete population still leaves exposure. Pair with REM-ACCESS-003.",
+  "period_limitation_note": "Reviews missed or left unclosed during an elapsed period cannot be performed retroactively. A review conducted during fieldwork does not evidence operation during the period.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.2.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-11",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Backfilled with responsible_role and implementation_considerations in the CC6 phase (schema 0.2.0)."
+  ]
+}

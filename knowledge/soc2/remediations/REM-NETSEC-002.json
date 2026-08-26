@@ -1,0 +1,104 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-NETSEC-002",
+  "name": "Detect configuration drift continuously and bound temporary changes",
+  "description": "Make deviation from the baseline detectable while it is happening rather than at review time, and give temporary rules an owner and an expiry so their closure does not depend on recollection.",
+  "domain": "network_security",
+  "remediation_type": "automate",
+  "durability": "structural",
+  "responsible_role": "Platform Engineering",
+  "addresses_findings": [
+    "FND-NETSEC-002"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.6-001"
+  ],
+  "affected_criteria": [
+    "CC6.1",
+    "CC6.6"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Enable continuous comparison of live configuration against the reviewed baseline, alerting on deviation.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 2,
+      "action": "Route drift alerts to a named owner with a defined response timeframe, so detection produces action.",
+      "owner_role": "Security Engineering"
+    },
+    {
+      "step": 3,
+      "action": "Record both detection time and resolution time for every deviation, so drift duration is measurable.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Require temporary rules to carry an owner and an expiry, and expire them automatically where the platform allows.",
+      "owner_role": "Platform Engineering"
+    },
+    {
+      "step": 5,
+      "action": "Extend configuration change history retention to at least the examination period plus a margin.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Schedule dated configuration captures as a fallback where a platform provides no native change history.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001",
+        "EV-NETSEC-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Retention is the step most often overlooked and the one that silently invalidates everything else; check the default retention of every audit log being relied on before assuming coverage.",
+    "Drift alerting is noisy at first because the baseline is usually wrong in small ways. Budget a tuning period rather than disabling it when the volume arrives.",
+    "Where infrastructure is already defined as code with full repository history, much of this exists; the gap is usually detection of out-of-band changes made directly in the console.",
+    "This remediation serves every control that relies on point-in-time configuration evidence, not only the boundary. Scope it once across identity, encryption, and network surfaces."
+  ],
+  "effort": "medium",
+  "typical_duration": "Weeks to deploy; one full period to accumulate the coverage it exists to provide.",
+  "prerequisites": [
+    "An approved baseline to compare against, from REM-NETSEC-001",
+    "Platform audit logging enabled with adequate retention"
+  ],
+  "verification_method": {
+    "how": "Confirm change history spans the intended period, that a deliberately introduced test deviation is detected and alerted, and that detection and resolution times are both recorded.",
+    "verifying_evidence": [
+      "EV-CONFIG-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-NETSEC-001"
+  ],
+  "residual_risk_note": "Drift detection reduces the window during which a deviation goes unnoticed; it does not prevent the deviation. Preventive controls over who can change the boundary remain necessary.",
+  "period_limitation_note": "Coverage begins when the mechanism is switched on. It cannot reconstruct history for a period already elapsed, so an entity that starts this mid-period will still have an unevidenced interval.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "This is the structural answer to the point-in-time versus period evidence problem across CC6, and is the companion to EV-CONFIG-001."
+  ]
+}

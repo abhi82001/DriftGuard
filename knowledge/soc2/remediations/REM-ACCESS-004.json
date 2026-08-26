@@ -1,0 +1,104 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-ACCESS-004",
+  "name": "Make authorization a precondition of provisioning",
+  "description": "Move approval into the provisioning workflow so that access cannot be granted without a recorded authorisation that names the entitlement and predates the grant, and extend the same path to contractors and external users.",
+  "domain": "access_management",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "IT / Identity and Access Management owner",
+  "addresses_findings": [
+    "FND-ACCESS-004"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC6.2-001"
+  ],
+  "affected_criteria": [
+    "CC6.2",
+    "CC6.3"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Define which roles may approve which entitlements, and prohibit self-approval for privileged access.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 2,
+      "action": "Route all provisioning through a request workflow in a system of record, so approval and provisioning share one artifact rather than two.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-002"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Require the request to name the role or entitlement set, replacing free-text requests for 'access'.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-002"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Extend the same path to contractors and external users, who are typically the population handled by exception.",
+      "owner_role": "IAM function"
+    },
+    {
+      "step": 5,
+      "action": "Restrict direct administrative provisioning, and where it must remain possible, alert on it and review it.",
+      "owner_role": "IT Operations",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Reconcile account creation events against approvals periodically so divergence is detected by the entity rather than by the auditor.",
+      "owner_role": "IAM function",
+      "produces_evidence": [
+        "EV-ACCESS-002",
+        "EV-IAM-001"
+      ]
+    }
+  ],
+  "implementation_considerations": [
+    "Approvals captured in chat feel faster and will persist unless the workflow is genuinely quicker than messaging someone. Invest in the request experience or the process will be bypassed.",
+    "Infrastructure-as-code provisioning already carries an approval in the pull request; recognise it as the authorisation rather than layering a second ticket on top.",
+    "Prohibiting self-approval outright can block small teams where only one person holds the authority. Define a documented alternate approver before enforcing."
+  ],
+  "effort": "low",
+  "typical_duration": "Weeks, mostly spent agreeing the approval matrix rather than configuring the workflow.",
+  "prerequisites": [
+    "A ticketing or identity governance system already used as a system of record",
+    "An agreed definition of who may approve what"
+  ],
+  "verification_method": {
+    "how": "Sample accounts and entitlements created after the change and confirm each has an approval that names the entitlement, predates provisioning, and comes from an authorised approver other than the requester.",
+    "verifying_evidence": [
+      "EV-ACCESS-002",
+      "EV-IAM-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-ACCESS-005"
+  ],
+  "residual_risk_note": "An approval workflow evidences authorisation, not appropriateness. Approvers who rubber-stamp produce compliant records and unchanged risk; the periodic review remains the check on that.",
+  "period_limitation_note": "Grants made without approval during an elapsed period cannot be retrospectively authorised. A later approval evidences ratification, and an auditor will read it that way.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "SOC 2 requires no particular mechanism for authorisation. A version-controlled entitlement definition with reviewed changes is as valid as a ticketing workflow."
+  ]
+}

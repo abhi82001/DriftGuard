@@ -1,0 +1,172 @@
+{
+  "$schema": "../schemas/evidence.schema.json",
+  "record_type": "evidence",
+  "evidence_id": "EV-PHYSEC-001",
+  "name": "Physical Access Roster and Review Record",
+  "description": "The population of people holding physical access to facilities and sensitive areas, the periodic review of that population, and the revocation records resulting from it.",
+  "domain": "physical_security",
+  "evidence_type": "system_generated_report",
+  "evidence_role": "review",
+  "origin": "hybrid",
+  "collection_mode": "manual_export",
+  "persuasiveness_tier": "moderate",
+  "period_coverage": "period",
+  "expected_content": [
+    {
+      "element": "Complete roster of badge or credential holders with the areas each may enter",
+      "required": true,
+      "why": "Establishes the population; general facility access and server room access must be distinguishable."
+    },
+    {
+      "element": "Statement of how the roster was generated from the access control system",
+      "required": true,
+      "why": "Population completeness is assessed before any sample is drawn."
+    },
+    {
+      "element": "Reviewer identity, review date, and per-holder decision",
+      "required": true,
+      "why": "Distinguishes a review from an acknowledgement of a list."
+    },
+    {
+      "element": "Revocation records for holders identified as no longer requiring access, with the date effected",
+      "required": true,
+      "why": "Follow-through is what makes the review a control rather than an inventory."
+    },
+    {
+      "element": "Reconciliation of the roster against current personnel records",
+      "required": true,
+      "why": "Former personnel retaining badge access is the single most common failure of this control."
+    },
+    {
+      "element": "Treatment of contractors, visitors, and maintenance personnel, including escort requirements",
+      "required": true,
+      "why": "These populations are commonly outside the badge system and therefore outside the review."
+    },
+    {
+      "element": "Visitor log for sensitive areas",
+      "required": false,
+      "why": "Supports the control where escorted access to server rooms is claimed."
+    }
+  ],
+  "applicable_controls": [
+    {
+      "control_id": "SOC2-CC6.4-001",
+      "necessity": "primary"
+    }
+  ],
+  "applicable_criteria": [
+    "CC6.4"
+  ],
+  "collection_frequency": "quarterly",
+  "owner": "Facilities or Workplace Operations",
+  "source_system_examples": [
+    "Badge access control system cardholder report",
+    "Building management access roster",
+    "Visitor management system log"
+  ],
+  "freshness_expectation": {
+    "max_age_days": 120,
+    "basis": "control_frequency",
+    "rationale": "DriftGuard default of one quarterly cadence plus a 30-day grace window. Not an audit rule."
+  },
+  "sensitivity": "confidential",
+  "redaction_guidance": [
+    "Badge numbers and personal identifiers may be tokenised provided reconciliation to personnel records remains possible.",
+    "Do not include home addresses or other personnel data that the roster export may carry."
+  ],
+  "retention_guidance": "Retain roster snapshots and review records for the examination period plus the following period.",
+  "validation_rules": [
+    {
+      "rule_id": "VR-001",
+      "dimension": "existence",
+      "rule": "A roster review record exists for each scheduled review in the period.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-PHYSEC-001"
+    },
+    {
+      "rule_id": "VR-002",
+      "dimension": "completeness",
+      "rule": "The roster reconciles to current personnel records with differences explained.",
+      "check_type": "heuristic",
+      "failure_severity": "high",
+      "failure_finding": "FND-PHYSEC-001"
+    },
+    {
+      "rule_id": "VR-003",
+      "dimension": "sufficiency",
+      "rule": "Holders identified for removal have revocation records showing the access was actually withdrawn.",
+      "check_type": "llm_assisted",
+      "failure_severity": "high",
+      "failure_finding": "FND-PHYSEC-001"
+    },
+    {
+      "rule_id": "VR-004",
+      "dimension": "timeliness",
+      "rule": "Badge revocation for terminated personnel occurred within the entity's committed timeframe.",
+      "check_type": "deterministic",
+      "failure_severity": "medium",
+      "failure_finding": "FND-PHYSEC-001"
+    },
+    {
+      "rule_id": "VR-005",
+      "dimension": "relevance",
+      "rule": "The facilities covered are those holding protected information assets or endpoints with access to them.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    },
+    {
+      "rule_id": "VR-006",
+      "dimension": "authenticity",
+      "rule": "The roster is exported from the access control system rather than maintained as a separate spreadsheet.",
+      "check_type": "human_review",
+      "failure_severity": "medium"
+    }
+  ],
+  "common_issues": [
+    {
+      "issue": "Badge access remains active for terminated personnel because physical and logical deprovisioning are separate processes.",
+      "impact": "Physical entry remains possible after the authorisation basis ended.",
+      "related_finding": "FND-PHYSEC-001"
+    },
+    {
+      "issue": "A single roster covers all areas, so server room access cannot be distinguished from office access.",
+      "impact": "Least privilege for sensitive areas cannot be assessed.",
+      "related_finding": "FND-PHYSEC-001"
+    },
+    {
+      "issue": "Contractors hold badges issued outside the standard process and are absent from the review population.",
+      "impact": "A population with physical access is never reviewed.",
+      "related_finding": "FND-PHYSEC-001"
+    }
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE",
+    "SRC-DG-BEST-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Expected content, persuasiveness weighting, and the common issues list.",
+      "verification_status": "interpretation"
+    },
+    {
+      "source_id": "SRC-DG-BEST-PRACTICE",
+      "authority_tier": 5,
+      "supports": "Freshness window, sensitivity classification, and redaction guidance.",
+      "verification_status": "opinion"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "Where an entity holds no facilities of its own, this artifact does not apply and EV-PHYSEC-002 carries CC6.4 instead. That is a scoping outcome, not a missing control."
+  ]
+}

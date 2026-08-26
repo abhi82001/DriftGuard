@@ -1,0 +1,101 @@
+{
+  "$schema": "../schemas/remediation.schema.json",
+  "record_type": "remediation",
+  "remediation_id": "REM-INCIDENT-004",
+  "name": "Run post-incident reviews and track actions in the normal backlog",
+  "description": "Trigger a root-cause review at a defined threshold, and put the actions arising into the same tracker as ordinary engineering work so closure is visible.",
+  "domain": "security_operations",
+  "remediation_type": "improve_operation",
+  "durability": "structural",
+  "responsible_role": "Incident commander for the review; engineering owners for the actions",
+  "addresses_findings": [
+    "FND-INCIDENT-004"
+  ],
+  "strengthens_controls": [
+    "SOC2-CC7.5-001"
+  ],
+  "affected_criteria": [
+    "CC7.5"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "action": "Define the severity threshold and timeframe that trigger a post-incident review.",
+      "owner_role": "CISO or equivalent"
+    },
+    {
+      "step": 2,
+      "action": "Hold the review within that timeframe, covering root cause and contributing conditions rather than only the sequence of events.",
+      "owner_role": "Incident commander",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 3,
+      "action": "Raise every action in the normal work tracker with an owner and target date, not in the review document.",
+      "owner_role": "Engineering owner",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 4,
+      "action": "Feed root causes back into detection rules and configuration baselines.",
+      "owner_role": "Security Engineering",
+      "produces_evidence": [
+        "EV-CONFIG-001"
+      ]
+    },
+    {
+      "step": 5,
+      "action": "Verify restoration succeeded where recovery involved restoring components, rather than assuming it.",
+      "owner_role": "Platform Engineering",
+      "produces_evidence": [
+        "EV-INCIDENT-001"
+      ]
+    },
+    {
+      "step": 6,
+      "action": "Review open actions from prior incidents on a standing cadence so the cycle closes.",
+      "owner_role": "Security Engineering"
+    }
+  ],
+  "implementation_considerations": [
+    "Actions kept in the review document lapse essentially without exception. Moving them into the normal backlog is the whole remediation.",
+    "Blameless framing materially improves the quality of root-cause discussion and costs nothing.",
+    "A review threshold set too low produces reviews nobody attends; set it where the learning is real."
+  ],
+  "effort": "low",
+  "typical_duration": "Days to define; proven over the following incidents.",
+  "prerequisites": [
+    "A work tracker already used for engineering work",
+    "A defined incident severity scheme"
+  ],
+  "verification_method": {
+    "how": "For incidents at or above the threshold, confirm a review record exists with root cause, and that the actions arising are tracked in the normal backlog with owners and demonstrable closure.",
+    "verifying_evidence": [
+      "EV-INCIDENT-001"
+    ],
+    "automatable": true
+  },
+  "paired_remediations": [
+    "REM-INCIDENT-003"
+  ],
+  "residual_risk_note": "A review identifies the cause; it does not guarantee the remediation chosen is sufficient to prevent recurrence.",
+  "period_limitation_note": "Reviews cannot be held retrospectively for incidents closed during an elapsed period in a way that evidences the control operated then.",
+  "sources": [
+    "SRC-DG-BEST-PRACTICE",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "authority_tier_dominant": 5,
+  "verification_status": "opinion",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "The criteria prescribe no review threshold or timeframe. The entity's own threshold governs which incidents require one."
+  ]
+}

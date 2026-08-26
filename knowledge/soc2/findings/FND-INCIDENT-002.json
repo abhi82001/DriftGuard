@@ -1,0 +1,131 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-INCIDENT-002",
+  "name": "Incident response plan not tested within the period",
+  "description": "No record of an incident response exercise falling within the examination period, or a test performed shortly before fieldwork covering a period that had already elapsed.",
+  "domain": "security_operations",
+  "finding_category": "evidence_deficiency",
+  "observation_class": "missing_evidence",
+  "conclusion_rules": {
+    "may_assert": [
+      "That no test record falls within the examination period, where the test records have been supplied.",
+      "That a test record postdates the period it is offered as evidence for.",
+      "That the test cadence stated in the entity's own policy was not met."
+    ],
+    "must_not_assert": [
+      "That the plan is unworkable or that response would fail. Absence of a test evidences nothing about response capability.",
+      "That annual testing is required by SOC 2. No cadence is prescribed; the entity's own stated cadence is the benchmark."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "The entity's own policy states a cadence and records confirm no test occurred within it, making this a control that did not operate as described."
+      },
+      {
+        "observation_class": "informational_observation",
+        "when": "No cadence is stated anywhere, so there is no commitment to have missed; the observation becomes that no cadence is defined."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.4"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.4-001"
+  ],
+  "default_severity": "medium",
+  "severity_factors": {
+    "criterion_impact": "An untested plan is an assumption about response capability rather than a demonstrated one.",
+    "pervasiveness": "A test late by a month differs from a plan never exercised.",
+    "compensating_controls": [
+      "SOC2-CC7.4-001"
+    ],
+    "detectability": "Trivially detectable: the record either falls within the period or it does not.",
+    "escalates_when": [
+      "No test has ever been performed",
+      "A real incident during the period revealed the plan was unworkable",
+      "The stated cadence was missed repeatedly"
+    ],
+    "de_escalates_when": [
+      "A real incident during the period exercised the plan and is documented, which many auditors accept in place of a test",
+      "A test occurred within the period but its record is thin"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "No test record dated within the examination period.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Test record dated after period end.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-002"
+      ],
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Test record confirms attendance but contains no observations or actions.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-002"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent reports no test performed, or cannot state a cadence.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-OPS-001-Q05",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly request the test record early because it is unambiguous. Where a real incident was worked through the plan and documented, that is frequently accepted as exercising it, though treatment varies by firm.",
+  "customer_impact": "The vendor's response capability rests on a document nobody has rehearsed.",
+  "remediations": [
+    "REM-INCIDENT-002"
+  ],
+  "false_positive_guidance": [
+    "Classified as missing evidence. The absence of a test record is not evidence the plan would fail, and DriftGuard must request the record before drawing any stronger conclusion.",
+    "Not a gap where a real incident during the period was worked through the plan and documented; that commonly satisfies the same objective.",
+    "Not a gap where the test occurred within the period and only the record is thin; that is a separate, weaker observation.",
+    "Do not apply an annual cadence as though SOC 2 prescribed one. Where the entity states no cadence, the observation is that none is defined."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.4",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}

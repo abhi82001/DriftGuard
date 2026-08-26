@@ -1,0 +1,130 @@
+{
+  "$schema": "../schemas/finding.schema.json",
+  "record_type": "finding",
+  "finding_id": "FND-INCIDENT-001",
+  "name": "No documented criteria for declaring a security event an incident",
+  "description": "Security events are judged case by case with no documented severity or impact threshold, so declaration is inconsistent and untestable. Frequently accompanied by no intake path for events reported outside the monitoring pipeline.",
+  "domain": "security_operations",
+  "finding_category": "design_deficiency",
+  "observation_class": "control_design_gap",
+  "conclusion_rules": {
+    "may_assert": [
+      "That no documented declaration criteria exist, where the incident policy has been supplied and contains none.",
+      "That incident records cite no criteria as the basis for declaration.",
+      "That there is no defined intake path for events reported by customers, researchers, or vendors."
+    ],
+    "must_not_assert": [
+      "That an event should have been declared an incident. DriftGuard is not positioned to second-guess a specific judgement.",
+      "That any particular severity scheme is required by SOC 2. None is prescribed."
+    ],
+    "escalates_to": [
+      {
+        "observation_class": "control_operating_gap",
+        "when": "Records show materially similar events treated differently across the period, demonstrating inconsistent application rather than only an undocumented standard."
+      }
+    ],
+    "de_escalates_to": [
+      {
+        "observation_class": "insufficient_evidence",
+        "when": "Criteria are said to exist but have not been supplied, so their presence can be neither confirmed nor refuted."
+      }
+    ]
+  },
+  "affected_criteria": [
+    "CC7.3"
+  ],
+  "affected_controls": [
+    "SOC2-CC7.3-001"
+  ],
+  "default_severity": "high",
+  "severity_factors": {
+    "criterion_impact": "CC7.3 concerns evaluating whether events could result in a failure to meet objectives; without a threshold that evaluation has no standard.",
+    "pervasiveness": "Criteria that exist but are thin differ from no threshold at all.",
+    "compensating_controls": [
+      "SOC2-CC7.4-001"
+    ],
+    "detectability": "Visible from the incident policy and from whether incident records cite a basis.",
+    "escalates_when": [
+      "No criteria and no consistent practice visible in the records",
+      "No intake path for externally reported events",
+      "Nobody is designated to declare"
+    ],
+    "de_escalates_when": [
+      "Criteria exist informally but are consistently applied and visible in records",
+      "The entity is small enough that a single accountable person applies a consistent standard"
+    ]
+  },
+  "detection_signals": [
+    {
+      "signal_id": "SIG-001",
+      "signal": "Incident policy contains no severity or impact declaration criteria.",
+      "source_of_signal": "policy_analysis",
+      "confidence": "high"
+    },
+    {
+      "signal_id": "SIG-002",
+      "signal": "Incident records cite no criteria as the basis for declaration.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-INCIDENT-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-003",
+      "signal": "Alerts judged to be incidents have no linked incident record, indicating no defined handoff.",
+      "source_of_signal": "evidence_analysis",
+      "related_evidence": [
+        "EV-MONITOR-001"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "signal_id": "SIG-004",
+      "signal": "Respondent describes declaration as a judgement call with no written threshold.",
+      "source_of_signal": "questionnaire_answer",
+      "related_question": "QN-OPS-001-Q04",
+      "confidence": "high"
+    }
+  ],
+  "auditor_impact": "Auditors commonly ask how the entity decides something is an incident and then check whether the records reflect that answer. An undocumented but consistently applied standard is often accepted; an inconsistent one is not.",
+  "customer_impact": "Whether an event affecting the customer's data is treated as an incident, and therefore whether the customer is told, depends on who happened to look at it.",
+  "remediations": [
+    "REM-INCIDENT-001"
+  ],
+  "false_positive_guidance": [
+    "Not a gap where criteria exist outside the policy document, such as in a runbook or severity matrix; look before concluding.",
+    "Not a gap for a very small entity where a single accountable person applies a demonstrably consistent standard, provided the records show that consistency.",
+    "A period with no declared incidents does not evidence a missing threshold. Assess the criteria, not the incident count.",
+    "Where criteria are said to exist but were not supplied, report insufficient evidence rather than a design gap."
+  ],
+  "sources": [
+    "SRC-AICPA-TSC-2017-R2022",
+    "SRC-DG-AUDITOR-PRACTICE"
+  ],
+  "source_refs": [
+    {
+      "source_id": "SRC-AICPA-TSC-2017-R2022",
+      "locator": "TSC CC7.3",
+      "authority_tier": 1,
+      "supports": "The criteria potentially affected.",
+      "verification_status": "verified"
+    },
+    {
+      "source_id": "SRC-DG-AUDITOR-PRACTICE",
+      "authority_tier": 4,
+      "supports": "Typical auditor treatment, severity factors, and detection approach.",
+      "verification_status": "interpretation"
+    }
+  ],
+  "authority_tier_dominant": 4,
+  "verification_status": "interpretation",
+  "version": "0.1.0",
+  "schema_version": "0.2.0",
+  "status": "draft",
+  "created": "2026-08-12",
+  "last_reviewed": "2026-08-12",
+  "notes": [
+    "DriftGuard finding archetype. DriftGuard produces observations against it; only a service auditor issues findings."
+  ]
+}
