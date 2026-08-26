@@ -9,7 +9,9 @@ Run:  python backend/tests/run_tests.py
    or python backend/tests/test_evaluation_engine.py
 """
 
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 # Make the engine importable without installation or PYTHONPATH setup.
@@ -26,6 +28,7 @@ from evaluation.engine import (  # noqa: E402
     KnowledgeBase,
     KnowledgeError,
     MalformedConditionError,
+    UnsupportedGrammarVersionError,
     UnsupportedOperatorError,
     evaluate_condition_expr,
 )
@@ -176,6 +179,7 @@ def test_F_broken_finding_reference_fails_explicitly():
     finding that does not exist. Production knowledge is untouched."""
     fixture_questionnaire = {
         "questionnaire_id": "QN-FIXTURE-001",
+        "gap_signal_grammar_version": "1.0.0",
         "questions": [
             {
                 "question_id": "QN-FIXTURE-001-Q01",
@@ -200,6 +204,171 @@ def test_F_broken_finding_reference_fails_explicitly():
     except KnowledgeError:
         return
     raise AssertionError("broken finding reference did not raise KnowledgeError")
+
+
+# ------------------------------------- H: semantic reference integrity (new)
+def test_H_unknown_semantic_condition_fails_explicitly():
+    """Isolated in-memory fixture: a free-text gap signal names a
+    semantic_condition_id that does not exist. The semantic-boundary path must
+    verify it and raise KnowledgeError, without evaluating the condition."""
+    fixture = {
+        "questionnaire_id": "QN-FIXTURE-002",
+        "gap_signal_grammar_version": "1.0.0",
+        "questions": [
+            {
+                "question_id": "QN-FIXTURE-002-Q01",
+                "answer_type": "text",
+                "gap_signals": [
+                    {
+                        "condition": "answer omits something",
+                        "semantic_condition_id": "SEMCOND-9999",
+                        "indicates_finding": "FND-IAM-001",
+                        "severity": "high",
+                        "confidence": "medium",
+                    }
+                ],
+            }
+        ],
+    }
+    kb = KnowledgeBase(
+        {"QN-FIXTURE-002": fixture},
+        finding_ids={"FND-IAM-001"},
+        semantic_condition_ids=set(),  # SEMCOND-9999 absent
+    )
+    eng = EvaluationEngine(kb)
+    try:
+        eng.evaluate_question("QN-FIXTURE-002", "QN-FIXTURE-002-Q01", "some free text")
+    except KnowledgeError:
+        return
+    raise AssertionError("unknown semantic condition did not raise KnowledgeError")
+
+
+def test_H_known_semantic_condition_resolves_against_repository():
+    """The real Q09/SEMCOND-0001 pairing resolves (loader indexes semantics)."""
+    eng = _engine()
+    assert eng.knowledge.semantic_condition_exists("SEMCOND-0001")
+    ev = eng.evaluate_question(QN, Q_SEM, "free text")
+    assert any(r.semantic_condition_id == "SEMCOND-0001" for r in ev.results)
+    assert all(r.condition_fired is None for r in ev.results)
+
+
+# --------------------------------------- I: duplicate runtime IDs (new)
+def _write_minimal_root(tmp: Path):
+    """Build a minimal but valid on-disk knowledge root for loader tests."""
+    (tmp / "questionnaires").mkdir(parents=True)
+    (tmp / "findings").mkdir(parents=True)
+    (tmp / "semantics").mkdir(parents=True)
+    (tmp / "findings" / "f1.json").write_text(
+        json.dumps({"record_type": "finding", "finding_id": "FND-X-001"}), encoding="utf-8"
+    )
+    (tmp / "semantics" / "s1.json").write_text(
+        json.dumps({"record_type": "semantic_condition", "condition_id": "SEMCOND-1001"}),
+        encoding="utf-8",
+    )
+    (tmp / "questionnaires" / "q1.json").write_text(
+        json.dumps({"questionnaire_id": "QN-X-001", "questions": []}), encoding="utf-8"
+    )
+    # This clean root must load without error.
+    KnowledgeBase.from_repository(tmp)
+
+
+def test_I_duplicate_questionnaire_id_detected():
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        _write_minimal_root(tmp)
+        (tmp / "questionnaires" / "q2.json").write_text(
+            json.dumps({"questionnaire_id": "QN-X-001", "questions": []}), encoding="utf-8"
+        )
+        try:
+            KnowledgeBase.from_repository(tmp)
+        except KnowledgeError as e:
+            assert "QN-X-001" in str(e)
+            return
+    raise AssertionError("duplicate questionnaire_id not detected")
+
+
+def test_I_duplicate_finding_id_detected():
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        _write_minimal_root(tmp)
+        (tmp / "findings" / "f2.json").write_text(
+            json.dumps({"record_type": "finding", "finding_id": "FND-X-001"}), encoding="utf-8"
+        )
+        try:
+            KnowledgeBase.from_repository(tmp)
+        except KnowledgeError as e:
+            assert "FND-X-001" in str(e)
+            return
+    raise AssertionError("duplicate finding_id not detected")
+
+
+def test_I_duplicate_semantic_condition_id_detected():
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        _write_minimal_root(tmp)
+        (tmp / "semantics" / "s2.json").write_text(
+            json.dumps({"record_type": "semantic_condition", "condition_id": "SEMCOND-1001"}),
+            encoding="utf-8",
+        )
+        try:
+            KnowledgeBase.from_repository(tmp)
+        except KnowledgeError as e:
+            assert "SEMCOND-1001" in str(e)
+            return
+    raise AssertionError("duplicate semantic condition_id not detected")
+
+
+# ---------------------------------- J: grammar-version compatibility (new)
+def _det_fixture(grammar_version):
+    q = {
+        "questionnaire_id": "QN-FIXTURE-003",
+        "questions": [
+            {
+                "question_id": "QN-FIXTURE-003-Q01",
+                "answer_type": "single_select",
+                "options": ["Yes", "No"],
+                "gap_signals": [
+                    {
+                        "condition": "answer == 'No'",
+                        "condition_expr": {"operator": "equals", "field": "answer.value", "value": "No"},
+                        "indicates_finding": "FND-IAM-001",
+                        "severity": "high",
+                        "confidence": "high",
+                    }
+                ],
+            }
+        ],
+    }
+    if grammar_version is not None:
+        q["gap_signal_grammar_version"] = grammar_version
+    kb = KnowledgeBase({"QN-FIXTURE-003": q}, finding_ids={"FND-IAM-001"})
+    return EvaluationEngine(kb)
+
+
+def test_J_grammar_supported_1_0_0():
+    # Real repository questionnaire declares 1.0.0 and evaluates fine.
+    ev = _engine().evaluate_question(QN, Q_DET, "No")
+    assert ev.grammar_version == "1.0.0"
+    assert ev.any_fired
+    # And the in-memory 1.0.0 fixture evaluates too.
+    ev2 = _det_fixture("1.0.0").evaluate_question("QN-FIXTURE-003", "QN-FIXTURE-003-Q01", "No")
+    assert ev2.any_fired
+
+
+def test_J_grammar_unsupported_version_fails():
+    try:
+        _det_fixture("2.0.0").evaluate_question("QN-FIXTURE-003", "QN-FIXTURE-003-Q01", "No")
+    except UnsupportedGrammarVersionError:
+        return
+    raise AssertionError("unsupported grammar version did not raise")
+
+
+def test_J_grammar_missing_version_fails():
+    try:
+        _det_fixture(None).evaluate_question("QN-FIXTURE-003", "QN-FIXTURE-003-Q01", "No")
+    except UnsupportedGrammarVersionError:
+        return
+    raise AssertionError("missing grammar version did not raise for deterministic evaluation")
 
 
 # ------------------------------------------------------------------------- G
@@ -233,6 +402,14 @@ TESTS = [
     test_F_missing_questionnaire_fails_explicitly,
     test_F_missing_question_fails_explicitly,
     test_F_broken_finding_reference_fails_explicitly,
+    test_H_unknown_semantic_condition_fails_explicitly,
+    test_H_known_semantic_condition_resolves_against_repository,
+    test_I_duplicate_questionnaire_id_detected,
+    test_I_duplicate_finding_id_detected,
+    test_I_duplicate_semantic_condition_id_detected,
+    test_J_grammar_supported_1_0_0,
+    test_J_grammar_unsupported_version_fails,
+    test_J_grammar_missing_version_fails,
     test_G_determinism,
     test_engine_emits_no_compliance_verdict,
 ]

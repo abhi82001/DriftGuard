@@ -75,6 +75,11 @@ class InvalidAnswerError(EngineError):
     """The supplied answer does not match the shape the condition requires."""
 
 
+class UnsupportedGrammarVersionError(EngineError):
+    """A questionnaire declares a gap-signal grammar version this engine does
+    not support (or declares none where deterministic evaluation is attempted)."""
+
+
 # --------------------------------------------------------- pure condition eval
 def evaluate_condition_expr(expr: Any, answer: Any) -> bool:
     """Evaluate one gap-signal condition_expr against an answer.
@@ -247,9 +252,15 @@ class KnowledgeBase:
     knowledge files.
     """
 
-    def __init__(self, questionnaires: dict[str, dict], finding_ids: set[str]) -> None:
+    def __init__(
+        self,
+        questionnaires: dict[str, dict],
+        finding_ids: set[str],
+        semantic_condition_ids: Optional[set[str]] = None,
+    ) -> None:
         self._questionnaires = questionnaires
         self._finding_ids = set(finding_ids)
+        self._semantic_condition_ids = set(semantic_condition_ids or ())
 
     # -- construction --------------------------------------------------------
     @classmethod
@@ -258,6 +269,9 @@ class KnowledgeBase:
         if not root.is_dir():
             raise KnowledgeError(f"knowledge root does not exist: {root}")
 
+        # Duplicate IDs across files are a knowledge defect. We detect them
+        # explicitly rather than letting dict overwrite or set de-duplication
+        # silently hide the collision.
         questionnaires: dict[str, dict] = {}
         q_dir = root / "questionnaires"
         if not q_dir.is_dir():
@@ -267,6 +281,8 @@ class KnowledgeBase:
             qid = doc.get("questionnaire_id")
             if not qid:
                 raise KnowledgeError(f"questionnaire without id: {path}")
+            if qid in questionnaires:
+                raise KnowledgeError(f"duplicate questionnaire_id {qid!r} (also in {path})")
             questionnaires[qid] = doc
 
         finding_ids: set[str] = set()
@@ -278,9 +294,28 @@ class KnowledgeBase:
             fid = doc.get("finding_id")
             if not fid:
                 raise KnowledgeError(f"finding without id: {path}")
+            if fid in finding_ids:
+                raise KnowledgeError(f"duplicate finding_id {fid!r} (also in {path})")
             finding_ids.add(fid)
 
-        return cls(questionnaires, finding_ids)
+        # Semantic conditions are loaded read-only for reference integrity only:
+        # the deterministic engine resolves their IDs but never evaluates them.
+        semantic_condition_ids: set[str] = set()
+        s_dir = root / "semantics"
+        if not s_dir.is_dir():
+            raise KnowledgeError(f"missing semantics directory: {s_dir}")
+        for path in sorted(s_dir.glob("*.json")):
+            doc = json.loads(path.read_text(encoding="utf-8"))
+            if doc.get("record_type") != "semantic_condition":
+                continue  # e.g. semantic_evaluation_result example records
+            cid = doc.get("condition_id")
+            if not cid:
+                raise KnowledgeError(f"semantic condition without condition_id: {path}")
+            if cid in semantic_condition_ids:
+                raise KnowledgeError(f"duplicate semantic condition_id {cid!r} (also in {path})")
+            semantic_condition_ids.add(cid)
+
+        return cls(questionnaires, finding_ids, semantic_condition_ids)
 
     # -- lookups -------------------------------------------------------------
     def get_questionnaire(self, questionnaire_id: str) -> dict:
@@ -306,6 +341,16 @@ class KnowledgeBase:
             raise KnowledgeError(f"gap signal references unknown finding {finding_id!r}")
         return finding_id
 
+    def semantic_condition_exists(self, condition_id: str) -> bool:
+        return condition_id in self._semantic_condition_ids
+
+    def require_semantic_condition(self, condition_id: str) -> str:
+        if condition_id not in self._semantic_condition_ids:
+            raise KnowledgeError(
+                f"gap signal references unknown semantic condition {condition_id!r}"
+            )
+        return condition_id
+
 
 # ------------------------------------------------------------------- the engine
 class EvaluationEngine:
@@ -328,11 +373,21 @@ class EvaluationEngine:
         judge and returns SEMANTIC_EVALUATION_REQUIRED: it never produces a
         guessed supported/not-supported verdict from free text.
         """
-        _questionnaire, question = self.knowledge.get_question(questionnaire_id, question_id)
+        questionnaire, question = self.knowledge.get_question(questionnaire_id, question_id)
         answer_type = question["answer_type"]
         gap_signals = question.get("gap_signals", [])
 
         if answer_type in ENUMERATED_ANSWER_TYPES:
+            # Only evaluate deterministically if the questionnaire's declared
+            # grammar version is one this engine actually supports. A different
+            # or missing version means the condition_expr objects may not match
+            # our assumptions, so we refuse rather than misread them.
+            declared = questionnaire.get("gap_signal_grammar_version")
+            if declared != GAP_GRAMMAR_VERSION:
+                raise UnsupportedGrammarVersionError(
+                    f"questionnaire {questionnaire_id!r} declares gap_signal_grammar_version "
+                    f"{declared!r}; engine supports {GAP_GRAMMAR_VERSION!r}"
+                )
             results = tuple(
                 self._evaluate_deterministic_signal(question_id, answer_type, i, g, answer)
                 for i, g in enumerate(gap_signals)
@@ -405,6 +460,10 @@ class EvaluationEngine:
         # Reference integrity still holds at the semantic boundary.
         self.knowledge.require_finding(indicated)
         sem_id = gap.get("semantic_condition_id")
+        # If the signal names a semantic condition, verify it resolves. We do
+        # NOT evaluate it: resolution is a reference-integrity check only.
+        if sem_id is not None:
+            self.knowledge.require_semantic_condition(sem_id)
         return SignalResult(
             condition=gap["condition"],
             evaluation_mode=EVAL_SEMANTIC,
