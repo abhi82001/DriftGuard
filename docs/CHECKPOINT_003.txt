@@ -1,0 +1,74 @@
+Checkpoint:
+Minimal Provider-Independent Semantic Evaluation Contract
+
+Status:
+PASS
+
+Scope:
+  The smallest contract that turns SEMANTIC_EVALUATION_REQUIRED into a grounded
+  request, declares a provider-independent evaluator interface, and validates
+  untrusted evaluator output. NO LLM, no OpenAI/Claude/Nemotron, no network, no
+  API server, no aggregation, no knowledge or schema modifications.
+
+Files created:
+  backend/src/evaluation/semantic.py
+  backend/tests/test_semantic_contract.py
+  docs/CHECKPOINT_003.txt
+
+Files modified:
+  backend/src/evaluation/engine.py     (tiny integration change only)
+    - KnowledgeBase now keeps full read-only semantic_condition records and
+      exposes get_semantic_condition(); id/duplicate behavior preserved.
+  backend/src/evaluation/__init__.py   (export the semantic contract)
+  backend/tests/run_tests.py           (also run the semantic contract suite)
+  (production knowledge and all schemas unchanged)
+
+Contract (backend/src/evaluation/semantic.py):
+  SemanticVerdict            verdict values verbatim from
+                             semantic_evaluation_result.schema.json:
+                             SUPPORTED, PARTIALLY_SUPPORTED, INSUFFICIENT, UNDETERMINED
+  SemanticEvaluationRequest  frozen; grounded fields copied from the real
+                             semantic_condition record + the answer text
+  SemanticEvaluationResult   frozen; aligned with the result schema fields
+  SemanticEvaluator          Protocol (evaluate(request)->result); NO implementation
+  build_semantic_request()   resolves the REAL semantic_condition record; rejects
+                             any question with no semantic_condition_id gap signal
+  validate_semantic_result() treats model output as untrusted; rejects invalid
+                             verdict, mismatched condition_id / question_id,
+                             unknown finding, finding not authorized by the
+                             semantic condition, ungrounded/overlapping elements,
+                             out-of-range confidence, bad reason codes, and any
+                             prohibited compliance verdict.
+
+Test results:
+  python backend/tests/run_tests.py
+    evaluation engine:   PASSED, 0 failures (20 tests, Checkpoint 002 preserved)
+    semantic contract:   PASSED, 0 failures (8 tests)
+      1 real Q09 + SEMCOND-0001 request builds
+      2 deterministic Q01 cannot become a semantic request
+      3 invalid verdict rejected
+      4 invented finding rejected (+ 4b known-but-unauthorized finding rejected)
+      5 mismatched condition_id rejected (+ 5b mismatched question_id rejected)
+      6 valid knowledge-grounded result accepted
+  python knowledge/soc2/tests/test_gap_signal_grammar.py   PASSED
+  python knowledge/soc2/tests/test_semantic_condition.py   PASSED
+
+Knowledge validation:
+  python knowledge/soc2/validate.py
+  scanned 123 JSON files; 0 error(s), 0 warning(s)  (unchanged)
+
+Semantic request example (QN-ACCESS-001-Q09 / SEMCOND-0001):
+  condition_id:       SEMCOND-0001
+  question_id:        QN-ACCESS-001-Q09
+  indicates_finding:  FND-CRYPTO-001
+  source_condition:   "answer omits backups, snapshots, or replicas"
+  fires_when:         any_required_element_missing
+  expected_elements:  SE-001, SE-002, SE-003 (all required)
+  answer_text:        (the free-text answer under evaluation)
+
+Known limitations:
+  - No semantic reasoning is implemented; SemanticEvaluator is an interface only.
+  - Result objects are Python dataclasses aligned with the schema; JSON-schema
+    validation of persisted results is not performed here.
+  - Finding "unknown" vs "unauthorized" checks rely on the caller supplying
+    known_finding_ids; without it only the authorized-finding check applies.

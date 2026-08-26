@@ -24,6 +24,20 @@ from .engine import (
     evaluate_condition_expr,
     resolve_knowledge_root,
 )
+from .semantic import (
+    PROHIBITED_VERDICTS,
+    REASON_CODES,
+    ExpectedElement,
+    SemanticError,
+    SemanticEvaluationRequest,
+    SemanticEvaluationResult,
+    SemanticEvaluator,
+    SemanticRequestError,
+    SemanticResultValidationError,
+    SemanticVerdict,
+    build_semantic_request,
+    validate_semantic_result,
+)
 
 __all__ = [
     "EVAL_DETERMINISTIC",
@@ -44,4 +58,16 @@ __all__ = [
     "UnsupportedOperatorError",
     "evaluate_condition_expr",
     "resolve_knowledge_root",
+    "PROHIBITED_VERDICTS",
+    "REASON_CODES",
+    "ExpectedElement",
+    "SemanticError",
+    "SemanticEvaluationRequest",
+    "SemanticEvaluationResult",
+    "SemanticEvaluator",
+    "SemanticRequestError",
+    "SemanticResultValidationError",
+    "SemanticVerdict",
+    "build_semantic_request",
+    "validate_semantic_result",
 ]

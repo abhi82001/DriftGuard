@@ -10,8 +10,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import test_evaluation_engine as suite  # noqa: E402
+import test_evaluation_engine as engine_suite  # noqa: E402
+import test_semantic_contract as semantic_suite  # noqa: E402
 
 if __name__ == "__main__":
     print("evaluation engine:")
-    sys.exit(1 if suite.run() else 0)
+    failed = engine_suite.run()
+    print("\nsemantic contract:")
+    failed += semantic_suite.run()
+    sys.exit(1 if failed else 0)

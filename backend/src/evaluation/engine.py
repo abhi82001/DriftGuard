@@ -257,10 +257,17 @@ class KnowledgeBase:
         questionnaires: dict[str, dict],
         finding_ids: set[str],
         semantic_condition_ids: Optional[set[str]] = None,
+        semantic_conditions: Optional[dict[str, dict]] = None,
     ) -> None:
         self._questionnaires = questionnaires
         self._finding_ids = set(finding_ids)
-        self._semantic_condition_ids = set(semantic_condition_ids or ())
+        # Full semantic_condition records, indexed by condition_id, are kept
+        # read-only so downstream layers can resolve the grounded record. The
+        # id set is derived from both explicit ids and any loaded records.
+        self._semantic_conditions = dict(semantic_conditions or {})
+        ids = set(semantic_condition_ids or ())
+        ids.update(self._semantic_conditions.keys())
+        self._semantic_condition_ids = ids
 
     # -- construction --------------------------------------------------------
     @classmethod
@@ -300,7 +307,7 @@ class KnowledgeBase:
 
         # Semantic conditions are loaded read-only for reference integrity only:
         # the deterministic engine resolves their IDs but never evaluates them.
-        semantic_condition_ids: set[str] = set()
+        semantic_conditions: dict[str, dict] = {}
         s_dir = root / "semantics"
         if not s_dir.is_dir():
             raise KnowledgeError(f"missing semantics directory: {s_dir}")
@@ -311,11 +318,11 @@ class KnowledgeBase:
             cid = doc.get("condition_id")
             if not cid:
                 raise KnowledgeError(f"semantic condition without condition_id: {path}")
-            if cid in semantic_condition_ids:
+            if cid in semantic_conditions:
                 raise KnowledgeError(f"duplicate semantic condition_id {cid!r} (also in {path})")
-            semantic_condition_ids.add(cid)
+            semantic_conditions[cid] = doc
 
-        return cls(questionnaires, finding_ids, semantic_condition_ids)
+        return cls(questionnaires, finding_ids, semantic_conditions=semantic_conditions)
 
     # -- lookups -------------------------------------------------------------
     def get_questionnaire(self, questionnaire_id: str) -> dict:
@@ -350,6 +357,18 @@ class KnowledgeBase:
                 f"gap signal references unknown semantic condition {condition_id!r}"
             )
         return condition_id
+
+    def get_semantic_condition(self, condition_id: str) -> dict:
+        """Return the full read-only semantic_condition record, or raise."""
+        doc = self._semantic_conditions.get(condition_id)
+        if doc is None:
+            if condition_id in self._semantic_condition_ids:
+                raise KnowledgeError(
+                    f"semantic condition {condition_id!r} is known but its full "
+                    f"record was not loaded"
+                )
+            raise KnowledgeError(f"unknown semantic condition {condition_id!r}")
+        return doc
 
 
 # ------------------------------------------------------------------- the engine
