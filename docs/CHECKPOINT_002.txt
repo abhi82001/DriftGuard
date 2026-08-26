@@ -1,0 +1,86 @@
+Checkpoint:
+End-to-End Deterministic Evaluation Slice
+
+Status:
+PASS
+
+Files created:
+  backend/src/evaluation/__init__.py
+  backend/src/evaluation/engine.py
+  backend/tests/test_evaluation_engine.py
+  backend/tests/run_tests.py
+  docs/ARCHITECTURE_LOCK.md
+  docs/CHECKPOINT_002.txt
+  .gitignore
+
+Files modified:
+  (knowledge base unchanged)
+  Git index: untracked knowledge/soc2/__pycache__/validate.cpython-310.pyc
+             (removed from index via `git rm --cached`; not deleted from disk,
+              no history rewrite)
+
+Deterministic operators supported:
+  Grammar version 1.0.0 (mirrors knowledge/soc2 questionnaire schema):
+    equals            field answer.value   -> answer == value
+    in                field answer.value   -> answer in values
+    not_includes_all  field answer.values  -> at least one listed option not selected
+  No operators beyond those the knowledge base actually uses were added.
+  Unknown operator, malformed condition, mismatched answer shape, and broken
+  knowledge references all raise typed, explicit errors. Nothing evaluates
+  silently to false.
+
+Representative deterministic question:
+  questionnaire_id: QN-ACCESS-001
+  question_id:      QN-ACCESS-001-Q01  (single_select)
+  input_answer:     "No"
+  condition:        answer in ['Some systems only', 'No']
+  condition_expr:   {"operator": "in", "field": "answer.value",
+                     "values": ["Some systems only", "No"]}
+  condition_fired:  True
+  finding_id:       FND-IAM-001   (resolves to a real finding record)
+  evaluation_mode:  deterministic
+  (Answer "Yes, all listed systems" -> condition_fired False, finding_id None.)
+
+Semantic boundary question:
+  question_id:            QN-ACCESS-001-Q09  (text / free-text)
+  semantic_condition_id:  SEMCOND-0001
+  deterministic result:   SEMANTIC_EVALUATION_REQUIRED
+  condition_fired:        None  (no verdict guessed)
+  finding_id:             None
+  The deterministic engine refuses to judge free text. No model was called.
+
+Tests executed:
+  python backend/tests/run_tests.py            -> PASSED, 0 failures (12 tests)
+    A  condition does not fire
+    B  condition fires + finding reference traceable (single_select)
+    B  not_includes_all on real multi_select question (Q04)
+    C  semantic boundary returns SEMANTIC_EVALUATION_REQUIRED, no guess
+    D  unknown operator -> UnsupportedOperatorError
+    E  malformed condition structures -> MalformedConditionError (8 shapes)
+    E  mismatched answer shape -> InvalidAnswerError
+    F  missing questionnaire / missing question -> KnowledgeError
+    F  broken finding reference (in-memory fixture) -> KnowledgeError
+    G  determinism: identical result fields across repeated runs
+    -  engine emits no compliance-verdict language
+  python knowledge/soc2/tests/test_gap_signal_grammar.py  -> PASSED
+  python knowledge/soc2/tests/test_semantic_condition.py  -> PASSED
+
+Knowledge validator result:
+  python knowledge/soc2/validate.py
+  scanned 123 JSON files; 0 error(s), 0 warning(s)
+  (baseline before implementation: 0 errors, 0 warnings; unchanged)
+
+Known limitations:
+  - Evaluates one question's gap signals at a time. No questionnaire-level
+    aggregation or scoring (intentionally out of scope).
+  - Semantic conditions are detected and surfaced but not evaluated; that is
+    the future semantic evaluator's responsibility.
+  - Negative tests requiring malformed/missing knowledge use isolated in-memory
+    fixtures; production knowledge is never corrupted to test failure paths.
+  - No API, no persistence, no LLM, no UI.
+
+Next recommended checkpoint:
+  Questionnaire-level evaluation aggregation: evaluate a full answered
+  questionnaire, collect per-question deterministic results and the set of
+  questions deferred to SEMANTIC_EVALUATION_REQUIRED, and produce a structured,
+  traceable readiness summary (still no verdict, still no LLM).
