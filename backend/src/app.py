@@ -34,6 +34,12 @@ from documents import (  # noqa: E402
     DocumentAnalyzer,
     DocumentAssessment,
 )
+from evidence import (  # noqa: E402
+    NO_EXCEPTIONS,
+    analyze_evidence,
+    build_report,
+    fact_display,
+)
 from ingestion import SUPPORTED, extract_many  # noqa: E402
 
 app = FastAPI(title="DriftGuard MVP")
@@ -145,7 +151,9 @@ async def analyze(request: Request):
     documents, errors = extract_many(payloads)
     if not payloads:
         errors.append("no files were uploaded")
-    result = ANALYZER.analyze(vendor, documents, errors, demo_mode_enabled())
+    # CP007: structured evidence is read from tabular uploads before assessment.
+    evidence = analyze_evidence(payloads)
+    result = ANALYZER.analyze(vendor, documents, errors, demo_mode_enabled(), evidence)
     DOC_ASSESSMENTS[result.assessment_id] = result
     return RedirectResponse(f"/doc-results/{result.assessment_id}", status_code=303)
 
@@ -188,6 +196,19 @@ def doc_results(assessment_id: str) -> HTMLResponse:
         return (f"<h2>{title} ({len(rows)})</h2><table><tr><th>Area</th><th>Status</th>"
                 f"<th>Explanation / known facts</th><th>Still unknown</th>"
                 f"<th>Evidence still needed</th></tr>{body}</table>")
+
+    evidence_block = ""
+    if a.evidence:
+        evidence_block = (
+            f"<h2>Evidence QA</h2><div class='card'>"
+            f"<strong>{sum(build_report(e).exception_count for e in a.evidence)} "
+            f"item(s) to look at</strong> across "
+            f"{len(a.evidence)} tabular artifact(s).<div class='small'>What an "
+            f"auditor would ask about first, reconciled by DriftGuard arithmetic "
+            f"against the artifact's own numbers.</div>"
+            f"<p><a href='/evidence-report/{_esc(a.assessment_id)}'>"
+            f"Open the Evidence QA report</a></p></div>"
+        )
 
     follow = a.follow_ups()
     follow_form = ""
@@ -249,6 +270,7 @@ def doc_results(assessment_id: str) -> HTMLResponse:
 <div class="small">documents: {_esc(', '.join(a.documents)) or 'none'}</div></div>
 {mode_note}{errors}
 <div class="cards">{cards}</div>
+{evidence_block}
 {section(ESTABLISHED, "Established")}
 {section(PARTIAL, "Partially established")}
 {section(CLARIFICATION, "Clarification required")}
@@ -259,6 +281,105 @@ is not a control failure, and a policy statement is not evidence of operating
 effectiveness. Nothing here is a SOC 2 compliance conclusion, audit opinion, or
 certification.</p>
 <p><a href="/assessment?vendor={_esc(a.vendor)}">Answer full questionnaire manually</a>
+&middot; <a href="/">Start over</a></p>""")
+
+
+_EVIDENCE_TAGS = {"SUPPORTED": "t-ok", "PARTIALLY_SUPPORTED": "t-rev",
+                  "MISSING": "t-skip", "CONFLICT": "t-gap", "NEEDS_REVIEW": "t-rev"}
+_DISAGREES_TAG = "<span class='tag t-gap'>disagrees</span>"
+
+
+def _report_lines(lines, empty: str) -> str:
+    """One card per check: plain headline, exact provenance, trace label beneath."""
+    if not lines:
+        return f"<div class='card small'>{_esc(empty)}</div>"
+    return "".join(
+        f"<div class='card'>"
+        f"<span class='tag {_EVIDENCE_TAGS.get(x.state, 't-skip')}'>"
+        f"{_esc(x.state_word)}</span> <strong>{_esc(x.headline)}</strong>"
+        + ("".join(f"<div class='small'>source: {_esc(str(p))}"
+                   + (f" &mdash; &ldquo;{_esc(p.excerpt)}&rdquo;" if p.excerpt else "")
+                   + "</div>" for p in x.provenance[:6]) or "")
+        + (f"<div class='small'>&hellip; and {len(x.provenance) - 6} more cell "
+           f"references</div>" if len(x.provenance) > 6 else "")
+        + f"<div class='qid'>{_esc(x.name)} &middot; {_esc(x.check_id)}"
+        + (f" &middot; {_esc(x.grounding)}" if x.grounding else "")
+        + "</div></div>"
+        for x in lines
+    )
+
+
+def _evidence_report(e) -> str:
+    """Evidence QA exception report for one artifact (presentation only)."""
+    r = build_report(e)
+    if not r.reconciled and not r.exceptions:
+        return (f"<div class='card'><strong>{_esc(r.filename)}</strong> "
+                f"<span class='tag t-skip'>{_esc(r.evidence_type)}</span>"
+                + "".join(f"<div class='small'>{_esc(n)}</div>" for n in r.notes)
+                + "</div>")
+
+    meta = " &middot; ".join(filter(None, [
+        f"review period {_esc(r.review_period)}" if r.review_period else "",
+        f"campaign {_esc(r.campaign_status)}" if r.campaign_status else "",
+        f"knowledge {_esc(r.knowledge_evidence_id)}" if r.knowledge_evidence_id else "",
+        f"read by {_esc(r.extractor)}" if r.extractor else "",
+    ]))
+    facts = "".join(
+        f"<tr><td>{_esc(f.label)}<div class='qid'>{_esc(f.key)}</div></td>"
+        f"<td>{_DISAGREES_TAG if f.conflict else _esc(fact_display(f))}"
+        + ("".join(f"<div class='small'>{_esc(v)} &mdash; {_esc(str(p))}</div>"
+                   for v, p in f.conflicting_values) if f.conflict else "")
+        + f"</td><td class='small'>{_esc(f.derivation)}</td>"
+        f"<td class='small'>"
+        + "".join(f"<div>{_esc(str(p))}</div>" for p in f.provenance)
+        + "</td></tr>"
+        for f in r.facts
+    )
+    return f"""
+<div class="card"><h2 style="margin-top:0">{_esc(r.filename)}</h2>
+<span class="tag t-mode">{_esc(r.evidence_type)}</span>
+<span class="tag {_EVIDENCE_TAGS.get(r.state, 't-skip')}">{_esc(r.state.replace('_', ' '))}</span>
+<span class="tag {'t-gap' if r.exception_count else 't-ok'}">
+{r.exception_count} item(s) to look at</span>
+<div class="small">{meta}</div></div>
+<h2>Needs attention ({r.exception_count})</h2>
+{_report_lines(r.exceptions, NO_EXCEPTIONS)}
+<h2>Reconciled ({len(r.reconciled)})</h2>
+{_report_lines(r.reconciled, "No check reconciled from this artifact.")}
+<details><summary class="small">Facts read from this artifact ({len(r.facts)})</summary>
+<table><tr><th>Fact</th><th>Value</th><th>Read as</th><th>Provenance</th></tr>
+{facts}</table></details>"""
+
+
+def _evidence_block(a: DocumentAssessment) -> str:
+    if not a.evidence:
+        return ""
+    return ("<h2>Evidence QA</h2><p class='small'>What an auditor would ask about "
+            "this artifact first. Every line is reconciled by DriftGuard arithmetic "
+            "against the artifact's own numbers; missing material is reported as "
+            "missing evidence, never as a control failure, and nothing here is a "
+            "compliance conclusion.</p>"
+            + "".join(_evidence_report(e) for e in a.evidence))
+
+
+@app.get("/evidence-report/{assessment_id}", response_class=HTMLResponse)
+def evidence_report(assessment_id: str) -> HTMLResponse:
+    """Standalone Evidence QA report - the page a compliance lead reviews."""
+    a = DOC_ASSESSMENTS.get(assessment_id)
+    if a is None:
+        return _page("Not found", "<div class='card'>Unknown assessment. "
+                                  "<a href='/'>Start again</a>.</div>")
+    body = (_evidence_block(a) or
+            "<div class='card'>No tabular evidence was uploaded with this "
+            "assessment.</div>")
+    return _page(f"Evidence QA: {a.vendor}", f"""
+<div class="card"><h2 style="margin-top:0">Evidence QA &mdash; {_esc(a.vendor)}</h2>
+<span class="small">assessment {_esc(a.assessment_id)}</span></div>
+{body}
+<p class="disclaimer">DriftGuard reports what an artifact does and does not
+evidence about itself. It is not a SOC 2 compliance conclusion, audit opinion, or
+certification.</p>
+<p><a href="/doc-results/{_esc(a.assessment_id)}">Back to document analysis</a>
 &middot; <a href="/">Start over</a></p>""")
 
 

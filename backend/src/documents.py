@@ -18,6 +18,7 @@ from typing import Optional
 
 from assessment import MvpKnowledge
 from claims import ClaimExtractor, DemoClaimExtractor, SecurityClaim
+from evidence import StructuredEvidenceResult
 from ingestion import Document
 
 ESTABLISHED = "ESTABLISHED"
@@ -120,6 +121,8 @@ class DocumentAssessment:
     errors: list[str]
     areas: list[AreaResult]
     claims: list[SecurityClaim] = field(default_factory=list)
+    # CP007: structured evidence read from tabular uploads, before assessment.
+    evidence: list[StructuredEvidenceResult] = field(default_factory=list)
 
     @property
     def counts(self) -> dict:
@@ -187,7 +190,8 @@ class DocumentAnalyzer:
         }
 
     def analyze(
-        self, vendor: str, documents: list[Document], errors: list[str], demo: bool
+        self, vendor: str, documents: list[Document], errors: list[str], demo: bool,
+        evidence: Optional[list[StructuredEvidenceResult]] = None,
     ) -> DocumentAssessment:
         claims = self.extractor.extract(documents)
         by_topic: dict[str, list[SecurityClaim]] = {}
@@ -208,6 +212,7 @@ class DocumentAnalyzer:
             errors=list(errors),
             areas=areas,
             claims=claims,
+            evidence=list(evidence or []),
         )
 
     def _area(

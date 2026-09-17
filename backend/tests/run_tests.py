@@ -16,6 +16,8 @@ import test_semantic_execution as execution_suite  # noqa: E402
 import test_claude_provider as claude_suite  # noqa: E402
 import test_mvp_app as mvp_suite  # noqa: E402
 import test_documents as documents_suite  # noqa: E402
+import test_structured_evidence as evidence_suite  # noqa: E402
+import test_evidence_report as report_suite  # noqa: E402
 
 if __name__ == "__main__":
     print("evaluation engine:")
@@ -30,4 +32,8 @@ if __name__ == "__main__":
     failed += mvp_suite.run()
     print("\ndocument analysis:")
     failed += documents_suite.run()
+    print("\nstructured evidence:")
+    failed += evidence_suite.run()
+    print("\nevidence QA report:")
+    failed += report_suite.run()
     sys.exit(1 if failed else 0)
