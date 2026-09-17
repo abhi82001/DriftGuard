@@ -1,0 +1,116 @@
+Checkpoint:
+Minimal Semantic Evaluator Execution Layer
+
+Status:
+PASS
+
+Goal:
+  Add the smallest provider-independent layer that can actually RUN a semantic
+  evaluator safely on top of the Checkpoint 003 contract. The layer supplies no
+  reasoning of its own: it guarantees that grounding comes from real knowledge,
+  that evaluator output stays untrusted until validation succeeds, and that any
+  evaluator misbehaviour fails closed instead of producing a verdict.
+
+  Explicitly out of scope (and absent): OpenAI, Claude, Nemotron, Bedrock, any
+  SDK, HTTP or other network access, API server, database, UI, RAG, aggregation,
+  and any change to production SOC 2 knowledge or schemas.
+
+Files created:
+  backend/src/evaluation/execution.py
+  backend/tests/test_semantic_execution.py
+  docs/CHECKPOINT_004.txt
+
+Files modified:
+  backend/src/evaluation/engine.py     (4-line addition only)
+    - KnowledgeBase now exposes a read-only `finding_ids` property so the runner
+      can pass the real finding-id set as known_finding_ids. No behaviour of the
+      deterministic engine changed.
+  backend/src/evaluation/__init__.py   (export the execution layer)
+  backend/tests/run_tests.py           (also run the semantic execution suite)
+  (production knowledge and all schemas unchanged)
+
+Execution layer (backend/src/evaluation/execution.py):
+  SemanticExecutionError      typed failure for "evaluator could not be run
+                              safely"; distinct from
+                              SemanticResultValidationError ("output rejected")
+  SemanticEvaluationRunner    holds a KnowledgeBase + any object satisfying the
+                              SemanticEvaluator Protocol; refuses at
+                              construction anything without evaluate()
+    .run(qn_id, q_id, answer)       full path from knowledge to validated result
+    .run_request(request)           same, for an already-grounded request
+  run_semantic_evaluation()   one-shot functional wrapper over the runner
+
+Execution flow (the only path):
+  build_semantic_request(knowledge, questionnaire_id, question_id, answer_text)
+      -> evaluator.evaluate(request)          # output is UNTRUSTED
+      -> validate_semantic_result(result, request, known_finding_ids)
+      -> validated result                     # only now may callers trust it
+
+Trust properties:
+  - The evaluator never chooses the question, condition, finding, or expected
+    elements: it receives only a request built from the real semantic_condition
+    record.
+  - No validation rule is duplicated. All grounding checks remain in
+    validate_semantic_result() (Checkpoint 003); the runner only invokes it and
+    supplies known_finding_ids from the knowledge base.
+  - Output is never inspected, repaired, normalised, or partially accepted. The
+    runner returns exactly the object the validator returned, or raises.
+  - Fail closed: an evaluator that raises, returns a non-result object, or
+    returns output the validator rejects yields an error, never a default or
+    degraded verdict. Typed SemanticError subclasses raised by an evaluator
+    propagate unchanged; anything else is wrapped in SemanticExecutionError.
+  - A deterministic question cannot be pushed through the semantic path
+    (SemanticRequestError, inherited from the Checkpoint 003 builder).
+  - No fake production reasoning exists. The only stub evaluators live in the
+    test file and merely replay preset output so hostile cases can be tested.
+
+Test results:
+  python backend/tests/run_tests.py
+    evaluation engine:   PASSED, 0 failures (20 tests, Checkpoint 002 preserved)
+    semantic contract:   PASSED, 0 failures (8 tests, Checkpoint 003 preserved)
+    semantic execution:  PASSED, 0 failures (10 tests, new)
+       1 valid semantic evaluation succeeds end-to-end (real SEMCOND-0001 /
+         QN-ACCESS-001-Q09 / FND-CRYPTO-001; grounded request verified, stub
+         satisfies the SemanticEvaluator Protocol, wrapper takes the same path)
+       2 invented/unauthorized finding rejected at the execution boundary
+       3 mismatched condition_id and mismatched question_id rejected
+       4 invalid verdict rejected
+       5 ungrounded element reference rejected
+       6 out-of-range confidence rejected
+       7 prohibited compliance conclusion rejected (smuggled into notes)
+       8 fails closed on a raising evaluator, a wrong-type return, and a
+         non-evaluator object
+       9 deterministic Q01 cannot be executed semantically
+      10 deterministic evaluation unchanged (Q01 fires as before, Q09 still
+         reports SEMANTIC_EVALUATION_REQUIRED with no guessed verdict, and
+         running the semantic layer does not perturb the engine)
+  python knowledge/soc2/tests/test_gap_signal_grammar.py   PASSED, 0 failures
+  python knowledge/soc2/tests/test_semantic_condition.py   PASSED, 0 failures
+
+Knowledge validation:
+  python knowledge/soc2/validate.py
+  scanned 123 JSON files; 0 error(s), 0 warning(s)  (unchanged)
+  (one pre-existing jsonschema RefResolver DeprecationWarning, not introduced
+  here)
+
+Known limitations:
+  - No semantic reasoning is implemented. Without a concrete evaluator the layer
+    can only run test stubs; production use requires a real evaluator that is
+    deliberately not part of this checkpoint.
+  - Results are still Python dataclasses; JSON-schema validation of persisted
+    result records is not performed here.
+  - No persistence, aggregation, batching, retry, timeout, concurrency, cost or
+    rate limiting, prompt construction, or audit logging. A provider integration
+    will need those and they are out of scope.
+  - known_finding_ids defaults to the loaded knowledge base's finding ids; a
+    caller may still narrow it explicitly.
+  - Result identity (result_id) is supplied by the evaluator and not yet checked
+    for uniqueness or format.
+
+No LLM / provider / network integration:
+  This checkpoint contains NO real LLM, model provider, SDK, HTTP client, or
+  network call of any kind. `execution.py` imports only from the standard
+  library and the existing evaluation package. SemanticEvaluator remains a
+  provider-independent Protocol with no production implementation; the only
+  implementations in the repository are test-only stubs in
+  backend/tests/test_semantic_execution.py.

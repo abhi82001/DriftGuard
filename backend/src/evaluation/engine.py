@@ -340,6 +340,11 @@ class KnowledgeBase:
             f"unknown question {question_id!r} in questionnaire {questionnaire_id!r}"
         )
 
+    @property
+    def finding_ids(self) -> frozenset[str]:
+        """Read-only view of every known finding_id (authorization lookups)."""
+        return frozenset(self._finding_ids)
+
     def finding_exists(self, finding_id: str) -> bool:
         return finding_id in self._finding_ids
 

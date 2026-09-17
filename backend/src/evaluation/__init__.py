@@ -24,6 +24,11 @@ from .engine import (
     evaluate_condition_expr,
     resolve_knowledge_root,
 )
+from .execution import (
+    SemanticEvaluationRunner,
+    SemanticExecutionError,
+    run_semantic_evaluation,
+)
 from .semantic import (
     PROHIBITED_VERDICTS,
     REASON_CODES,
@@ -64,10 +69,13 @@ __all__ = [
     "SemanticError",
     "SemanticEvaluationRequest",
     "SemanticEvaluationResult",
+    "SemanticEvaluationRunner",
     "SemanticEvaluator",
+    "SemanticExecutionError",
     "SemanticRequestError",
     "SemanticResultValidationError",
     "SemanticVerdict",
     "build_semantic_request",
+    "run_semantic_evaluation",
     "validate_semantic_result",
 ]
