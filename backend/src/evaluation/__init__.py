@@ -29,6 +29,11 @@ from .execution import (
     SemanticExecutionError,
     run_semantic_evaluation,
 )
+from .providers.claude import (
+    ClaudeOutputError,
+    ClaudeProviderError,
+    ClaudeSemanticEvaluator,
+)
 from .semantic import (
     PROHIBITED_VERDICTS,
     REASON_CODES,
@@ -45,6 +50,9 @@ from .semantic import (
 )
 
 __all__ = [
+    "ClaudeOutputError",
+    "ClaudeProviderError",
+    "ClaudeSemanticEvaluator",
     "EVAL_DETERMINISTIC",
     "EVAL_SEMANTIC",
     "GAP_GRAMMAR_VERSION",

@@ -1,0 +1,186 @@
+Checkpoint:
+Minimal Concrete Claude Semantic Provider Adapter
+
+Status:
+PASS
+
+Goal:
+  Add ONE isolated concrete implementation of the Checkpoint 003
+  SemanticEvaluator contract, backed by the official Anthropic Python SDK, that
+  plugs into the Checkpoint 004 execution layer without changing the
+  architecture. The adapter converts only the grounded request into a prompt,
+  requests machine-readable structured output, parses it strictly, and fails
+  closed. It performs no grounding or authorization checks of its own: Claude
+  output remains untrusted until Checkpoint 003 validation succeeds.
+
+  Explicitly out of scope (and absent): OpenAI, Nemotron, multi-provider
+  routing, fallback providers, retry framework, API server, UI,
+  DB/persistence, RAG/vector DB, evidence ingestion, CC1-CC5/CC8-CC9,
+  questionnaire aggregation, production deployment. No knowledge or schema
+  changes.
+
+Files created:
+  backend/src/evaluation/providers/__init__.py
+  backend/src/evaluation/providers/claude.py
+  backend/tests/test_claude_provider.py
+  backend/requirements.txt
+  docs/CHECKPOINT_005.txt
+
+Files modified:
+  backend/src/evaluation/__init__.py   (export the Claude adapter + its errors)
+  backend/tests/run_tests.py           (also run the adapter suite)
+  (engine.py, semantic.py, execution.py, production knowledge and all schemas
+   unchanged; existing test files unchanged)
+
+Provider boundary:
+  The ONLY external surface touched is `client.messages.create(**kwargs)` on an
+  Anthropic SDK client.
+    - The SDK is imported lazily inside _build_client(), so importing
+      DriftGuard and running the whole test suite needs no `anthropic` install.
+    - A client may be injected through the constructor; tests inject a fake at
+      exactly the position a real client occupies, so no test performs a
+      network call.
+    - No credential is ever hard-coded, stored on the adapter, logged, or put
+      into an error message. With no explicit api_key the SDK resolves
+      credentials itself from the environment.
+
+  ClaudeSemanticEvaluator(client=None, *, api_key=None, model=None,
+                          max_tokens=4096, timeout=None)
+    .evaluate(request) -> SemanticEvaluationResult      (the CP003 contract)
+    .build_payload(request)                             (what is sent, exactly)
+    .build_create_kwargs(request)                       (the full SDK call)
+  ClaudeProviderError(SemanticError)     the provider call could not complete
+  ClaudeOutputError(ClaudeProviderError) the response is unusable as a result
+
+Flow (request -> Claude -> parse -> CP004/CP003 validation):
+  1. build_semantic_request(knowledge, questionnaire_id, question_id, answer)
+     grounds the request in the real semantic_condition record (CP003).
+  2. SemanticEvaluationRunner.run() calls ClaudeSemanticEvaluator.evaluate()
+     (CP004; unchanged).
+  3. The adapter sends system rules + ONE user message whose content is
+     json.dumps(request.to_dict()) - i.e. exactly condition_id, question_id,
+     indicates_finding, source_condition, fires_when, expected_elements,
+     answer_text - and requests structured output via
+     output_config.format = {"type": "json_schema", "schema": RESPONSE_SCHEMA}.
+     Nothing else from the knowledge base is transmitted.
+  4. The reply is parsed strictly: text content blocks only (thinking blocks
+     ignored), then JSON -> object -> exact key set -> per-field type checks.
+  5. A SemanticEvaluationResult is constructed. condition_id/question_id come
+     from the grounded request and result_id is minted locally
+     (SEMRES-CLAUDE-<condition_id>-<question_id>); assessment, confidence,
+     present/missing elements, reason_codes, needs_human_review,
+     indicates_finding and notes are passed through EXACTLY as returned.
+  6. CP004 hands that result to validate_semantic_result(), which alone decides
+     whether the verdict vocabulary, confidence range, reason codes, element
+     grounding, finding authorization, and prohibited-verdict rules are
+     satisfied. Only then is the result trusted.
+
+Model instructions (system prompt, verbatim rules):
+  1 evaluate only the supplied condition and its expected_elements
+  2 do not use any outside SOC 2 requirement, control, criterion, policy or
+    framework knowledge
+  3 do not invent findings, element ids, reason codes or verdicts
+  4 never state or imply SOC 2 compliance, non-compliance, pass, fail,
+    certification or an audit opinion
+  5 an element is present only if the answer text itself evidences it
+  6 return only the required structured fields, and nothing else
+
+Fail-closed behaviour (never repaired, never defaulted):
+  provider exception ............... ClaudeProviderError
+  empty content / no text block .... ClaudeOutputError
+  stop_reason max_tokens|refusal ... ClaudeOutputError (truncated/refused)
+  not valid JSON ................... ClaudeOutputError
+  JSON not an object ............... ClaudeOutputError
+  markdown-fenced JSON ............. ClaudeOutputError (no silent unwrapping)
+  missing required field ........... ClaudeOutputError
+  unexpected/smuggled field ........ ClaudeOutputError
+  wrong field type ................. ClaudeOutputError (no string->number,
+                                     string->bool, or scalar->list coercion;
+                                     a bool is not accepted as confidence)
+  Every error type subclasses SemanticError, so CP004 propagates it unchanged
+  and no verdict is produced.
+
+Configuration:
+  ANTHROPIC_API_KEY        read by the Anthropic SDK (never committed, never
+                           stored or logged by DriftGuard). May instead be
+                           passed explicitly as api_key= by the caller.
+  DRIFTGUARD_CLAUDE_MODEL  REQUIRED model id (or model= argument); no default
+                           is assumed and construction fails clearly without it
+  max_tokens               4096 (constructor argument)
+  timeout                  optional, forwarded to the SDK client
+  dependency               backend/requirements.txt -> anthropic>=0.69
+                           (only needed for a real call; the engine, contract,
+                           execution layer and entire test suite are
+                           standard-library only)
+
+Security / grounding guarantees:
+  - Claude output is UNTRUSTED until validate_semantic_result() (CP003)
+    succeeds. The adapter does not validate grounding or authorization, and
+    does not duplicate any validator rule.
+  - The knowledge base is never sent to the provider. Only the seven grounded
+    request fields leave the process; a test asserts the transmitted key set
+    exactly and asserts that no other record id (other semantic conditions,
+    other findings, controls, evidence, policies, remediations, mappings,
+    other questions, criteria) appears anywhere in the SDK call.
+  - The provider cannot choose which condition or question it answered:
+    identity is copied from the grounded request, and a condition_id or
+    question_id in the reply is an unexpected field that fails closed.
+  - The provider CAN still assert a finding, verdict, elements and confidence;
+    those are passed through untouched so CP003 can reject them. Tests prove
+    invented findings, known-but-unauthorized findings, ungrounded elements,
+    out-of-range confidence, unknown reason codes, invalid verdicts, and
+    compliance language in notes are all rejected through the CP004 runner.
+  - No credential is hard-coded or committed; no file in this checkpoint
+    contains a key.
+
+Test results:
+  python backend/tests/run_tests.py
+    evaluation engine:        PASSED, 0 failures (20 tests, CP002 preserved)
+    semantic contract:        PASSED, 0 failures (8 tests, CP003 preserved)
+    semantic execution:       PASSED, 0 failures (10 tests, CP004 preserved)
+    claude provider adapter:  PASSED, 0 failures (9 tests, new)
+      1 valid provider JSON -> SemanticEvaluationResult (real SEMCOND-0001 /
+        QN-ACCESS-001-Q09; adapter satisfies the SemanticEvaluator Protocol)
+      2 malformed JSON fails closed (bad JSON, array, fenced block)
+      3 empty response fails closed (no blocks, blank text, thinking-only,
+        truncated max_tokens)
+      4 provider exception fails closed
+      5 missing required field fails closed (6 fields) + smuggled extra field
+      6 wrong field type fails closed (8 fields + boolean confidence)
+      7 prompt carries the grounded request (model, system rules, structured
+        output config, exact request payload)
+      8 prompt contains no unrelated knowledge (exact key set; no foreign
+        record ids; request stays small)
+      9 CP004 runner still validates adapter output and rejects 7 classes of
+        hostile-but-well-formed provider output
+    (no network access in any test; the SDK is not even installed in the
+     verification environment)
+  python knowledge/soc2/tests/test_gap_signal_grammar.py   PASSED, 0 failures
+  python knowledge/soc2/tests/test_semantic_condition.py   PASSED, 0 failures
+
+Knowledge validation:
+  python knowledge/soc2/validate.py
+  scanned 123 JSON files; 0 error(s), 0 warning(s)  (unchanged)
+  (pre-existing jsonschema RefResolver DeprecationWarning only)
+
+Known limitations:
+  - Never executed against the live API in this repository: the `anthropic`
+    package is not installed in the verification environment and all tests use
+    fakes. Real-response quirks (e.g. an SDK response shape change) are
+    unproven.
+  - No retry, backoff, timeout tuning, rate-limit handling, cost accounting,
+    token counting, prompt caching, or streaming. The SDK's own default retries
+    apply; DriftGuard adds nothing.
+  - The adapter is not typed against SDK exception classes; any provider
+    exception is wrapped uniformly in ClaudeProviderError, so callers cannot
+    yet distinguish rate limiting from authentication failure.
+  - Single question per call; no batching, concurrency, or aggregation.
+  - Prompt quality is unmeasured: there is no eval set, no calibration of
+    confidence, and no agreement measurement against human review.
+  - result_id is minted locally as SEMRES-CLAUDE-<condition_id>-<random hex>,
+    unique per evaluation run; persistence of results is not addressed.
+  - No default model id is assumed: DRIFTGUARD_CLAUDE_MODEL (or model=) is
+    required and construction fails clearly without it.
+  - notes text is provider-authored free text; CP003 scans it for prohibited
+    verdicts but nothing else constrains it.
+  - Only Claude exists as a provider, by design. No routing or fallback.

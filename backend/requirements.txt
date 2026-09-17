@@ -1,0 +1,15 @@
+# DriftGuard backend dependencies.
+#
+# fastapi + uvicorn: the MVP web app (backend/src/app.py).
+# anthropic: only needed for a real semantic evaluation
+#   (backend/src/evaluation/providers/claude.py); imported lazily, so demo mode
+#   and the whole test suite run without it.
+#
+# Credentials come from the environment (ANTHROPIC_API_KEY). Never commit a key.
+fastapi>=0.110
+uvicorn>=0.27
+python-multipart>=0.0.9
+pypdf>=4.0
+python-docx>=1.1
+openpyxl>=3.1
+anthropic>=0.69

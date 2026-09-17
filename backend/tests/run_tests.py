@@ -13,6 +13,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import test_evaluation_engine as engine_suite  # noqa: E402
 import test_semantic_contract as semantic_suite  # noqa: E402
 import test_semantic_execution as execution_suite  # noqa: E402
+import test_claude_provider as claude_suite  # noqa: E402
+import test_mvp_app as mvp_suite  # noqa: E402
+import test_documents as documents_suite  # noqa: E402
 
 if __name__ == "__main__":
     print("evaluation engine:")
@@ -21,4 +24,10 @@ if __name__ == "__main__":
     failed += semantic_suite.run()
     print("\nsemantic execution:")
     failed += execution_suite.run()
+    print("\nclaude provider adapter:")
+    failed += claude_suite.run()
+    print("\nmvp app:")
+    failed += mvp_suite.run()
+    print("\ndocument analysis:")
+    failed += documents_suite.run()
     sys.exit(1 if failed else 0)
