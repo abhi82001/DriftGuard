@@ -219,7 +219,7 @@ def test_6_open_remediation_is_detected():
     check = csv_result.check(CHECK_REMEDIATION)
     assert check.state == PARTIALLY_SUPPORTED
     assert check.inputs["remediation_open_computed"] == fx.CSV_OPEN_REMEDIATION
-    assert "leaving 1 open/unresolved remediation item(s)" in check.detail
+    assert "derived revoke/modify remainder of 1" in check.detail
     assert csv_result.value("remediation_open_computed") == fx.CSV_OPEN_REMEDIATION
     assert csv_result.fact("remediation_open_computed").derivation == "computed"
 
@@ -494,11 +494,20 @@ def test_14_real_customer_export_is_read_without_invention():
     assert coverage.state == NEEDS_REVIEW
     assert "row 6 column D" in coverage.detail
 
-    # Two identity values match no known type and are counted, not invented.
-    assert result.value("identity_unrecognized") == 2
+    # The explicit Type column is used for identity classification.
+    # Account identifiers from the Identity column must never become identity types.
+    assert result.value("identity_unrecognized") == 0
     populations = dict(result.value("identity_populations"))
-    for invented in ("aarav.shah", "svc_backup_prod01"):
-        assert invented not in populations
+
+    assert populations == {
+        "contractor": 1,
+        "employee": 1,
+        "privileged": 2,
+        "service_account": 1,
+    }
+
+    for account_identifier in ("aarav.shah", "svc_backup_prod01"):
+        assert account_identifier not in populations
 
     # Four rows record remediation; not one carries a value DriftGuard reads as
     # a confirmation, so closure evidence is reported as missing rather than as

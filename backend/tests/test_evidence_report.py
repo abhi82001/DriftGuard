@@ -82,7 +82,7 @@ def test_1_fully_reconciled_artifact_has_no_exceptions():
             in reconciled[CHECK_POPULATION].headline)
     assert (f"All {fx.CLEAN_REVIEWED} reviewed accounts carry a reviewer decision"
             in reconciled[CHECK_DECISIONS].headline)
-    assert "0 unresolved" in reconciled[CHECK_REMEDIATION].headline
+    assert "derived remainder 0" in reconciled[CHECK_REMEDIATION].headline
 
 
 # ---------------------------------------------------------------------- 2
@@ -114,15 +114,20 @@ def test_3_open_remediation_headline_and_provenance():
     workbook = _line(_report("conflict"), CHECK_REMEDIATION)
     assert workbook.state == PARTIALLY_SUPPORTED
     assert workbook.headline == (
-        f"{fx.SUMMARY_REVOKE + fx.SUMMARY_MODIFY} access changes flagged, "
-        f"{fx.SUMMARY_REMEDIATION_COMPLETED} completed - "
-        f"{fx.SUMMARY_REMEDIATION_OPEN} unresolved")
-    assert "9 unresolved" in workbook.headline
+    f"{fx.SUMMARY_REVOKE + fx.SUMMARY_MODIFY} revoke/modify decision(s), "
+    f"{fx.SUMMARY_REMEDIATION_COMPLETED} completed remediation item(s), "
+    f"derived remainder {fx.SUMMARY_REVOKE + fx.SUMMARY_MODIFY - fx.SUMMARY_REMEDIATION_COMPLETED}; "
+    f"remediation status separately shows {fx.SUMMARY_REMEDIATION_OPEN} open item(s)"
+    )
+    assert "derived remainder 9" in workbook.headline
+    assert "separately shows 9 open item(s)" in workbook.headline
     assert any(p.locator == f"{fx.DETAIL_RANGE} column F" for p in workbook.provenance)
     assert any(p.locator == "B19" for p in workbook.provenance)
 
     csv_line = _line(_report("csv"), CHECK_REMEDIATION)
-    assert csv_line.headline.endswith(f"{fx.CSV_OPEN_REMEDIATION} unresolved")
+    assert csv_line.headline.endswith(
+        f"derived remainder {fx.CSV_OPEN_REMEDIATION}"
+    )
     assert csv_line.provenance
 
 

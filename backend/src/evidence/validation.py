@@ -243,7 +243,8 @@ def _decision_coverage(f: _Facts) -> ValidationCheck:
 
 
 def _remediation(f: _Facts) -> tuple[ValidationCheck, Optional[EvidenceFact]]:
-    """Open remediation = items the reviewer flagged for change, minus those closed."""
+    """Reconcile remediation without assuming aggregate status counts and
+    revoke/modify decisions describe the same row population."""
     name = "remediation closure"
     ground = grounding(EVIDENCE_ID, "VR-003")
     actionable_keys = ("decision_revoke", "decision_modify")
@@ -256,14 +257,17 @@ def _remediation(f: _Facts) -> tuple[ValidationCheck, Optional[EvidenceFact]]:
         return ValidationCheck(
             CHECK_REMEDIATION, name, NEEDS_REVIEW,
             f"The artifact states more than one value for {', '.join(conflicted)}, so "
-            f"open remediation cannot be computed.",
+            f"remediation closure cannot be reconciled.",
             inputs, ground, provenance,
         ), None
 
     actionable = [inputs[k] for k in actionable_keys if inputs[k] is not None]
     completed = inputs["remediation_completed"]
+
     if not actionable or completed is None:
-        absent = f.absent("remediation_completed") or ("decisions flagged for change",)
+        absent = f.absent("remediation_completed") or (
+            "decisions flagged for change",
+        )
         return ValidationCheck(
             CHECK_REMEDIATION, name, MISSING,
             f"Not stated in the artifact: {', '.join(absent)}. {NOT_A_FAILURE}",
@@ -272,46 +276,73 @@ def _remediation(f: _Facts) -> tuple[ValidationCheck, Optional[EvidenceFact]]:
 
     required = sum(actionable)
     computed_open = required - completed
-    inputs = dict(inputs, remediation_required=required,
-                  remediation_open_computed=computed_open)
+
+    inputs = dict(
+        inputs,
+        remediation_required=required,
+        remediation_open_computed=computed_open,
+    )
+
     derived = EvidenceFact(
         key=DERIVED_OPEN_REMEDIATION,
         label="remediation open (computed)",
-        value=computed_open, unit="count", derivation="computed",
+        value=computed_open,
+        unit="count",
+        derivation="computed",
         provenance=provenance,
     )
 
     if computed_open < 0:
         return ValidationCheck(
             CHECK_REMEDIATION, name, CONFLICT,
-            f"remediation_completed {completed} exceeds the {required} items flagged "
-            f"for change (revoke/modify). The artifact's own numbers disagree.",
+            f"remediation_completed {completed} exceeds the {required} "
+            f"revoke/modify decision(s). The artifact's own numbers disagree.",
             inputs, ground, provenance,
         ), derived
 
     stated_open = inputs["remediation_open"]
-    if stated_open is not None and stated_open != computed_open:
+
+    # The stated open-remediation count comes from all rows whose remediation
+    # status is Open/Pending/etc. The computed remainder is derived only from
+    # revoke/modify decisions. The artifact does not establish that those are
+    # the same population, so a difference between the two is not treated as
+    # an internal contradiction.
+    if stated_open is not None:
+        inputs = dict(inputs, remediation_open_stated=stated_open)
+
+    if computed_open > 0:
+        stated_note = (
+            f" Separately, the remediation-status column contains "
+            f"{stated_open} open item(s)."
+            if stated_open is not None
+            else ""
+        )
+
         return ValidationCheck(
-            CHECK_REMEDIATION, name, CONFLICT,
-            f"{required} items flagged for change minus {completed} completed leaves "
-            f"{computed_open} open, but the artifact states {stated_open} open.",
+            CHECK_REMEDIATION, name, PARTIALLY_SUPPORTED,
+            f"{required} revoke/modify decision(s) are recorded and {completed} "
+            f"remediation item(s) are recorded as completed, giving a derived "
+            f"revoke/modify remainder of {computed_open}.{stated_note} "
+            f"These counts are reported separately because the artifact does not "
+            f"establish that they describe the same row population. "
+            f"{NOT_A_FAILURE}",
             inputs, ground, provenance,
         ), derived
 
-    if computed_open > 0:
-        return ValidationCheck(
-            CHECK_REMEDIATION, name, PARTIALLY_SUPPORTED,
-            f"{required} items were flagged for change and {completed} are recorded as "
-            f"completed, leaving {computed_open} open/unresolved remediation item(s). "
-            f"Open items are reported as outstanding evidence of closure, not as a "
-            f"control failure.",
-            inputs, ground, provenance,
-        ), derived
+    stated_note = (
+        f" Separately, the remediation-status column contains "
+        f"{stated_open} open item(s)."
+        if stated_open is not None
+        else ""
+    )
 
     return ValidationCheck(
         CHECK_REMEDIATION, name, SUPPORTED,
-        f"All {required} items flagged for change are recorded as completed; "
-        f"0 open/unresolved remediation items.",
+        f"{required} revoke/modify decision(s) are recorded and {completed} "
+        f"remediation item(s) are recorded as completed, giving a derived "
+        f"revoke/modify remainder of 0.{stated_note} "
+        f"The aggregate status count is reported separately because the artifact "
+        f"does not establish that it describes the same row population.",
         inputs, ground, provenance,
     ), derived
 

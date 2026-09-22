@@ -43,6 +43,7 @@ FACT_LABELS: dict[str, str] = {
     "decision_investigate": "reviewer decision: investigate",
     "decision_unrecognized": "rows without a recognised reviewer decision",
     "remediation_completed": "remediation completed",
+    "remediation_rows": "row-level remediation records",
     "remediation_open": "remediation open (stated)",
     "exceptions_open": "exceptions / open items",
     "remediation_ticket_reference": "remediation ticket reference",
@@ -152,8 +153,8 @@ _IDENTITY_TYPES: tuple[tuple[str, str], ...] = (
 
 _DECISION_HEADERS = ("review decision", "decision", "reviewer decision",
                      "certification decision", "reviewer action")
-_IDENTITY_HEADERS = ("identity type", "account type", "identity", "user type",
-                     "principal type")
+_IDENTITY_HEADERS = ("identity type", "account type", "user type",
+                     "principal type", "type")
 _REMEDIATION_STATUS_HEADERS = ("remediation status", "closure status",
                                "ticket status", "remediation state")
 _TICKET_HEADERS = ("remediation ticket", "ticket", "ticket id", "change record",
@@ -318,7 +319,53 @@ class UserAccessReviewExtractor:
                 "counted",
             ))
 
+        ticket_column = sheet.column_of(*_TICKET_HEADERS)
+        confirmation_column = sheet.column_of(*_POST_CHANGE_HEADERS)
+
         status_column = sheet.column_of(*_REMEDIATION_STATUS_HEADERS)
+        remediation_rows = []
+        for row in rows:
+            decision = _cell_text(row, decision_column)
+
+            ticket = (
+                _cell_text(row, ticket_column)
+                if ticket_column is not None
+                else ""
+            )
+
+            status = (
+                _cell_text(row, status_column)
+                if status_column is not None
+                else ""
+            )
+
+            confirmation = (
+                _cell_text(row, confirmation_column)
+                if confirmation_column is not None
+                else ""
+            )
+
+            remediation_rows.append(
+                (
+                    row.number,
+                    decision,
+                    ticket,
+                    status,
+                    confirmation,
+                )
+            )
+
+        out.append(_Observation(
+            "remediation_rows",
+            tuple(remediation_rows),
+            Provenance(
+                sheet.filename,
+                sheet.name,
+                span,
+                f"{len(remediation_rows)} row-level remediation records",
+            ),
+            "counted",
+        ))
         if status_column is not None:
             status_letter = column_letter(status_column)
             states = _remediation_breakdown(rows, status_column)
@@ -330,7 +377,6 @@ class UserAccessReviewExtractor:
                     "counted",
                 ))
 
-        ticket_column = sheet.column_of(*_TICKET_HEADERS)
         if ticket_column is not None:
             out.append(_Observation(
                 "remediation_ticket_reference", True,
@@ -343,7 +389,6 @@ class UserAccessReviewExtractor:
         # The presence of a confirmation column used to be reported as a boolean,
         # which said that somebody had provided a column - not that anything in it
         # confirmed anything. It is now counted per row.
-        confirmation_column = sheet.column_of(*_POST_CHANGE_HEADERS)
         if confirmation_column is not None:
             confirmation_letter = column_letter(confirmation_column)
             applicable, confirmed, unconfirmed = _confirmation_counts(
@@ -547,6 +592,8 @@ def _unit(key: str) -> str:
         return "breakdown"
     if key == "remediation_ticket_reference":
         return "flag"
+    if key == "remediation_rows":
+        return "records"
     return "text"
 
 

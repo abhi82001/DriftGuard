@@ -220,37 +220,81 @@ def _remediation(result, check, values) -> Optional[str]:
     required = values.get("remediation_required")
     completed = values.get("remediation_completed")
     computed = values.get("remediation_open_computed")
+    stated_open = values.get("remediation_open")
+
     if required is not None and completed is not None and computed is not None:
         if check.state == SUPPORTED:
-            return (f"All {required} flagged access changes are recorded as "
-                    f"completed - 0 unresolved")
+            if stated_open is not None:
+                return (
+                    f"{required} revoke/modify decision(s), {completed} completed "
+                    f"remediation item(s), derived remainder {computed}; "
+                    f"remediation status separately shows {stated_open} open item(s)"
+                )
+            return (
+                f"{required} revoke/modify decision(s), {completed} completed "
+                f"remediation item(s), derived remainder {computed}"
+            )
+
         if check.state == PARTIALLY_SUPPORTED:
-            return (f"{required} access changes flagged, {completed} completed - "
-                    f"{computed} unresolved")
+            if stated_open is not None:
+                return (
+                    f"{required} revoke/modify decision(s), {completed} completed "
+                    f"remediation item(s), derived remainder {computed}; "
+                    f"remediation status separately shows {stated_open} open item(s)"
+                )
+            return (
+                f"{required} revoke/modify decision(s), {completed} completed "
+                f"remediation item(s), derived remainder {computed}"
+            )
+
         if check.state == CONFLICT:
-            stated = values.get("remediation_open")
-            if stated is not None:
-                return (f"{required} flagged and {completed} completed leaves "
-                        f"{computed} unresolved, but the artifact states {stated}")
-            return (f"{completed} completions recorded against only {required} "
-                    f"flagged access changes")
+            return check.detail
+
     if check.state == NEEDS_REVIEW:
-        found = _disagreement(result, ("decision_revoke", "decision_modify",
-                                       "remediation_completed", "remediation_open"))
-        return f"Open remediation cannot be computed - {found}" if found else None
+        found = _disagreement(
+            result,
+            (
+                "decision_revoke",
+                "decision_modify",
+                "remediation_completed",
+                "remediation_open",
+            ),
+        )
+        return (
+            f"Remediation closure needs human review - {found}"
+            if found
+            else check.detail
+        )
+
     if check.state == MISSING:
         return "Remediation closure counts are not stated in this artifact"
+
     return None
 
 
 def _post_change(result, check, values) -> Optional[str]:
+    applicable = values.get("remediation_applicable_rows")
+    confirmed = values.get("remediation_confirmed_rows")
+    unconfirmed = values.get("remediation_unconfirmed_rows")
+
+    if applicable is not None and confirmed is not None:
+        return (
+            f"{confirmed} of {applicable} remediation rows have "
+            "post-change confirmation"
+        )
+
     if check.state == SUPPORTED:
         return "Post-change system confirmation is present for remediated items"
+
     if check.state == PARTIALLY_SUPPORTED:
-        return ("Ticket references are present, but no post-change confirmation "
-                "in this artifact")
+        return (
+            "Ticket references are present, but post-change confirmation "
+            "is incomplete in this artifact"
+        )
+
     if check.state == MISSING:
-        return "No closure record or post-change confirmation in this artifact"
+        return "No post-change confirmation evidence in this artifact"
+
     return None
 
 
