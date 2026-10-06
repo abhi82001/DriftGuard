@@ -1,0 +1,4 @@
+Vendor,Service,Risk Tier,Data Access,Last Review,SOC 2,Next Review,Status
+CloudHost,IaaS,Critical,Customer data,2026-04-10,Type II,2027-04-10,Approved
+MailWorks,Email,High,PII,2025-06-01,Type II,2026-06-01,Review overdue
+TinyAnalytics,Analytics,Medium,Usage data,2026-08-20,None,2027-08-20,Approved with conditions

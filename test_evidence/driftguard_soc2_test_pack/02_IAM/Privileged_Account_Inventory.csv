@@ -1,0 +1,4 @@
+Account,Owner,Account Type,Standing/JIT,MFA,Last Review,Status
+ops.admin07,R. Patel,Named Admin,Standing,Yes,2026-10-09,Approved
+prod.breakglass01,Security,Emergency,Standing,Unknown,2026-10-09,Investigate
+prod.breakglass02,Security,Emergency,Unknown,Unknown,2026-10-09,Investigate

@@ -1,39 +1,16 @@
 #!/usr/bin/env python3
-"""Run the backend evaluation-engine test suite (no third-party dependency).
-
-Run:  python backend/tests/run_tests.py
-Exit code 0 = pass, 1 = failures.
-"""
-
-import sys
+"""Run the complete DriftGuard test suite with a trustworthy aggregate summary."""
+from __future__ import annotations
+import os, subprocess, sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import test_evaluation_engine as engine_suite  # noqa: E402
-import test_semantic_contract as semantic_suite  # noqa: E402
-import test_semantic_execution as execution_suite  # noqa: E402
-import test_claude_provider as claude_suite  # noqa: E402
-import test_mvp_app as mvp_suite  # noqa: E402
-import test_documents as documents_suite  # noqa: E402
-import test_structured_evidence as evidence_suite  # noqa: E402
-import test_evidence_report as report_suite  # noqa: E402
-
-if __name__ == "__main__":
-    print("evaluation engine:")
-    failed = engine_suite.run()
-    print("\nsemantic contract:")
-    failed += semantic_suite.run()
-    print("\nsemantic execution:")
-    failed += execution_suite.run()
-    print("\nclaude provider adapter:")
-    failed += claude_suite.run()
-    print("\nmvp app:")
-    failed += mvp_suite.run()
-    print("\ndocument analysis:")
-    failed += documents_suite.run()
-    print("\nstructured evidence:")
-    failed += evidence_suite.run()
-    print("\nevidence QA report:")
-    failed += report_suite.run()
-    sys.exit(1 if failed else 0)
+ROOT=Path(__file__).resolve().parents[2]
+env=os.environ.copy(); src=str(ROOT/'backend'/'src'); env['PYTHONPATH']=src+(os.pathsep+env['PYTHONPATH'] if env.get('PYTHONPATH') else '')
+try:
+    import pytest  # noqa: F401
+except ImportError:
+    raise SystemExit("pytest is not installed. Run: pip install -r requirements-dev.txt")
+cmd=[sys.executable,'-m','pytest','-ra','backend/tests','knowledge/soc2/tests']
+print('DriftGuard complete test suite:', ' '.join(cmd), flush=True)
+proc=subprocess.run(cmd,cwd=ROOT,env=env)
+print(f"\nDRIFTGUARD TEST TOTAL: exit_code={proc.returncode} (pytest summary above is authoritative)", flush=True)
+raise SystemExit(proc.returncode)

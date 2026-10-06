@@ -1,0 +1,22 @@
+{
+  "source": "Corporate IdP",
+  "captured_at": "2026-10-01T10:00:00Z",
+  "policy": "Production Interactive Access",
+  "state": "enabled",
+  "scope_groups": [
+    "prod-users",
+    "prod-admins",
+    "cloud-console-users"
+  ],
+  "excluded_accounts": [
+    "prod.breakglass01"
+  ],
+  "exceptions": [
+    {
+      "account": "prod.breakglass01",
+      "ticket": "SEC-EXC-117",
+      "approval_status": "expired",
+      "expires": "2026-09-15"
+    }
+  ]
+}

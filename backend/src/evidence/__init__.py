@@ -17,6 +17,16 @@ Nothing here asserts a compliance conclusion, and missing material is always
 reported as missing evidence rather than as a control failure.
 """
 
+from .backbone import (
+    DOCUMENT_TEXT,
+    STRUCTURED_EVIDENCE,
+    ArtifactCheck,
+    ArtifactFact,
+    ArtifactProvenance,
+    EvidenceAnalysis,
+    EvidenceArtifact,
+    analyze_artifacts,
+)
 from .classify import (
     KNOWLEDGE_EVIDENCE_ID,
     UNCLASSIFIED,
@@ -40,6 +50,13 @@ from .model import (
     aggregate_state,
 )
 from .pipeline import analyze_evidence, analyze_evidence_file
+from .organization import (
+    ConceptCoverage,
+    EvidenceVariance,
+    OrganizationEvidenceView,
+    WorkItem,
+    build_organization_view,
+)
 from .report import (
     EXCEPTION_ORDER,
     NO_EXCEPTIONS,
@@ -52,6 +69,19 @@ from .report import (
 from .tabular import TabularError, Workbook, is_tabular, read_tabular
 
 __all__ = [
+    "DOCUMENT_TEXT",
+    "STRUCTURED_EVIDENCE",
+    "ArtifactCheck",
+    "ArtifactFact",
+    "ArtifactProvenance",
+    "EvidenceAnalysis",
+    "EvidenceArtifact",
+    "analyze_artifacts",
+    "ConceptCoverage",
+    "EvidenceVariance",
+    "OrganizationEvidenceView",
+    "WorkItem",
+    "build_organization_view",
     "CONFLICT",
     "Classification",
     "EVIDENCE_STATES",
@@ -85,3 +115,5 @@ __all__ = [
     "read_tabular",
     "register",
 ]
+
+from .mapping import EvidenceLink, QuestionEvidence, MappingView, map_questionnaire

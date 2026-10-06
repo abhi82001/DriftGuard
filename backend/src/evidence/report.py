@@ -190,7 +190,7 @@ def _population(result, check, values) -> Optional[str]:
                                        "reviewed_population"))
         return f"Population cannot be reconciled - {found}" if found else None
     if check.state == MISSING:
-        return "Population counts are not stated in this artifact"
+        return "No separately stated aggregate population total is available to reconcile against the computed detail-row population"
     return None
 
 
@@ -212,7 +212,7 @@ def _decisions(result, check, values) -> Optional[str]:
         found = _disagreement(result, _DECISION_KEYS + ("reviewed_population",))
         return f"Decisions cannot be reconciled - {found}" if found else None
     if check.state == MISSING:
-        return "Reviewer decision counts are not stated in this artifact"
+        return "No separately stated aggregate reviewer-decision totals are available to reconcile against the computed detail-row decisions"
     return None
 
 
@@ -228,7 +228,7 @@ def _remediation(result, check, values) -> Optional[str]:
                 return (
                     f"{required} revoke/modify decision(s), {completed} completed "
                     f"remediation item(s), derived remainder {computed}; "
-                    f"remediation status separately shows {stated_open} open item(s)"
+                    f"the status column separately shows {stated_open} row-level Open item(s), including statuses outside revoke/modify decisions; these are different populations and must not be added together or treated as contradictory"
                 )
             return (
                 f"{required} revoke/modify decision(s), {completed} completed "
@@ -240,7 +240,7 @@ def _remediation(result, check, values) -> Optional[str]:
                 return (
                     f"{required} revoke/modify decision(s), {completed} completed "
                     f"remediation item(s), derived remainder {computed}; "
-                    f"remediation status separately shows {stated_open} open item(s)"
+                    f"the status column separately shows {stated_open} row-level Open item(s), including statuses outside revoke/modify decisions; these are different populations and must not be added together or treated as contradictory"
                 )
             return (
                 f"{required} revoke/modify decision(s), {completed} completed "
@@ -277,11 +277,20 @@ def _post_change(result, check, values) -> Optional[str]:
     confirmed = values.get("remediation_confirmed_rows")
     unconfirmed = values.get("remediation_unconfirmed_rows")
 
-    if applicable is not None and confirmed is not None:
+    recorded = values.get("remediation_recorded_confirmation_rows")
+    unavailable = values.get("remediation_unavailable_confirmation_rows")
+    missing = values.get("remediation_missing_confirmation_rows")
+    if all(isinstance(v, int) for v in
+           (applicable, confirmed, recorded, unavailable, missing)):
         return (
-            f"{confirmed} of {applicable} remediation rows have "
-            "post-change confirmation"
+            f"Of {applicable} remediation-applicable rows: "
+            f"{confirmed} recognised affirmative confirmation(s); "
+            f"{recorded} recorded evidence item(s) requiring validation; "
+            f"{unavailable} explicitly unavailable; {missing} blank/missing. "
+            "A timestamp alone does not prove successful remediation."
         )
+    if applicable is not None and confirmed is not None:
+        return f"{confirmed} of {applicable} rows have recognised affirmative confirmation"
 
     if check.state == SUPPORTED:
         return "Post-change system confirmation is present for remediated items"
@@ -332,7 +341,8 @@ def _exceptions_line(result, check, values) -> Optional[str]:
         if check.state == SUPPORTED:
             return "No unresolved exceptions recorded"
     if check.state == MISSING:
-        return "No exception or open-item count is stated in this artifact"
+        return ("No separately stated aggregate exception/open-item total is available "
+                f"for reconciliation in this artifact; {values.get('remediation_open', 'unknown')} row-level Open remediation status(es) identified.")
     return None
 
 

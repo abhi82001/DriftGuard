@@ -1,0 +1,4 @@
+Rule ID,Source,Destination,Port,Action,Owner,Expiry,Last Review
+FW-001,10.20.0.0/16,prod-web,443,Allow,Platform,,2026-09-15
+FW-014,0.0.0.0/0,bastion-01,22,Allow,Ops,2026-08-31,2026-06-01
+FW-021,vendor-vpn,prod-db,5432,Allow,DBA,2026-10-15,2026-09-15

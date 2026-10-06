@@ -1,0 +1,266 @@
+{
+  "files_supplied": 2,
+  "files_processed": 2,
+  "files_rejected": 0,
+  "errors": [],
+  "semantic_status": "NEEDS_REVIEW",
+  "questionnaire_counts": {
+    "documents_analyzed": 2,
+    "established": 0,
+    "partially_established": 0,
+    "missing_evidence": 28,
+    "clarification_required": 0,
+    "conflict": 1,
+    "not_evaluated": 0
+  },
+  "questionnaire_results": [
+    {
+      "question_id": "QN-ACCESS-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q06",
+      "status": "CONFLICT",
+      "reason": "'jdoe': HR evidence records the worker terminated while IdP evidence records the identity active.",
+      "missing_facts": [],
+      "provenance": [
+        {
+          "filename": "hr.csv",
+          "locator": "A2",
+          "excerpt": "JDoe@corp.com"
+        },
+        {
+          "filename": "idp.csv",
+          "locator": "A2",
+          "excerpt": "jdoe"
+        }
+      ]
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q08",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q09",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q10",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q11",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q06",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q06",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    }
+  ],
+  "evidence_results": [
+    {
+      "filename": "hr.csv",
+      "role": "HR_ACTIVE_WORKER_ROSTER",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "idp.csv",
+      "role": "IDENTITY_PROVIDER_EXPORT",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    }
+  ],
+  "cross_artifact_findings": [
+    {
+      "code": "CROSS-ARTIFACT-CONFLICT",
+      "state": "CONFLICT",
+      "detail": "'jdoe': HR evidence records the worker terminated while IdP evidence records the identity active.",
+      "provenance": [
+        {
+          "filename": "hr.csv",
+          "locator": "A2",
+          "excerpt": "JDoe@corp.com"
+        },
+        {
+          "filename": "idp.csv",
+          "locator": "A2",
+          "excerpt": "jdoe"
+        }
+      ]
+    }
+  ],
+  "recovery_findings": []
+}

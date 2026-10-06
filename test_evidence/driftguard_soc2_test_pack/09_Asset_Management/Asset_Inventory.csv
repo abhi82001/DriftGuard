@@ -1,0 +1,5 @@
+Asset ID,Hostname,Environment,Owner,Criticality,EDR,Encryption,Status
+A-001,prod-web-01,Production,Platform,High,Yes,Yes,Active
+A-002,prod-db-03,Production,Database,Critical,No,Yes,Active
+A-003,legacy-app-02,Production,Apps,High,Yes,Unknown,Active
+A-004,old-worker-01,Production,Platform,Medium,No,No,Retired

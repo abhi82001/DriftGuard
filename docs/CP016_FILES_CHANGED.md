@@ -1,0 +1,16 @@
+# CP016 Files Changed
+- backend/src/evidence/schema_generalization.py (new)
+- backend/src/evidence/structured_registry.py
+- backend/src/evidence/graph.py
+- backend/src/evidence/temporal_review.py
+- backend/src/narrative_intelligence.py
+- backend/src/bcp_dr.py
+- backend/src/documents.py
+- backend/src/app.py
+- backend/tests/generalization/test_cp016_generalization.py (new)
+- backend/tests/generalization/test_cp016_variants.py (new)
+- run_pack.py (new)
+- docs/CP016_BASELINE.md (new)
+- docs/CP016_GENERALIZATION_REPORT.md (new)
+- docs/CP016_ACCEPTANCE_REPORT.md (new)
+- artifacts/cp016_acceptance.json (new)

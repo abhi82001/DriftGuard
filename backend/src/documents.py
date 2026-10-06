@@ -12,65 +12,34 @@ from __future__ import annotations
 
 import json
 import uuid
+from datetime import date
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
 from assessment import MvpKnowledge
 from claims import ClaimExtractor, DemoClaimExtractor, SecurityClaim
+from narrative_claims import CompositeGroundedExtractor, HybridGroundedExtractor
 from evidence import StructuredEvidenceResult
 from ingestion import Document
+from bcp_dr import RecoveryAssessment, extract_recovery_facts, reconcile_recovery
+from evidence.graph import EvidenceGraph
 
 ESTABLISHED = "ESTABLISHED"
 PARTIAL = "PARTIALLY_ESTABLISHED"
 NOT_ESTABLISHED = "NOT_ESTABLISHED"
 CLARIFICATION = "CLARIFICATION_REQUIRED"
+CONFLICT = "CONFLICT"
+NOT_EVALUATED = "NOT_EVALUATED"
 
 MAX_FOLLOW_UPS = 8
-_PRIORITY = {CLARIFICATION: 0, PARTIAL: 1, NOT_ESTABLISHED: 2, ESTABLISHED: 9}
+_PRIORITY = {CONFLICT: 0, CLARIFICATION: 1, PARTIAL: 2, NOT_ESTABLISHED: 3, NOT_EVALUATED: 4, ESTABLISHED: 9}
 
 NO_MATERIAL = ("Not evidenced by the supplied material. This is missing material, "
                "not a control failure.")
 
 
-@dataclass(frozen=True)
-class Spec:
-    topic: str
-    design: tuple[tuple[str, str], ...]        # (attribute, human label)
-    operating: tuple[tuple[str, str], ...]
-
-
-QUESTION_SPECS: dict[str, Spec] = {
-    "QN-ACCESS-001-Q01": Spec("mfa",
-        design=(("requirement", "a second factor is required"),
-                ("scope", "the systems the requirement covers")),
-        operating=(("enforcement_evidence", "configuration showing the factor is enforced"),)),
-    "QN-ACCESS-001-Q03": Spec("access_review",
-        design=(("cadence", "the documented access review cadence"),),
-        operating=(("latest_review", "the most recent completed review"),)),
-    "QN-ACCESS-001-Q04": Spec("access_review",
-        design=(("populations", "the identity populations in scope of the review"),),
-        operating=(("latest_review", "the population covered by the most recent review"),)),
-    "QN-ACCESS-001-Q05": Spec("access_review",
-        design=(),
-        operating=(("removal_evidence", "evidence that flagged access was removed"),)),
-    "QN-ACCESS-001-Q06": Spec("termination",
-        design=(("revocation_timeframe", "the committed revocation timeframe"),),
-        operating=(("revocation_evidence", "evidence of an actual revocation"),)),
-    "QN-ACCESS-001-Q08": Spec("privileged_access",
-        design=(("privilege_restricted", "privilege is restricted to authorized personnel"),
-                ("privileged_review_cadence", "the documented privileged access review cadence"),
-                ("privilege_model", "standing versus time-bounded privilege")),
-        operating=(("privileged_review_evidence", "a privileged access review or inventory"),)),
-    "QN-ACCESS-001-Q09": Spec("encryption_at_rest",
-        design=(("rest_requirement", "the documented encryption-at-rest requirement"),),
-        operating=(("rest_config_evidence",
-                    "storage configuration and key-custody evidence"),)),
-    "QN-NETSEC-001-Q04": Spec("transport_encryption",
-        design=(("transport_requirement", "the documented encrypted-transport requirement"),),
-        operating=(("transport_config_evidence",
-                    "deployed endpoint configuration or verification output"),)),
-}
+from questionnaire_contracts import Spec, QUESTION_SPECS
 
 
 @dataclass
@@ -81,6 +50,9 @@ class Fact:
     source_locator: str
     snippet: str
     nature: str
+    extraction_method: str = "unknown"
+    artifact_type: str = "UNKNOWN"
+    source_role: str = "UNKNOWN"
 
 
 @dataclass
@@ -123,20 +95,34 @@ class DocumentAssessment:
     claims: list[SecurityClaim] = field(default_factory=list)
     # CP007: structured evidence read from tabular uploads, before assessment.
     evidence: list[StructuredEvidenceResult] = field(default_factory=list)
+    recovery: Optional[RecoveryAssessment] = None
+    semantic_status: str = "NEEDS_REVIEW"
+    semantic_rejections: int = 0
+    semantic_conflicts: list[dict] = field(default_factory=list)
+    evidence_graph: Optional[EvidenceGraph] = None
+    files_received: int = 0
 
     @property
     def counts(self) -> dict:
         c = {"documents_analyzed": len(self.documents), "established": 0,
              "partially_established": 0, "missing_evidence": 0,
-             "clarification_required": 0}
+             "clarification_required": 0, "conflict": 0, "not_evaluated": 0}
         for a in self.areas:
             c[{
                 ESTABLISHED: "established",
                 PARTIAL: "partially_established",
                 NOT_ESTABLISHED: "missing_evidence",
                 CLARIFICATION: "clarification_required",
+                CONFLICT: "conflict",
+                NOT_EVALUATED: "not_evaluated",
             }[a.status]] += 1
         return c
+
+    @property
+    def contract_coverage(self) -> dict:
+        return {"executable_contracts": sum(a.question_id in QUESTION_SPECS for a in self.areas),
+                "requirements_total": len(self.areas),
+                "requirements_without_contract": sum(a.question_id not in QUESTION_SPECS for a in self.areas)}
 
     def follow_ups(self, limit: int = MAX_FOLLOW_UPS) -> list[FollowUp]:
         unresolved = [a for a in self.areas if a.status != ESTABLISHED]
@@ -171,6 +157,9 @@ class DocumentAssessment:
         return out
 
 
+from policy_conflicts import detect_polarity_conflicts
+
+
 class DocumentAnalyzer:
     def __init__(
         self,
@@ -179,7 +168,7 @@ class DocumentAnalyzer:
         extractor: Optional[ClaimExtractor] = None,
     ) -> None:
         self.knowledge = knowledge
-        self.extractor = extractor or DemoClaimExtractor()
+        self.extractor = extractor or HybridGroundedExtractor()
         root = Path(knowledge_root) if knowledge_root else _knowledge_root()
         self.evidence = {
             d["evidence_id"]: d
@@ -192,6 +181,7 @@ class DocumentAnalyzer:
     def analyze(
         self, vendor: str, documents: list[Document], errors: list[str], demo: bool,
         evidence: Optional[list[StructuredEvidenceResult]] = None,
+        assessment_date: Optional[date] = None,
     ) -> DocumentAssessment:
         claims = self.extractor.extract(documents)
         by_topic: dict[str, list[SecurityClaim]] = {}
@@ -204,6 +194,7 @@ class DocumentAnalyzer:
             area = doc["name"].replace(" Readiness Questionnaire", "")
             for question in doc["questions"]:
                 areas.append(self._area(qn_id, area, question, by_topic))
+        self._apply_temporal_rules(areas, as_of=assessment_date)
         return DocumentAssessment(
             assessment_id=uuid.uuid4().hex[:12],
             vendor=vendor,
@@ -213,7 +204,40 @@ class DocumentAnalyzer:
             areas=areas,
             claims=claims,
             evidence=list(evidence or []),
+            recovery=reconcile_recovery(extract_recovery_facts(documents), as_of=assessment_date),
+            semantic_status=getattr(self.extractor, "semantic_status", "NEEDS_REVIEW"),
+            semantic_rejections=len(getattr(self.extractor, "semantic_rejections", [])),
+            semantic_conflicts=list(getattr(self.extractor, "semantic_conflicts", []))
+            + detect_polarity_conflicts(documents),
         )
+
+
+    def _apply_temporal_rules(self, areas, *, as_of=None):
+        """CP016 shared freshness rule for cadence-governed operating evidence."""
+        from evidence.temporal_review import assess_freshness
+        as_of = as_of or date.today()
+        for a in areas:
+            if a.question_id != "QN-ACCESS-001-Q03":
+                continue
+            cadence=None; review=None
+            for f in a.known_facts:
+                low=f.statement.lower()
+                if 'cadence' in low:
+                    for c in ('daily','weekly','monthly','quarterly','semiannual','annually','annual'):
+                        if c in low: cadence='annual' if c=='annually' else c
+                if 'most recent completed review' in low:
+                    import re
+                    m=re.search(r'20\d{2}-\d{2}-\d{2}',f.statement)
+                    if m: review=m.group(0)
+            if cadence and review:
+                fresh=assess_freshness(review,cadence,as_of=as_of)
+                if fresh['state']=='STALE':
+                    a.status=PARTIAL
+                    a.reason=fresh['reason'] + '; stale operating evidence does not establish current operation.'
+                    a.missing_facts.append('current access review evidence')
+                elif fresh['state']=='REJECTED':
+                    a.status=PARTIAL
+                    a.reason='Future-dated operating evidence was rejected; current operating evidence is still required.'
 
     def _area(
         self, qn_id: str, area: str, question: dict,
@@ -228,40 +252,68 @@ class DocumentAnalyzer:
         )
         spec = QUESTION_SPECS.get(question["question_id"])
         claims = by_topic.get(spec.topic, []) if spec else []
-        if not spec or not claims:
+        if spec is None:
+            return AreaResult(status=NOT_EVALUATED,
+                reason="Evaluation could not execute because no runtime contract was available. This is an engine limitation, not a vendor finding.", **base)
+        if not claims:
             return AreaResult(status=NOT_ESTABLISHED, reason=NO_MATERIAL, **base)
 
         known: list[Fact] = []
         missing: list[str] = []
+        conflicts: list[str] = []
         design_known = operating_known = 0
         for group, is_design in ((spec.design, True), (spec.operating, False)):
+            eligible_roles = spec.design_roles if is_design else spec.operating_roles
             for attr, label in group:
-                # Operating attributes are only ever set by an extractor on
-                # operating-nature text, so attribute presence is sufficient here.
-                supporting = next((c for c in claims if attr in c.attributes), None)
-                if supporting is None:
-                    missing.append(label)
+                candidates = [c for c in claims if attr in c.attributes and c.evidence_nature in eligible_roles]
+                supporting = []
+                future_dated = []
+                for c in candidates:
+                    raw_date = getattr(c, "evidence_date", "")
+                    try:
+                        is_future = bool(raw_date) and date.fromisoformat(raw_date) > date.today()
+                    except ValueError:
+                        is_future = True
+                    (future_dated if is_future else supporting).append(c)
+                if not supporting:
+                    missing.append(label + (" (future/invalid evidence date requires clarification)" if future_dated else ""))
                     continue
-                value = supporting.attributes[attr]
-                shown = ", ".join(value) if isinstance(value, list) else str(value)
-                known.append(Fact(
-                    label=label,
-                    statement=f"{label}: {shown}",
-                    source_file=supporting.source_filename,
-                    source_locator=supporting.source_locator,
-                    snippet=supporting.snippet,
-                    nature=supporting.evidence_nature,
-                ))
+                # Materially different normalized values from eligible sources are
+                # not silently resolved by source order.
+                values = {repr(c.attributes[attr]) for c in supporting}
+                if len(values) > 1:
+                    conflicts.append(label)
+                for c in supporting:
+                    value = c.attributes[attr]
+                    shown = ", ".join(value) if isinstance(value, list) else str(value)
+                    known.append(Fact(
+                        label=label, statement=f"{label}: {shown}",
+                        source_file=c.source_filename, source_locator=c.source_locator,
+                        snippet=c.snippet, nature=c.evidence_nature,
+                        extraction_method=getattr(c, "extraction_method", "unknown"),
+                        artifact_type=getattr(c, "artifact_type", c.evidence_nature),
+                        source_role=c.evidence_nature,
+                    ))
                 if is_design:
                     design_known += 1
                 else:
                     operating_known += 1
 
+        if conflicts:
+            first = known[0]
+            return AreaResult(
+                status=CONFLICT,
+                reason="Eligible evidence sources materially disagree; DriftGuard did not choose one source silently.",
+                known_facts=known, missing_facts=missing + [f"resolve conflict: {x}" for x in conflicts],
+                source_file=first.source_file, source_locator=first.source_locator,
+                source_snippet=first.snippet, **base,
+            )
+
         if not known:
             return AreaResult(
-                status=CLARIFICATION,
-                reason="Supplied material mentions this area but does not state what "
-                       "this question asks. Confirm it directly.",
+                status=CLARIFICATION if claims else NOT_ESTABLISHED,
+                reason=("Supplied material mentions this area but eligible evidence does not state what this question asks. Confirm it directly."
+                        if claims else NO_MATERIAL),
                 missing_facts=missing, **base,
             )
 
@@ -269,16 +321,13 @@ class DocumentAnalyzer:
         all_operating = operating_known == len(spec.operating)
         if all_design and all_operating:
             status = ESTABLISHED
-            reason = "Established by the supplied material, including operating evidence."
+            reason = "Established by eligible supplied material for this evidence contract; this is not a compliance conclusion."
         else:
             status = PARTIAL
             reason = (
-                "Documented design facts are established by the supplied material, but "
-                "operating evidence for the period was not provided; a documented "
-                "requirement is not evidence of operating effectiveness."
-                if operating_known == 0 else
-                "Partly established by the supplied material; operating evidence is "
-                "still incomplete."
+                "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness."
+                if operating_known == 0 and spec.operating else
+                "Partly established by eligible supplied material; material contract facts remain unresolved."
             )
 
         first = known[0]

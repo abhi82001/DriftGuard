@@ -24,7 +24,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from jsonschema import Draft7Validator, RefResolver
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
 
 ROOT = Path(__file__).resolve().parent
 SCHEMA_BASE = "https://driftguard.io/schemas/soc2/"
@@ -69,20 +70,23 @@ def load_all_json() -> dict[Path, dict]:
 
 
 # ------------------------------------------------------------------ 3. schema
-def build_validators() -> dict[str, Draft7Validator]:
+def build_validators() -> dict[str, Draft202012Validator]:
     schema_dir = ROOT / "schemas"
     store: dict[str, dict] = {}
     for path in schema_dir.glob("*.json"):
         schema = json.loads(path.read_text(encoding="utf-8"))
         store[SCHEMA_BASE + path.name] = schema
 
-    validators: dict[str, Draft7Validator] = {}
+    registry = Registry().with_resources(
+        (uri, Resource.from_contents(schema)) for uri, schema in store.items()
+    )
+    validators: dict[str, Draft202012Validator] = {}
     for name, schema in store.items():
         short = name.rsplit("/", 1)[1]
         if short == "common.defs.json":
             continue
-        resolver = RefResolver(base_uri=name, referrer=schema, store=store)
-        validators[short] = Draft7Validator(schema, resolver=resolver)
+        Draft202012Validator.check_schema(schema)
+        validators[short] = Draft202012Validator(schema, registry=registry)
     return validators
 
 
@@ -165,7 +169,7 @@ def check_semantics(docs: dict[Path, dict], idx: "Index") -> None:
             err(f"semantics: {rel(path)}: element '{e}' is both present and missing")
 
 
-def check_schemas(docs: dict[Path, dict], validators: dict[str, Draft7Validator]) -> None:
+def check_schemas(docs: dict[Path, dict], validators: dict[str, Draft202012Validator]) -> None:
     schema_versions = {
         p.name: json.loads(p.read_text(encoding="utf-8")).get("x-driftguard-schema-version")
         for p in (ROOT / "schemas").glob("*.json")

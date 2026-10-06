@@ -1,0 +1,10 @@
+{
+  "checkpoint": "CP017.1",
+  "implementation_status": "PASS",
+  "live_provider_gate": "PENDING",
+  "tests": {"passed": 543, "failed": 0},
+  "original_pack": {"evidence_files": 52, "manifest_files": 1, "parsed": 53, "rejected": 0, "questionnaire": {"established": 0, "partial": 8, "not_established": 17, "clarification": 3, "conflict": 1, "not_evaluated": 0}},
+  "scenario_smokes": {"conflict": "PASS", "stale": "PASS", "missing": "PASS", "ambiguous": "PASS", "objective_not_met": "PASS"},
+  "semantic_status": "SEMANTIC_UNAVAILABLE",
+  "note": "OBJECTIVE_NOT_MET remains NEEDS_REVIEW by design; STALE is evidence quality, not a control-failure verdict."
+}

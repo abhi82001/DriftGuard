@@ -1,0 +1,5 @@
+Risk ID,Risk,Inherent,Owner,Treatment,Residual,Status,Review Date
+R-001,Unauthorized production access,High,CISO,MFA + quarterly access review,Medium,Open,2026-08-15
+R-002,Cloud storage misconfiguration,High,Cloud Security,CSPM monitoring,Low,Monitoring,2026-07-30
+R-003,Third-party outage,Medium,Vendor Mgmt,BCP + alternate supplier,Medium,Accepted,2026-06-20
+R-004,Legacy VPN weak protocol,High,Network,Migration to modern VPN,High,Past Due,2026-04-01

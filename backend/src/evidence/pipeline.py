@@ -30,6 +30,7 @@ from .model import (
 )
 from .tabular import TabularError, is_tabular, read_tabular
 from .validation import validate_user_access_review
+from .structured_registry import recognize, analyze_register
 
 VALIDATORS = {USER_ACCESS_REVIEW: validate_user_access_review}
 
@@ -44,6 +45,7 @@ def analyze_evidence_file(
     filename: str,
     data: bytes,
     extractor: Optional[extractor_registry.EvidenceExtractor] = None,
+    *, as_of=None,
 ) -> StructuredEvidenceResult:
     """Run the full pipeline over one tabular upload. Never raises on bad input."""
     if not is_tabular(filename):
@@ -55,11 +57,20 @@ def analyze_evidence_file(
 
     classification = classify(workbook)
     if not classification.supported:
+        register = recognize(workbook)
+        if register is not None:
+            spec, sheet = register
+            return analyze_register(workbook, spec, sheet, as_of=as_of)
+    if not classification.supported:
         return StructuredEvidenceResult(
             filename=filename, evidence_type=UNCLASSIFIED,
-            knowledge_evidence_id="", state=MISSING, needs_review=False,
+            knowledge_evidence_id="", state=MISSING, needs_review=True,
             notes=(UNCLASSIFIED_NOTE,
-                   f"signal groups not found: {', '.join(classification.missing_groups)}"),
+                   ("ISSUE EQA-UNSUPPORTED-TYPE: Only a recognized schema has a structured "
+                    "extractor/validator in this release. The access-review signal groups "
+                    "are not applicable validation criteria for other artifact types. "
+                    "No structured assurance was performed; retain the original upload "
+                    "and route to a type-specific validator or manual review.")),
             classification_confidence=classification.confidence,
             matched_signals=classification.matched_signals,
         )
@@ -95,10 +106,11 @@ def analyze_evidence_file(
 
 def analyze_evidence(
     files: Iterable[tuple[str, bytes]],
+    *, as_of=None,
 ) -> list[StructuredEvidenceResult]:
     """Analyse every tabular upload; non-tabular files are left to CP006."""
     return [
-        analyze_evidence_file(filename, data)
+        analyze_evidence_file(filename, data, as_of=as_of)
         for filename, data in files
         if is_tabular(filename)
     ]

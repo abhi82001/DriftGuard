@@ -1,0 +1,11 @@
+# CP015 Files Changed
+- backend/src/production_hardening.py — bounded lifecycle state, privacy-safe telemetry, formula neutralization.
+- backend/src/upload_security.py — active/external OOXML rejection and aggregate request bound.
+- backend/src/ingestion.py — controlled internal 100-file batch capacity and formula-neutralized tabular extraction.
+- backend/src/app.py — bounded assessment stores, lifecycle telemetry, updated upload guidance.
+- backend/tests/test_cp015_production_hardening.py — 11 production-hardening regression tests.
+- docs/FINAL_ACCEPTANCE_REPORT.md
+- docs/SECURITY_REVIEW.md
+- docs/PERFORMANCE_REPORT.md
+- docs/KNOWN_LIMITATIONS.md
+- artifacts/cp015_performance.json

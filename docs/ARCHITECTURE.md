@@ -1,0 +1,3 @@
+# Architecture (existing, preserved)
+
+`backend/src/app.py` exposes MVP HTML and CP009 `/api/evidence-map`; `upload_security.py` is the new early upload boundary. `ingestion.py` extracts local documents; `evidence/backbone.py` normalizes grounded artifacts; `evidence/mapping.py` applies authoritative knowledge edges; `evidence/sufficiency.py` evaluates eight conservative dimensions; `evidence/intelligence.py` builds requests, lineage, optional semantic proposals, comparable-observation consistency and organization JSON. `knowledge/soc2/validate.py` validates canonical records using a local JSON Schema registry. `backend/tests` and `knowledge/soc2/tests` contain regressions. In-memory assessment storage is not multi-tenant production architecture.

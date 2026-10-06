@@ -39,8 +39,8 @@ EVIDENCE_ID = KNOWLEDGE_EVIDENCE_ID[USER_ACCESS_REVIEW]
 CHECK_POPULATION = "POP-RECON"
 CHECK_DECISIONS = "DEC-RECON"
 CHECK_DECISION_COVERAGE = "DEC-COVERAGE"
-CHECK_REMEDIATION = "REM-CLOSURE"
-CHECK_POST_CHANGE = "REM-CONFIRMATION"
+CHECK_REMEDIATION = "CLOSURE-RECON"
+CHECK_POST_CHANGE = "POST-CHANGE-CONFIRM"
 CHECK_IDENTITY = "POP-COVERAGE"
 CHECK_PERIOD = "REVIEW-PERIOD"
 CHECK_EXCEPTIONS = "OPEN-ITEMS"
@@ -209,7 +209,10 @@ def _decision_coverage(f: _Facts) -> ValidationCheck:
             f"No reviewer decision column was found in this artifact, so rows "
             f"without a recognised decision cannot be counted from it. "
             f"{NOT_A_FAILURE}",
-            {}, ground, provenance,
+            {"remediation_open": f.value("remediation_open"),
+             "remediation_open_computed": f.value("remediation_open_computed")},
+            ground, f.provenance("exceptions_open", "remediation_open",
+                                 "remediation_open_computed"),
         )
     if fact.conflict:
         return ValidationCheck(
@@ -357,7 +360,10 @@ def _post_change(f: _Facts) -> ValidationCheck:
     name = "post-change confirmation present"
     ground = grounding(EVIDENCE_ID, "VR-003")
     count_keys = ("remediation_applicable_rows", "remediation_confirmed_rows",
-                  "remediation_unconfirmed_rows")
+                  "remediation_recorded_confirmation_rows",
+                  "remediation_unconfirmed_rows",
+                  "remediation_unavailable_confirmation_rows",
+                  "remediation_missing_confirmation_rows")
     ticket = f.get("remediation_ticket_reference")
     provenance = f.provenance("remediation_ticket_reference", *count_keys)
 
@@ -372,6 +378,19 @@ def _post_change(f: _Facts) -> ValidationCheck:
 
     applicable = f.value("remediation_applicable_rows")
     confirmed = f.value("remediation_confirmed_rows")
+    recorded = f.value("remediation_recorded_confirmation_rows")
+    unavailable = f.value("remediation_unavailable_confirmation_rows")
+    missing = f.value("remediation_missing_confirmation_rows")
+    if all(isinstance(x, int) for x in (applicable, confirmed, recorded, unavailable, missing)):
+        if min(applicable, confirmed, recorded, unavailable, missing) < 0 or (
+            confirmed + recorded + unavailable + missing != applicable
+        ):
+            return ValidationCheck(
+                CHECK_POST_CHANGE, name, NEEDS_REVIEW,
+                "Confirmation categories do not reconcile to remediation-applicable rows; human review required.",
+                {k: f.value(k) for k in count_keys}, ground, provenance,
+            )
+
     if applicable is None or confirmed is None:
         # No post-change confirmation column at all: the artifact may still
         # carry ticket references, which is part of a closure record but not
@@ -409,21 +428,32 @@ def _post_change(f: _Facts) -> ValidationCheck:
             f"confirmation.",
             inputs, ground, provenance,
         )
-    if confirmed == 0:
+    if all(isinstance(x, int) for x in (recorded, unavailable, missing)):
+        if confirmed == 0 and recorded == 0:
+            return ValidationCheck(
+                CHECK_POST_CHANGE, name, MISSING,
+                f"0 of {applicable} remediation rows contain affirmative or recorded post-change "
+                f"confirmation evidence; {unavailable} explicitly unavailable, "
+                f"{missing} blank/missing in this artifact. {NOT_A_FAILURE}",
+                inputs, ground, provenance,
+            )
+        detail = (
+            f"{confirmed} of {applicable} remediation-applicable row(s) have recognised affirmative confirmation; "
+            f"{recorded} recorded evidence item(s) requiring validation, "
+            f"{unavailable} explicitly unavailable, and {missing} blank/missing; recorded evidence requires review. "
+            f"A timestamp alone does not prove successful remediation. {NOT_A_FAILURE}"
+        )
         return ValidationCheck(
-            CHECK_POST_CHANGE, name, MISSING,
-            f"0 of {applicable} row(s) recording remediation carry a post-change "
-            f"confirmation value DriftGuard recognises in this artifact. "
-            f"{NOT_A_FAILURE}",
+            CHECK_POST_CHANGE, name, PARTIALLY_SUPPORTED, detail,
             inputs, ground, provenance,
         )
     return ValidationCheck(
         CHECK_POST_CHANGE, name, PARTIALLY_SUPPORTED,
-        f"{confirmed} of {applicable} row(s) recording remediation carry a "
-        f"post-change confirmation; {applicable - confirmed} row(s) do not. "
-        f"{NOT_A_FAILURE}",
+        f"{confirmed} of {applicable} remediation rows have recognised affirmative "
+        f"confirmation; other confirmation values require review. {NOT_A_FAILURE}",
         inputs, ground, provenance,
     )
+
 
 
 def _identity_coverage(f: _Facts) -> ValidationCheck:
@@ -503,9 +533,14 @@ def _exceptions(f: _Facts) -> ValidationCheck:
     if fact is None:
         return ValidationCheck(
             CHECK_EXCEPTIONS, name, MISSING,
-            f"The artifact does not state an exception or open-item count. "
+            f"No separately stated aggregate exception/open-item total is available for reconciliation. "
+            f"Row-level Open remediation statuses: "
+            f"{f.value('remediation_open') if f.value('remediation_open') is not None else 'not available'}. "
             f"{NOT_A_FAILURE}",
-            {}, ground, provenance,
+            {"remediation_open": f.value("remediation_open"),
+             "remediation_open_computed": f.value("remediation_open_computed")},
+            ground, f.provenance("exceptions_open", "remediation_open",
+                                 "remediation_open_computed"),
         )
     if fact.conflict:
         return ValidationCheck(

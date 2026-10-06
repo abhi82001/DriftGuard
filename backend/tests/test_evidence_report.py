@@ -117,10 +117,10 @@ def test_3_open_remediation_headline_and_provenance():
     f"{fx.SUMMARY_REVOKE + fx.SUMMARY_MODIFY} revoke/modify decision(s), "
     f"{fx.SUMMARY_REMEDIATION_COMPLETED} completed remediation item(s), "
     f"derived remainder {fx.SUMMARY_REVOKE + fx.SUMMARY_MODIFY - fx.SUMMARY_REMEDIATION_COMPLETED}; "
-    f"remediation status separately shows {fx.SUMMARY_REMEDIATION_OPEN} open item(s)"
+    f"the status column separately shows {fx.SUMMARY_REMEDIATION_OPEN} row-level Open item(s), including statuses outside revoke/modify decisions; these are different populations and must not be added together or treated as contradictory"
     )
     assert "derived remainder 9" in workbook.headline
-    assert "separately shows 9 open item(s)" in workbook.headline
+    assert "separately shows 9 row-level Open item(s)" in workbook.headline
     assert any(p.locator == f"{fx.DETAIL_RANGE} column F" for p in workbook.provenance)
     assert any(p.locator == "B19" for p in workbook.provenance)
 
@@ -221,6 +221,44 @@ def test_6_rendered_report_asserts_no_compliance_verdict():
             assert banned not in authored, banned
 
 
+def test_7_real_fixture_rendered_html_confirmation_and_open_items():
+    """Regression: inspect the same HTML builder the customer-facing route uses."""
+    from pathlib import Path
+    from evidence.validation import CHECK_EXCEPTIONS
+    path = Path(__file__).parent / "fixtures" / "files" / "Q3_Access_Review.xlsx"
+    result = analyze_evidence_file(path.name, path.read_bytes())
+    assert result.value("remediation_applicable_rows") == 3
+    assert result.value("remediation_confirmed_rows") == 0
+    assert result.value("remediation_recorded_confirmation_rows") == 1
+    assert result.value("remediation_unavailable_confirmation_rows") == 1
+    assert result.value("remediation_missing_confirmation_rows") == 1
+    assert sum(result.value(k) for k in (
+        "remediation_confirmed_rows", "remediation_recorded_confirmation_rows",
+        "remediation_unavailable_confirmation_rows",
+        "remediation_missing_confirmation_rows")) == 3
+    assert result.value("remediation_open") == 2
+    assert result.value("remediation_open_computed") == 1
+    report = build_report(result)
+    confirmation = _line(report, CHECK_POST_CHANGE)
+    assert "1 recorded evidence item(s)" in confirmation.headline
+    assert "1 explicitly unavailable" in confirmation.headline
+    assert "1 blank/missing" in confirmation.headline
+    exceptions = _line(report, CHECK_EXCEPTIONS)
+    assert "No separately stated aggregate" in exceptions.headline
+    assert "2 row-level Open" in exceptions.headline
+    html = webapp._evidence_report(result)
+    for phrase in ("3 remediation-applicable rows", "1 recorded evidence item(s)",
+                   "1 explicitly unavailable", "1 blank/missing",
+                   "2 row-level Open", "row 3", "2026-10-07"):
+        assert phrase in html, phrase
+    assert "0 of 3 remediation rows have post-change confirmation" not in html
+    assert "No exception or open-item count is stated" not in html
+    assert "remediation_rows" in html  # available in collapsed technical facts
+    assert "<details>" in html
+    assert "row 6 column D" in html
+    assert "not a control failure" in confirmation.detail
+
+
 TESTS = [
     test_1_fully_reconciled_artifact_has_no_exceptions,
     test_2_contradiction_is_the_first_exception_with_both_values,
@@ -228,6 +266,7 @@ TESTS = [
     test_4_missing_checks_are_exceptions_without_failure_language,
     test_5_every_rendered_provenance_matches_the_result_object,
     test_6_rendered_report_asserts_no_compliance_verdict,
+    test_7_real_fixture_rendered_html_confirmation_and_open_items,
 ]
 
 

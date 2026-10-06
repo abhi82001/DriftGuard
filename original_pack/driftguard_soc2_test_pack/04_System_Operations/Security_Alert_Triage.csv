@@ -1,0 +1,4 @@
+Alert,Severity,Opened,First Reviewed,Analyst,Disposition,Ticket
+AL-901,High,2026-09-14 10:00,2026-09-14 10:12,M. Khan,Benign,SOC-2201
+AL-914,Critical,2026-09-20 03:11,2026-09-20 04:52,R. Bose,Incident,INC-2026-019
+AL-930,Medium,2026-09-28 14:00,,,Open,

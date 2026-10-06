@@ -48,8 +48,11 @@ FACT_LABELS: dict[str, str] = {
     "exceptions_open": "exceptions / open items",
     "remediation_ticket_reference": "remediation ticket reference",
     "remediation_applicable_rows": "rows recording remediation activity",
-    "remediation_confirmed_rows": "remediation rows with post-change confirmation",
-    "remediation_unconfirmed_rows": "remediation rows without post-change confirmation",
+    "remediation_confirmed_rows": "remediation rows with recognised post-change confirmation",
+    "remediation_recorded_confirmation_rows": "remediation rows with recorded confirmation evidence",
+    "remediation_unconfirmed_rows": "remediation rows without recognised post-change confirmation",
+    "remediation_unavailable_confirmation_rows": "remediation rows explicitly reporting confirmation unavailable",
+    "remediation_missing_confirmation_rows": "remediation rows with blank confirmation",
 }
 
 FACT_ORDER = tuple(FACT_LABELS)
@@ -66,7 +69,8 @@ COUNT_FACTS = frozenset({
 ROW_COUNT_FACTS = frozenset({
     "identity_unrecognized", "decision_unrecognized",
     "remediation_applicable_rows", "remediation_confirmed_rows",
-    "remediation_unconfirmed_rows",
+    "remediation_recorded_confirmation_rows", "remediation_unconfirmed_rows",
+    "remediation_unavailable_confirmation_rows", "remediation_missing_confirmation_rows",
 })
 DATE_FACTS = frozenset({"review_period_start", "review_period_end", "review_completed_date"})
 DECISION_FACTS = ("decision_retain", "decision_modify", "decision_revoke",
@@ -392,9 +396,18 @@ class UserAccessReviewExtractor:
         if confirmation_column is not None:
             confirmation_letter = column_letter(confirmation_column)
             applicable, confirmed, unconfirmed = _confirmation_counts(
-                rows, confirmation_column, ticket_column, status_column)
+                rows, confirmation_column, ticket_column, status_column, decision_column)
+            unavailable_tokens = {"not available", "n/a", "na", "none", "unavailable"}
+            recorded = tuple((n, t) for n, t in applicable
+                             if t and t not in _CONFIRMATION_AFFIRMATIVE
+                             and t not in unavailable_tokens)
+            unavailable = tuple((n, t) for n, t in applicable if t in unavailable_tokens)
+            missing = tuple((n, t) for n, t in applicable if not t)
             for key, matched in (("remediation_applicable_rows", applicable),
                                  ("remediation_confirmed_rows", confirmed),
+                                 ("remediation_recorded_confirmation_rows", recorded),
+                                 ("remediation_unavailable_confirmation_rows", unavailable),
+                                 ("remediation_missing_confirmation_rows", missing),
                                  ("remediation_unconfirmed_rows", unconfirmed)):
                 phrase = _rows_phrase(matched) or span
                 out.append(_Observation(
@@ -490,21 +503,29 @@ def _identity_breakdown(
 
 
 def _confirmation_counts(rows, confirmation: int, ticket: Optional[int],
-                         status: Optional[int]):
-    """Count remediation rows and how many carry a post-change confirmation.
+                         status: Optional[int], decision: Optional[int]):
+    """Count rows that actually record remediation activity.
 
-    A row is remediation-applicable when the artifact records remediation
-    activity for it in any of the remediation columns it provides (ticket,
-    status or the confirmation column itself). Of those, a row counts as
-    confirmed only when its confirmation cell holds one of a closed set of
-    affirmative tokens.
+    Applicability is established by a remediation-requiring decision, a ticket,
+    or a recognised remediation status. Arbitrary text in a confirmation column
+    is never enough by itself (for example an ownership-attestation note).
+
+    A timestamp/note in the confirmation field is preserved as recorded evidence,
+    but only the closed affirmative vocabulary is treated as a recognised
+    confirmation. Semantic interpretation belongs to a higher layer.
     """
-    columns = [c for c in (ticket, status, confirmation) if c is not None]
-    applicable: list[tuple[int, str]] = []
-    confirmed: list[tuple[int, str]] = []
-    unconfirmed: list[tuple[int, str]] = []
+    applicable = []
+    confirmed = []
+    unconfirmed = []
+    remediation_decisions = {"decision_revoke", "decision_modify"}
     for row in rows:
-        if not any(_cell_text(row, c) for c in columns):
+        decision_key = (_DECISION_VALUES.get(_cell_text(row, decision))
+                        if decision is not None else None)
+        ticket_text = _cell_text(row, ticket) if ticket is not None else ""
+        status_text = _cell_text(row, status) if status is not None else ""
+        recognised_status = (status_text in _REMEDIATION_COMPLETED or
+                             status_text in _REMEDIATION_OPEN)
+        if not (decision_key in remediation_decisions or ticket_text or recognised_status):
             continue
         text = _cell_text(row, confirmation)
         applicable.append((row.number, text))

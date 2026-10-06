@@ -1,0 +1,4 @@
+Resource,Threshold,Peak,Period,Action
+API CPU,80%,74%,2026-Q3,None
+DB Storage,80%,87%,2026-Q3,CAP-220 expansion opened
+Queue Depth,10000,14200,2026-09-20,Auto-scaled; reviewed

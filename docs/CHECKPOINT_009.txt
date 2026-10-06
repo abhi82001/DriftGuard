@@ -1,0 +1,16 @@
+Checkpoint 009 — Evidence-to-question/control mapping (initial deterministic slice)
+
+Baseline: CP008.1. Entry point: evidence.mapping.map_questionnaire(analysis).
+HTTP endpoint: POST /api/evidence-map, multipart files.
+
+Scope: QN-ACCESS-001 Q01 and Q03-Q06; other questions explicitly NOT_EVALUATED.
+Mappings and expected evidence IDs are read from the existing questionnaire JSON.
+Referenced control and evidence JSON files are validated. Only classified evidence
+IDs count as an expected-evidence type match. MFA policy text is contextual only;
+it cannot establish actual MFA enforcement. Source artifact IDs, fact keys and
+provenance are carried through to each question. Needs-review artifacts are not
+silently accepted. All states describe evidence workflow, not control outcomes.
+
+Known limits: No automatic question answering; no assurance of population or
+period completeness; no general semantic control mapping; no automatic audit
+readiness score; no user authentication or persistent database (existing MVP).

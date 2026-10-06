@@ -1,0 +1,6 @@
+record_id,type,received_on,acknowledged_on,closed_on,notes
+RQ-201,Access request,2026-03-02,2026-03-03,2026-03-20,Completed
+RQ-202,Erasure request,2026-03-10,2026-03-11,2026-04-25,Closed after 46 days
+RQ-203,Correction request,2026-04-01,2026-04-02,2026-04-18,Completed
+RQ-204,Erasure request,2026-05-05,,,Open - no acknowledgement recorded
+BR-001,Personal data breach,2026-05-14,2026-05-14,2026-05-24,Board notified 2026-05-24 (10 days after awareness)

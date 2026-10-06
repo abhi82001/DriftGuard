@@ -1,0 +1,31 @@
+{
+  "repository": "payments-api",
+  "period": "2026-Q3",
+  "pull_requests": [
+    {
+      "id": 441,
+      "author": "jchen",
+      "reviewers": [
+        "akim"
+      ],
+      "merged": true,
+      "checks": "passed"
+    },
+    {
+      "id": 448,
+      "author": "sroy",
+      "reviewers": [],
+      "merged": true,
+      "checks": "passed"
+    },
+    {
+      "id": 452,
+      "author": "akim",
+      "reviewers": [
+        "jchen"
+      ],
+      "merged": true,
+      "checks": "failed-then-rerun-passed"
+    }
+  ]
+}

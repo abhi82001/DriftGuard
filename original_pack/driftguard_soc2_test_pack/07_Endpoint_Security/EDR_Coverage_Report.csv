@@ -1,0 +1,5 @@
+Asset,Class,Expected,EDR Installed,Last Seen,Status
+prod-web-01,Server,Yes,Yes,2026-09-30,Healthy
+prod-web-02,Server,Yes,Yes,2026-09-30,Healthy
+prod-db-03,Server,Yes,No,,Missing
+laptop-441,Endpoint,Yes,Yes,2026-09-29,Healthy

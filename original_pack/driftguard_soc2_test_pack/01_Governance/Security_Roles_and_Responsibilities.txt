@@ -1,0 +1,7 @@
+ACME CLOUD INC.
+SECURITY ROLES AND RESPONSIBILITIES
+CISO - accountable for security program and risk acceptance.
+IAM Manager - owns logical access provisioning, recertification, and privileged access evidence.
+SOC Manager - owns alert triage and incident escalation.
+Engineering - owns secure change implementation and peer review.
+Control owners are responsible for retaining evidence sufficient to demonstrate control performance.

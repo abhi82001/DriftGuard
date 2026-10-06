@@ -1,0 +1,21 @@
+{
+  "period": "2026-09",
+  "deployments": [
+    {
+      "id": "dep-701",
+      "change": "CHG-1201",
+      "commit": "a81c2f",
+      "environment": "prod",
+      "result": "success",
+      "time": "2026-09-04T18:20:00Z"
+    },
+    {
+      "id": "dep-722",
+      "change": "CHG-1214",
+      "commit": "b19d77",
+      "environment": "prod",
+      "result": "success",
+      "time": "2026-09-11T03:42:00Z"
+    }
+  ]
+}

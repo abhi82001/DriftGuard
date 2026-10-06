@@ -1,0 +1,8 @@
+User ID,Name,Type,Department,Status,Privileged,MFA Enrolled,Last Login
+u001,Aarav Shah,Employee,Engineering,Active,No,Yes,2026-09-29
+u002,Meera Rao,Employee,Finance,Active,No,Yes,2026-09-28
+u003,temp.vendor04,Contractor,Support,Active,No,No,2026-09-20
+u004,ops.admin07,Employee,Operations,Active,Yes,Yes,2026-09-30
+u005,daniel.cho,Employee,Engineering,Active,No,Yes,2026-09-25
+svc01,svc_backup_prod01,Service,Platform,Active,No,N/A,2026-09-30
+bg01,prod.breakglass01,Emergency,Security,Active,Yes,Unknown,2026-05-12

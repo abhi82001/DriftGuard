@@ -1,0 +1,40 @@
+Acme Cloud Inc. - Information Security Policy (v3.2, effective 2026-01-15)
+Owner: CISO. Approved by: CEO. Review cycle: annual.
+
+1. Access Control
+1.1 All production access requires multi-factor authentication (MFA).
+1.2 User access reviews are required quarterly. The last review was completed on 2026-07-02 by the Security team.
+1.3 Terminated employees have access revoked within 24 hours of termination.
+1.4 Administrative privileges are granted on a least-privilege basis and approved by a manager.
+
+2. Change Management
+2.1 All production changes require peer review and approval before deployment.
+2.2 Emergency changes may be deployed without prior approval and are reviewed within 5 business days.
+
+3. Logging and Monitoring
+3.1 Security events are collected centrally and retained for 90 days.
+3.2 Alerts for critical events are reviewed by the on-call engineer.
+
+4. Encryption
+4.1 Data at rest is encrypted using AES-256.
+4.2 Data in transit is encrypted using TLS 1.2 or higher.
+
+5. Backup and Recovery
+5.1 Backups are performed daily and are encrypted.
+5.2 Backups are retained for 30 days.
+5.3 Disaster recovery restore tests are performed annually. The last restore test was not completed in 2025.
+5.4 Recovery Time Objective (RTO) is 4 hours. Recovery Point Objective (RPO) is 24 hours.
+
+6. Incident Response
+6.1 An incident response plan exists and is reviewed annually.
+6.2 Incident response tabletop exercises are not currently performed.
+
+7. Vendor Management
+7.1 Critical vendors are assessed before onboarding.
+7.2 Vendor SOC 2 reports are not collected on a recurring basis.
+
+8. Contradictory statements (for conflict testing)
+8.1 Access reviews are performed quarterly.
+8.2 Access reviews are performed annually.
+8.3 MFA is required for all users.
+8.4 MFA is optional for internal administrators.

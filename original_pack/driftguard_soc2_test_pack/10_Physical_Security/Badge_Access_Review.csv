@@ -1,0 +1,4 @@
+Person,Facility,Role,Badge Status,Employment Status,Reviewer Decision,Action Status
+Aarav Shah,HQ,Engineer,Active,Active,Retain,N/A
+Daniel Cho,HQ,Engineer,Active,Terminated,Remove,Open
+Vendor Tech,DC1,Vendor,Active,Contract ended,Remove,Completed

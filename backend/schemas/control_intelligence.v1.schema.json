@@ -1,0 +1,12 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "title":"DriftGuard Control Intelligence 1.0.0",
+ "type":"object", "additionalProperties":false,
+ "required":["record_type","schema_version","organization_view","technical_view","disclaimer"],
+ "properties":{
+  "record_type":{"const":"control_intelligence"},"schema_version":{"const":"1.0.0"},
+  "disclaimer":{"type":"string","minLength":1},
+  "organization_view":{"type":"object","required":["requirements_reviewed","requirements_not_evaluated","evidence_available","evidence_requiring_validation","missing_evidence","potential_inconsistencies","next_actions","reuse_opportunities"],"properties":{"requirements_reviewed":{"type":"integer","minimum":0},"requirements_not_evaluated":{"type":"integer","minimum":0},"evidence_available":{"type":"integer","minimum":0},"evidence_requiring_validation":{"type":"integer","minimum":0},"missing_evidence":{"type":"integer","minimum":0},"potential_inconsistencies":{"type":"integer","minimum":0},"next_actions":{"type":"array"},"reuse_opportunities":{"type":"array"}}},
+  "technical_view":{"type":"object","required":["sufficiency","evidence_requests","relationship_graph","consistency"],"properties":{"sufficiency":{"type":"object","required":["record_type","schema_version","questionnaire_id","requirements"]},"evidence_requests":{"type":"array"},"relationship_graph":{"type":"object","required":["nodes","edges"]},"consistency":{"type":"array"}}}
+ }
+}

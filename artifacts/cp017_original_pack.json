@@ -1,0 +1,32 @@
+{
+  "files_supplied": 53,
+  "files_processed": 53,
+  "files_rejected": 0,
+  "semantic_status": "SEMANTIC_UNAVAILABLE",
+  "questionnaire_counts": {
+    "documents_analyzed": 53,
+    "established": 0,
+    "partially_established": 8,
+    "missing_evidence": 17,
+    "clarification_required": 3,
+    "conflict": 1,
+    "not_evaluated": 0
+  },
+  "cross_artifact_findings": [
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'legacy-app-02' is present in ASSET_INVENTORY but has no exact/normalized match in ENDPOINT_PROTECTION_COVERAGE. This is a coverage observation, not a control failure."
+    },
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'old-worker-01' is present in ASSET_INVENTORY but has no exact/normalized match in ENDPOINT_PROTECTION_COVERAGE. This is a coverage observation, not a control failure."
+    },
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'telemetry' is present in DATA_INVENTORY but has no exact/normalized match in DATA_DELETION_RECORD. This is a coverage observation, not a control failure."
+    }
+  ]
+}

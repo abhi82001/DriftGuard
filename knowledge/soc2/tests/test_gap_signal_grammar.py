@@ -62,7 +62,7 @@ CASES: list[tuple[str, dict, list[str], str, bool]] = [
 ]
 
 
-def test_grammar() -> int:
+def run_grammar() -> int:
     failed = 0
     for name, expr, opts, atype, expect_valid in CASES:
         errors = gap_signal_expr_errors(expr, opts, atype)
@@ -76,7 +76,7 @@ def test_grammar() -> int:
     return failed
 
 
-def test_corpus() -> int:
+def run_corpus() -> int:
     """Every condition_expr in the knowledge base validates, and every
     question referenced by a gap signal exists with a resolvable finding."""
     failed = 0
@@ -110,8 +110,15 @@ def test_corpus() -> int:
 
 if __name__ == "__main__":
     print("grammar cases:")
-    n = test_grammar()
+    n = run_grammar()
     print("corpus:")
-    n += test_corpus()
+    n += run_corpus()
     print(f"\n{'FAILED' if n else 'PASSED'}: {n} failure(s)")
     sys.exit(1 if n else 0)
+
+
+def test_grammar() -> None:
+    assert run_grammar() == 0
+
+def test_corpus() -> None:
+    assert run_corpus() == 0

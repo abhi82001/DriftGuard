@@ -1,0 +1,4 @@
+System,Backup Type,Scheduled,Completed,Result,Restore Tested
+prod-db,Daily,2026-09-29 02:00,2026-09-29 02:31,Success,Yes
+prod-db,Daily,2026-09-30 02:00,2026-09-30 02:12,Failed,No
+reporting,Daily,2026-09-30 03:00,2026-09-30 03:44,Success,No

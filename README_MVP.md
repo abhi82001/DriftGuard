@@ -70,6 +70,11 @@ python backend/tests/run_tests.py
 - Document analysis is local deterministic keyword matching against existing
   evidence expectations — not model reasoning. Model-assisted document analysis
   can reuse the CP005 adapter later.
+- Statuses: question results are `ESTABLISHED`, `PARTIALLY_ESTABLISHED`,
+  `NOT_ESTABLISHED`, `CLARIFICATION_REQUIRED`. `CONFLICT` (eligible sources
+  disagree) and `NOT_EVALUATED` (no executable contract) are additional
+  result states, reported in their own sections and counts. Without a semantic
+  provider/API key the semantic layer reports `NEEDS_REVIEW`.
 - Policy text can never be more than `PARTIALLY_ESTABLISHED`; missing material is
   reported as not evidenced, never as a control failure.
 - In-memory state only: assessments are lost on restart. Uploaded bytes are read
@@ -82,3 +87,14 @@ python backend/tests/run_tests.py
 - Real-Claude mode has never been exercised against the live API here; all tests
   use fakes or demo mode.
 - Single-process local demo only; no production hardening.
+
+### Development / acceptance dependencies
+
+Install the complete test environment before running acceptance:
+
+```bash
+pip install -r requirements-dev.txt
+python backend/tests/run_tests.py
+```
+
+The development requirements include `pytest` and `httpx`; the aggregate runner invokes the complete pytest suite and returns pytest's exit code.

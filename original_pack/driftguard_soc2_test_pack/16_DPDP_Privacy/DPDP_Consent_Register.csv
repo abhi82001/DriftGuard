@@ -1,0 +1,8 @@
+principal_id,purpose,consent_obtained_on,consent_status,withdrawn_on,withdrawal_processed_on,is_child,parental_consent
+DP-1001,Account creation,2026-01-12,ACTIVE,,,No,
+DP-1002,Marketing email,2026-02-03,WITHDRAWN,2026-04-10,2026-04-12,No,
+DP-1003,Marketing email,2026-02-20,WITHDRAWN,2026-05-01,2026-05-19,No,
+DP-1004,Analytics,2026-03-05,ACTIVE,,,No,
+DP-1005,Learning app,2026-03-11,ACTIVE,,,Yes,No
+DP-1006,Learning app,2026-03-15,ACTIVE,,,Yes,Yes
+DP-1007,Account creation,,ACTIVE,,,No,

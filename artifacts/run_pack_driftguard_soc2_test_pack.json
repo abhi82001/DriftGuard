@@ -1,0 +1,589 @@
+{
+  "files_supplied": 53,
+  "files_processed": 53,
+  "files_rejected": 0,
+  "errors": [],
+  "semantic_status": "SEMANTIC_UNAVAILABLE",
+  "questionnaire_counts": {
+    "documents_analyzed": 53,
+    "established": 0,
+    "partially_established": 8,
+    "missing_evidence": 17,
+    "clarification_required": 3,
+    "conflict": 1,
+    "not_evaluated": 0
+  },
+  "questionnaire_results": [
+    {
+      "question_id": "QN-ACCESS-001-Q01",
+      "status": "CONFLICT",
+      "reason": "Eligible evidence sources materially disagree; DriftGuard did not choose one source silently.",
+      "missing_facts": [
+        "configuration showing the factor is enforced",
+        "resolve conflict: the systems the requirement covers"
+      ],
+      "provenance": [
+        {
+          "filename": "Information_Security_Policy.docx",
+          "locator": "paragraph 8",
+          "excerpt": "MFA is required for interactive production administration."
+        },
+        {
+          "filename": "Information_Security_Policy.docx",
+          "locator": "paragraph 8",
+          "excerpt": "MFA is required for interactive production administration."
+        },
+        {
+          "filename": "Information_Security_Policy.docx",
+          "locator": "paragraph 8",
+          "excerpt": "MFA is required for interactive production administration."
+        },
+        {
+          "filename": "Information_Security_Policy.docx",
+          "locator": "paragraph 8",
+          "excerpt": "MFA is required for interactive production administration."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q06",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Partly established by eligible supplied material; material contract facts remain unresolved.",
+      "missing_facts": [
+        "the committed revocation timeframe",
+        "measurement of revocation against the commitment"
+      ],
+      "provenance": [
+        {
+          "filename": "Onboarding_Offboarding_Records.xlsx",
+          "locator": "sheet Lifecycle row 4",
+          "excerpt": "Nisha Kapoor | Termination | 2026-06-30 17:00 | IAM-TERM-8610 | 2026-06-30 20:14 | Vendor Owner | Completed"
+        }
+      ]
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q08",
+      "status": "CLARIFICATION_REQUIRED",
+      "reason": "Supplied material mentions this area but eligible evidence does not state what this question asks. Confirm it directly.",
+      "missing_facts": [
+        "privilege is restricted to authorized personnel",
+        "the documented privileged access review cadence",
+        "standing versus time-bounded privilege",
+        "a privileged access review or inventory"
+      ],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q09",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness.",
+      "missing_facts": [
+        "storage configuration and key-custody evidence",
+        "evidence identifying data-read and key-administration custody"
+      ],
+      "provenance": [
+        {
+          "filename": "Encryption_and_Key_Management_Policy.docx",
+          "locator": "paragraph 4",
+          "excerpt": "Restricted production data shall be encrypted at rest using approved cryptographic mechanisms."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q10",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q11",
+      "status": "CLARIFICATION_REQUIRED",
+      "reason": "Supplied material mentions this area but eligible evidence does not state what this question asks. Confirm it directly.",
+      "missing_facts": [
+        "the documented security-configuration baseline/approval requirement",
+        "evidence the configuration remained effective through the examination period",
+        "change history or monitoring for security-relevant configuration"
+      ],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q02",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness.",
+      "missing_facts": [
+        "the live boundary configuration",
+        "evidence of drift detection or comparison"
+      ],
+      "provenance": [
+        {
+          "filename": "Network_Security_Policy.docx",
+          "locator": "paragraph 4",
+          "excerpt": "Production network boundaries shall restrict inbound and outbound communication to approved business requirements."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q03",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness.",
+      "missing_facts": [
+        "expiry or closure mechanism on temporary rules",
+        "operating record showing temporary rule lifecycle"
+      ],
+      "provenance": [
+        {
+          "filename": "Network_Security_Policy.docx",
+          "locator": "paragraph 8",
+          "excerpt": "Boundary rules are reviewed periodically and temporary rules require an owner and expiration."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q04",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Partly established by eligible supplied material; material contract facts remain unresolved.",
+      "missing_facts": [
+        "the documented encrypted-transport requirement"
+      ],
+      "provenance": [
+        {
+          "filename": "TLS_Validation_Report.pdf",
+          "locator": "page 1",
+          "excerpt": "- Synthetic SOC 2 readiness test artifact Endpoint TLS 1.0 TLS 1.1 TLS 1.2 TLS 1.3 Certificate api.acme.example Disabled Disabled Enabled Enabled Valid legacy.acme.example Disabled Enabled Enabled Disabled Valid admin.ac"
+        }
+      ]
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q05",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness.",
+      "missing_facts": [
+        "inventory of protected-data egress routes",
+        "evidence routes are restricted, logged, or monitored"
+      ],
+      "provenance": [
+        {
+          "filename": "Network_Security_Policy.docx",
+          "locator": "paragraph 4",
+          "excerpt": "Production network boundaries shall restrict inbound and outbound communication to approved business requirements."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q06",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "'old-worker-01' is present in ASSET_INVENTORY but has no exact/normalized match in ENDPOINT_PROTECTION_COVERAGE. This is a coverage observation, not a control failure.",
+      "missing_facts": [
+        "evidence detections are assigned and acted upon"
+      ],
+      "provenance": [
+        {
+          "filename": "Endpoint_Security_Policy.docx",
+          "locator": "paragraph 4",
+          "excerpt": "Company-managed endpoints shall use approved endpoint protection, disk encryption, screen locking, patching, and centralized management."
+        },
+        {
+          "filename": "EDR_Coverage_Report.csv",
+          "locator": "row 5",
+          "excerpt": "laptop-441 | Endpoint | Yes | Yes | 2026-09-29 | Healthy"
+        },
+        {
+          "filename": "Asset_Inventory.csv",
+          "locator": "B4",
+          "excerpt": "legacy-app-02"
+        },
+        {
+          "filename": "Asset_Inventory.csv",
+          "locator": "B5",
+          "excerpt": "old-worker-01"
+        }
+      ]
+    },
+    {
+      "question_id": "QN-OPS-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q06",
+      "status": "CLARIFICATION_REQUIRED",
+      "reason": "Supplied material mentions this area but eligible evidence does not state what this question asks. Confirm it directly.",
+      "missing_facts": [
+        "the documented trigger for root-cause/postmortem review",
+        "completed root-cause/postmortem record",
+        "tracked corrective actions from the review"
+      ],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q03",
+      "status": "PARTIALLY_ESTABLISHED",
+      "reason": "Documented design facts are established by eligible supplied material, but operating evidence for the period was not provided; a documented requirement is not evidence of operating effectiveness.",
+      "missing_facts": [
+        "documented review owner",
+        "most recent completed physical-access review",
+        "evidence that identified physical access was removed"
+      ],
+      "provenance": [
+        {
+          "filename": "Physical_Security_Policy.docx",
+          "locator": "paragraph 4",
+          "excerpt": "Access to controlled facilities shall be limited to authorized personnel and reviewed periodically."
+        }
+      ]
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    }
+  ],
+  "evidence_results": [
+    {
+      "filename": "Risk_Register.csv",
+      "role": "RISK_REGISTER",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "HR_Active_Worker_Roster.csv",
+      "role": "HR_ACTIVE_WORKER_ROSTER",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Identity_Provider_User_Export.csv",
+      "role": "IDENTITY_PROVIDER_EXPORT",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Privileged_Account_Inventory.csv",
+      "role": "PRIVILEGED_ACCOUNT_INVENTORY",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Q3_Access_Review.xlsx",
+      "role": "USER_ACCESS_REVIEW",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Termination_Report.csv",
+      "role": "TERMINATION_REPORT",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Production_Change_Tickets.csv",
+      "role": "PRODUCTION_CHANGE_TICKETS",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Log_Source_Coverage.csv",
+      "role": "SECURITY_LOG_COVERAGE",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Security_Alert_Triage.csv",
+      "role": "SECURITY_ALERT_TRIAGE",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Vulnerability_Remediation_Tracker.xlsx",
+      "role": "VULNERABILITY_REMEDIATION",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Firewall_Rule_Export.csv",
+      "role": "FIREWALL_RULE_EXPORT",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Disk_Encryption_Report.csv",
+      "role": "DISK_ENCRYPTION_REPORT",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "EDR_Coverage_Report.csv",
+      "role": "ENDPOINT_PROTECTION_COVERAGE",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Asset_Inventory.csv",
+      "role": "ASSET_INVENTORY",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Badge_Access_Review.csv",
+      "role": "PHYSICAL_ACCESS_REVIEW",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Physical_Access_Roster.xlsx",
+      "role": "PHYSICAL_ACCESS_ROSTER",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Visitor_Log.csv",
+      "role": "VISITOR_LOG",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Vendor_Inventory.csv",
+      "role": "VENDOR_INVENTORY",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Backup_Job_Report.csv",
+      "role": "BACKUP_JOB_REPORT",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Background_Check_Tracking.csv",
+      "role": "BACKGROUND_CHECK_TRACKING",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Onboarding_Offboarding_Records.xlsx",
+      "role": "WORKER_LIFECYCLE_RECORD",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Security_Awareness_Training.csv",
+      "role": "SECURITY_AWARENESS_TRAINING",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Data_Deletion_Records.csv",
+      "role": "DATA_DELETION_RECORD",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "Data_Inventory.csv",
+      "role": "DATA_INVENTORY",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Capacity_Monitoring.csv",
+      "role": "CAPACITY_MONITORING",
+      "state": "SUPPORTED",
+      "needs_review": false
+    },
+    {
+      "filename": "Uptime_Report.csv",
+      "role": "UPTIME_REPORT",
+      "state": "NEEDS_REVIEW",
+      "needs_review": true
+    },
+    {
+      "filename": "MANIFEST.csv",
+      "role": "UNCLASSIFIED",
+      "state": "MISSING",
+      "needs_review": true
+    }
+  ],
+  "cross_artifact_findings": [
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'legacy-app-02' is present in ASSET_INVENTORY but has no exact/normalized match in ENDPOINT_PROTECTION_COVERAGE. This is a coverage observation, not a control failure.",
+      "provenance": [
+        {
+          "filename": "Asset_Inventory.csv",
+          "locator": "B4",
+          "excerpt": "legacy-app-02"
+        }
+      ]
+    },
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'old-worker-01' is present in ASSET_INVENTORY but has no exact/normalized match in ENDPOINT_PROTECTION_COVERAGE. This is a coverage observation, not a control failure.",
+      "provenance": [
+        {
+          "filename": "Asset_Inventory.csv",
+          "locator": "B5",
+          "excerpt": "old-worker-01"
+        }
+      ]
+    },
+    {
+      "code": "COVERAGE-GAP",
+      "state": "NEEDS_REVIEW",
+      "detail": "'telemetry' is present in DATA_INVENTORY but has no exact/normalized match in DATA_DELETION_RECORD. This is a coverage observation, not a control failure.",
+      "provenance": [
+        {
+          "filename": "Data_Inventory.csv",
+          "locator": "A4",
+          "excerpt": "Telemetry"
+        }
+      ]
+    }
+  ],
+  "recovery_findings": [
+    {
+      "code": "OBJECTIVE_NOT_MET",
+      "state": "NEEDS_REVIEW",
+      "detail": "reporting: observed data loss 840m exceeds target RPO 720m.",
+      "provenance": [
+        {
+          "filename": "DR_Test_Results.pdf",
+          "locator": "page 1",
+          "excerpt": "Reporting\n24h\n18h 10m\n12h\n14h\nRPO Miss"
+        },
+        {
+          "filename": "DR_Test_Results.pdf",
+          "locator": "page 1",
+          "excerpt": "Reporting\n24h\n18h 10m\n12h\n14h\nRPO Miss"
+        }
+      ]
+    },
+    {
+      "code": "DR-REMEDIATION-OPEN",
+      "state": "NEEDS_REVIEW",
+      "detail": "DR-118 remains open; obtain closure evidence.",
+      "provenance": [
+        {
+          "filename": "DR_Test_Results.pdf",
+          "locator": "page 1",
+          "excerpt": "Corrective action DR-118 opened for reporting backup frequency; status Open"
+        }
+      ]
+    },
+    {
+      "code": "BACKUP-RESTORE-NOT-PROVEN",
+      "state": "NEEDS_REVIEW",
+      "detail": "Backup runs are evidenced; recoverability is not proven because no restore-test evidence was supplied.",
+      "provenance": [
+        {
+          "filename": "Backup_Job_Report.csv",
+          "locator": "Backup_Job_Report row 2",
+          "excerpt": ""
+        }
+      ]
+    }
+  ]
+}

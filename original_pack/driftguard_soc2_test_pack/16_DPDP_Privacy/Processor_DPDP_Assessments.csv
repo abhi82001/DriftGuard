@@ -1,0 +1,5 @@
+processor,personal_data_processed,contract_has_dpdp_clauses,last_assurance_review,country
+AWS India,Customer PII,Yes,2025-11-10,India
+CRM SaaS Ltd,Customer contact data,Yes,,USA
+SupportDesk Inc,Support tickets,No,,Singapore
+PayGate Pvt Ltd,Payment tokens,Yes,2026-03-22,India

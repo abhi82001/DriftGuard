@@ -1,0 +1,3 @@
+# CP011 — semantic intelligence and reporting
+
+Preserved existing `semantic_fallback` opt-in Python interface, which validates canonical field and exact supporting source text and returns HUMAN_APPROVAL_REQUIRED, never a canonical mutation. Added bounded input and safe provider-failure fallback. No live provider, automatic LLM invocation, external data transfer or new dashboard was added. Existing `/api/evidence-map` retains `mapping` and `intelligence` with organization and technical JSON views. Browser dashboard, reviewer workflow, configured provider timeouts/retries and explicit data-sharing authorization remain integration tasks.

@@ -1,0 +1,1048 @@
+[
+  {
+    "id": "mfa_requirement-01",
+    "group": "mfa_requirement",
+    "text": "Multi-factor authentication is required for production systems.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-02",
+    "group": "mfa_requirement",
+    "text": "MFA must be used by administrators.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-03",
+    "group": "mfa_requirement",
+    "text": "Two-factor authentication is mandatory for VPN access.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-04",
+    "group": "mfa_requirement",
+    "text": "2FA is required for the cloud management console.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-05",
+    "group": "mfa_requirement",
+    "text": "A second authentication factor is required for employees.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-06",
+    "group": "mfa_requirement",
+    "text": "Multi factor authentication shall be required for production systems.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-07",
+    "group": "mfa_requirement",
+    "text": "MFA is compulsory for administrative access.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-08",
+    "group": "mfa_requirement",
+    "text": "All workforce users are required to use MFA.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-09",
+    "group": "mfa_requirement",
+    "text": "MFA enforcement is mandatory for remote access.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-10",
+    "group": "mfa_requirement",
+    "text": "Two factor authentication must be enabled for privileged users.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_config-01",
+    "group": "mfa_config",
+    "text": "MFA is enabled in the identity provider configuration.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-02",
+    "group": "mfa_config",
+    "text": "Multi-factor authentication is enforced by conditional access.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-03",
+    "group": "mfa_config",
+    "text": "2FA setting is active for the production console.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-04",
+    "group": "mfa_config",
+    "text": "Two-factor authentication policy assignment is enabled.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-05",
+    "group": "mfa_config",
+    "text": "MFA configuration export shows enforced state.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-06",
+    "group": "mfa_config",
+    "text": "Multi factor authentication is active in the identity provider.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-07",
+    "group": "mfa_config",
+    "text": "MFA conditional access policy is enforced.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-08",
+    "group": "mfa_config",
+    "text": "Second factor authentication setting is enabled.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-09",
+    "group": "mfa_config",
+    "text": "MFA configuration state: enabled.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "mfa_config-10",
+    "group": "mfa_config",
+    "text": "Two factor authentication enforcement is active.",
+    "filename": "evidence.txt",
+    "expected": {
+      "mfa.enforcement_evidence": true
+    }
+  },
+  {
+    "id": "access_review-01",
+    "group": "access_review",
+    "text": "Quarterly access reviews cover employees and contractors.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-02",
+    "group": "access_review",
+    "text": "User access recertification is performed annually for employees.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "annually"
+    }
+  },
+  {
+    "id": "access_review-03",
+    "group": "access_review",
+    "text": "Entitlement reviews are completed monthly for contractors.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "monthly"
+    }
+  },
+  {
+    "id": "access_review-04",
+    "group": "access_review",
+    "text": "Access certification covers service accounts and shared accounts.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.populations": [
+        "service accounts",
+        "shared accounts"
+      ]
+    }
+  },
+  {
+    "id": "access_review-05",
+    "group": "access_review",
+    "text": "User entitlement review covers privileged accounts and employees.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.populations": [
+        "employees",
+        "privileged accounts"
+      ]
+    }
+  },
+  {
+    "id": "access_review-06",
+    "group": "access_review",
+    "text": "Periodic access review is performed quarterly for workforce users.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-07",
+    "group": "access_review",
+    "text": "Account certification is performed annually for employees.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "annually"
+    }
+  },
+  {
+    "id": "access_review-08",
+    "group": "access_review",
+    "text": "IAM certification campaign reviews employee access quarterly.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-09",
+    "group": "access_review",
+    "text": "Access attestation is performed quarterly for contractors.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-10",
+    "group": "access_review",
+    "text": "Quarterly access review includes service accounts.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "termination-01",
+    "group": "termination",
+    "text": "Terminated employees have access disabled within 24 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-02",
+    "group": "termination",
+    "text": "Offboarding requires account deprovisioning within 1 business day.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-03",
+    "group": "termination",
+    "text": "User access is revoked within 4 hours of separation.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-04",
+    "group": "termination",
+    "text": "Accounts are disabled within 24 hours after employee departure.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-05",
+    "group": "termination",
+    "text": "Termination access removal must occur within 8 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-06",
+    "group": "termination",
+    "text": "Leavers are deactivated within 1 business day of their last working day.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-07",
+    "group": "termination",
+    "text": "Access is revoked within 24 hours of employment termination.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-08",
+    "group": "termination",
+    "text": "Off-boarded users are disabled within 12 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-09",
+    "group": "termination",
+    "text": "Upon separation, user accounts are deactivated within 1 calendar day.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-10",
+    "group": "termination",
+    "text": "Employee departure triggers deprovisioning within 24 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "privileged-01",
+    "group": "privileged",
+    "text": "Privileged access is restricted to authorized personnel.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_restricted": "restricted to authorized personnel"
+    }
+  },
+  {
+    "id": "privileged-02",
+    "group": "privileged",
+    "text": "Administrative access uses just-in-time elevation.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-03",
+    "group": "privileged",
+    "text": "Admin privileges are time-bound and reviewed quarterly.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privileged_review_cadence": "quarterly"
+    }
+  },
+  {
+    "id": "privileged-04",
+    "group": "privileged",
+    "text": "Root access is limited to approved personnel.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_restricted": "restricted to authorized personnel"
+    }
+  },
+  {
+    "id": "privileged-05",
+    "group": "privileged",
+    "text": "Privileged accounts use temporary elevation.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-06",
+    "group": "privileged",
+    "text": "Administrative privileges are reviewed monthly.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privileged_review_cadence": "monthly"
+    }
+  },
+  {
+    "id": "privileged-07",
+    "group": "privileged",
+    "text": "Elevated access is restricted under least privilege.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_restricted": "restricted to authorized personnel"
+    }
+  },
+  {
+    "id": "privileged-08",
+    "group": "privileged",
+    "text": "Privileged access uses JIT elevation.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-09",
+    "group": "privileged",
+    "text": "Administrator access is time-limited.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-10",
+    "group": "privileged",
+    "text": "Privileged account review occurs annually.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privileged_review_cadence": "annually"
+    }
+  },
+  {
+    "id": "encryption_rest-01",
+    "group": "encryption_rest",
+    "text": "Databases are encrypted at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-02",
+    "group": "encryption_rest",
+    "text": "Storage volumes use encryption at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-03",
+    "group": "encryption_rest",
+    "text": "Production database encryption is enabled.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-04",
+    "group": "encryption_rest",
+    "text": "Object storage buckets are encrypted at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-05",
+    "group": "encryption_rest",
+    "text": "Database snapshots are encrypted at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-06",
+    "group": "encryption_rest",
+    "text": "Encryption at rest is required for storage.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-07",
+    "group": "encryption_rest",
+    "text": "KMS protects encrypted database storage.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-08",
+    "group": "encryption_rest",
+    "text": "Customer-managed keys protect encrypted volumes.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-09",
+    "group": "encryption_rest",
+    "text": "At-rest encryption is enabled for databases.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-10",
+    "group": "encryption_rest",
+    "text": "Storage encryption is active for production volumes.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "transport-01",
+    "group": "transport",
+    "text": "TLS is required for data in transit.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-02",
+    "group": "transport",
+    "text": "HTTPS is mandatory for production services.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-03",
+    "group": "transport",
+    "text": "Transport encryption is required for external connections.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-04",
+    "group": "transport",
+    "text": "Encrypted transport must be used for APIs.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-05",
+    "group": "transport",
+    "text": "Mutual TLS is required for service communication.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-06",
+    "group": "transport",
+    "text": "TLS 1.2 or higher is required for network traffic.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-07",
+    "group": "transport",
+    "text": "In-transit encryption is mandatory.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-08",
+    "group": "transport",
+    "text": "HTTPS is enforced for the management console.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-09",
+    "group": "transport",
+    "text": "Transport security requires TLS.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-10",
+    "group": "transport",
+    "text": "All external traffic uses encrypted transport.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "negative-01",
+    "group": "negative",
+    "text": "The policy mentions access but does not describe a review.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-02",
+    "group": "negative",
+    "text": "The team discussed MFA during a meeting.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-03",
+    "group": "negative",
+    "text": "A termination policy document exists.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-04",
+    "group": "negative",
+    "text": "Administrators attended security training.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-05",
+    "group": "negative",
+    "text": "The database inventory was updated yesterday.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-06",
+    "group": "negative",
+    "text": "TLS is an acronym used by the networking team.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-07",
+    "group": "negative",
+    "text": "The access review template is attached but has not been completed.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-08",
+    "group": "negative",
+    "text": "MFA may be considered in the future.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-09",
+    "group": "negative",
+    "text": "Termination tickets are stored in the HR system.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-10",
+    "group": "negative",
+    "text": "Privileged is a classification label in this spreadsheet.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-11",
+    "group": "negative",
+    "text": "Encryption documentation is under review.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-12",
+    "group": "negative",
+    "text": "HTTPS documentation was referenced in the ticket.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-13",
+    "group": "negative",
+    "text": "Access review policy is pending approval.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-14",
+    "group": "negative",
+    "text": "MFA requirement has not been approved.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-15",
+    "group": "negative",
+    "text": "No evidence was provided that MFA is enabled.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-16",
+    "group": "negative",
+    "text": "No evidence confirms terminated accounts were disabled.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-17",
+    "group": "negative",
+    "text": "No completed access review was provided.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-18",
+    "group": "negative",
+    "text": "Encryption at rest is not enabled.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-19",
+    "group": "negative",
+    "text": "TLS is not enforced on this endpoint.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "negative-20",
+    "group": "negative",
+    "text": "Privileged access review was not performed.",
+    "filename": "evidence.txt",
+    "expected": {}
+  },
+  {
+    "id": "mfa_requirement-11",
+    "group": "mfa_requirement",
+    "text": "MFA shall be enforced for workforce access.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-12",
+    "group": "mfa_requirement",
+    "text": "Second-factor authentication is compulsory for admin access.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-13",
+    "group": "mfa_requirement",
+    "text": "Two factor authentication is required for remote VPN users.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-14",
+    "group": "mfa_requirement",
+    "text": "Multi-factor authentication must protect production consoles.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "mfa_requirement-15",
+    "group": "mfa_requirement",
+    "text": "2FA shall be mandatory for administrators.",
+    "filename": "policy.txt",
+    "expected": {
+      "mfa.requirement": "required"
+    }
+  },
+  {
+    "id": "access_review-11",
+    "group": "access_review",
+    "text": "Access recertification for employees is performed quarterly.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-12",
+    "group": "access_review",
+    "text": "Entitlement certification for contractors occurs annually.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "annually"
+    }
+  },
+  {
+    "id": "access_review-13",
+    "group": "access_review",
+    "text": "User access attestation covers employees and contractors quarterly.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-14",
+    "group": "access_review",
+    "text": "Quarterly account access review covers service accounts.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "quarterly"
+    }
+  },
+  {
+    "id": "access_review-15",
+    "group": "access_review",
+    "text": "Access certification for employees is performed monthly.",
+    "filename": "policy.txt",
+    "expected": {
+      "access_review.cadence": "monthly"
+    }
+  },
+  {
+    "id": "termination-11",
+    "group": "termination",
+    "text": "Leaver accounts are deactivated within 24 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-12",
+    "group": "termination",
+    "text": "Accounts are deactivated within 8 hours of the last working day.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-13",
+    "group": "termination",
+    "text": "Off boarding requires access revoked within 4 hours.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-14",
+    "group": "termination",
+    "text": "Departing employees are disabled within 1 calendar day.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "termination-15",
+    "group": "termination",
+    "text": "Separation triggers deprovisioning within 2 business days.",
+    "filename": "policy.txt",
+    "expected": {
+      "termination.revocation_timeframe": null
+    }
+  },
+  {
+    "id": "privileged-11",
+    "group": "privileged",
+    "text": "Privileged elevation is just-in-time.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-12",
+    "group": "privileged",
+    "text": "Administrative elevation is temporary and time-bound.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_model": "time-bounded / just-in-time"
+    }
+  },
+  {
+    "id": "privileged-13",
+    "group": "privileged",
+    "text": "Admin access is restricted to approved personnel.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_restricted": "restricted to authorized personnel"
+    }
+  },
+  {
+    "id": "privileged-14",
+    "group": "privileged",
+    "text": "Privileged accounts are reviewed quarterly.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privileged_review_cadence": "quarterly"
+    }
+  },
+  {
+    "id": "privileged-15",
+    "group": "privileged",
+    "text": "Root access is limited under least privilege.",
+    "filename": "policy.txt",
+    "expected": {
+      "privileged_access.privilege_restricted": "restricted to authorized personnel"
+    }
+  },
+  {
+    "id": "encryption_rest-11",
+    "group": "encryption_rest",
+    "text": "Production storage is encrypted at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-12",
+    "group": "encryption_rest",
+    "text": "Database volumes are encrypted at rest.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-13",
+    "group": "encryption_rest",
+    "text": "At rest, database storage is encrypted.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-14",
+    "group": "encryption_rest",
+    "text": "Bucket encryption at rest is required.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "encryption_rest-15",
+    "group": "encryption_rest",
+    "text": "Encrypted storage volumes are protected with KMS.",
+    "filename": "policy.txt",
+    "expected": {
+      "encryption_at_rest.rest_requirement": "storage encrypted at rest"
+    }
+  },
+  {
+    "id": "transport-11",
+    "group": "transport",
+    "text": "TLS is mandatory for API traffic.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-12",
+    "group": "transport",
+    "text": "HTTPS must be used for external services.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-13",
+    "group": "transport",
+    "text": "Mutual TLS shall be required between services.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-14",
+    "group": "transport",
+    "text": "All API traffic uses encrypted transport.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  },
+  {
+    "id": "transport-15",
+    "group": "transport",
+    "text": "In-transit encryption must be enforced.",
+    "filename": "policy.txt",
+    "expected": {
+      "transport_encryption.transport_requirement": "encrypted transport required"
+    }
+  }
+]

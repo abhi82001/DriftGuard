@@ -1,0 +1,26 @@
+{
+  "captured_at": "2026-10-01T09:00:00Z",
+  "security_groups": [
+    {
+      "id": "sg-web",
+      "inbound": [
+        {
+          "proto": "tcp",
+          "port": 443,
+          "source": "0.0.0.0/0"
+        }
+      ]
+    },
+    {
+      "id": "sg-admin",
+      "inbound": [
+        {
+          "proto": "tcp",
+          "port": 22,
+          "source": "0.0.0.0/0",
+          "note": "temporary migration rule"
+        }
+      ]
+    }
+  ]
+}

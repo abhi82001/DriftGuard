@@ -1,0 +1,4 @@
+Dataset,Classification,System,Owner,Retention,Encryption,Deletion Method
+Customer Profiles,Restricted,prod-db,Product,Contract + 30d,AES-256,Logical delete + backup expiry
+Support Tickets,Confidential,Support SaaS,Support,3 years,Vendor managed,Vendor API delete
+Telemetry,Internal,Analytics,Engineering,13 months,At rest,Lifecycle rule

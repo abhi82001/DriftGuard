@@ -1,0 +1,23 @@
+{
+  "keys": [
+    {
+      "alias": "prod-db-key",
+      "state": "Enabled",
+      "rotation": true,
+      "last_rotated": "2026-05-01",
+      "admins": [
+        "cloud-security"
+      ]
+    },
+    {
+      "alias": "legacy-report-key",
+      "state": "Enabled",
+      "rotation": false,
+      "last_rotated": "2024-11-12",
+      "admins": [
+        "platform-admins",
+        "db-admins"
+      ]
+    }
+  ]
+}

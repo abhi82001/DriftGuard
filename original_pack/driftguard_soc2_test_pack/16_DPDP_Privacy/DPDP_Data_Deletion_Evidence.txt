@@ -1,0 +1,5 @@
+ACME CLOUD INC. - PERSONAL DATA ERASURE EVIDENCE (Q2 2026)
+Erasure batch ER-2026-Q2 processed 2026-06-30 for 412 data principals whose purpose had lapsed.
+Cloud object data was erased by scheduling destruction of the customer KMS key (key ID alias/dp-prod-2024).
+Database rows were deleted; backup copies remain in the daily backup set for 30 days.
+No erasure verification report has been produced for the Q1 2026 batch.

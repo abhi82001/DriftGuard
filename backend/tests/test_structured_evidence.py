@@ -509,14 +509,19 @@ def test_14_real_customer_export_is_read_without_invention():
     for account_identifier in ("aarav.shah", "svc_backup_prod01"):
         assert account_identifier not in populations
 
-    # Four rows record remediation; not one carries a value DriftGuard reads as
-    # a confirmation, so closure evidence is reported as missing rather than as
-    # present because a column exists.
-    assert result.value("remediation_applicable_rows") == 4
+    # Row 6 only carries an ownership-attestation note in the confirmation column;
+    # that alone is not remediation activity. Row 3's timestamp is preserved as
+    # recorded confirmation evidence without being promoted to verified closure.
+    assert result.value("remediation_applicable_rows") == 3
     assert result.value("remediation_confirmed_rows") == 0
+    assert result.value("remediation_recorded_confirmation_rows") == 1
     confirmation = result.check(CHECK_POST_CHANGE)
-    assert confirmation.state == MISSING
-    assert "0 of 4" in confirmation.detail
+    assert confirmation.state == PARTIALLY_SUPPORTED
+    assert "0 of 3" in confirmation.detail
+    assert "1 recorded evidence item(s)" in confirmation.detail
+    assert result.value("remediation_unavailable_confirmation_rows") == 1
+    assert result.value("remediation_missing_confirmation_rows") == 1
+    assert "requires review" in confirmation.detail
     assert "not a control failure" in confirmation.detail
 
     # Every fact keeps its provenance, and nothing asserts a verdict.

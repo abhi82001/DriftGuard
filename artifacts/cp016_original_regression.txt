@@ -1,0 +1,46 @@
+{
+  "files": 52,
+  "ingestion": {
+    "OK": 52
+  },
+  "tabular_qa": {
+    "RISK_REGISTER": 1,
+    "HR_ACTIVE_WORKER_ROSTER": 1,
+    "IDENTITY_PROVIDER_EXPORT": 1,
+    "PRIVILEGED_ACCOUNT_INVENTORY": 1,
+    "USER_ACCESS_REVIEW": 1,
+    "TERMINATION_REPORT": 1,
+    "PRODUCTION_CHANGE_TICKETS": 1,
+    "SECURITY_LOG_COVERAGE": 1,
+    "SECURITY_ALERT_TRIAGE": 1,
+    "VULNERABILITY_REMEDIATION": 1,
+    "FIREWALL_RULE_EXPORT": 1,
+    "DISK_ENCRYPTION_REPORT": 1,
+    "ENDPOINT_PROTECTION_COVERAGE": 1,
+    "ASSET_INVENTORY": 1,
+    "PHYSICAL_ACCESS_REVIEW": 1,
+    "PHYSICAL_ACCESS_ROSTER": 1,
+    "VISITOR_LOG": 1,
+    "VENDOR_INVENTORY": 1,
+    "BACKUP_JOB_REPORT": 1,
+    "BACKGROUND_CHECK_TRACKING": 1,
+    "WORKER_LIFECYCLE_RECORD": 1,
+    "SECURITY_AWARENESS_TRAINING": 1,
+    "DATA_DELETION_RECORD": 1,
+    "DATA_INVENTORY": 1,
+    "CAPACITY_MONITORING": 1,
+    "UPTIME_REPORT": 1
+  },
+  "questionnaire_counts": {
+    "documents_analyzed": 52,
+    "established": 0,
+    "partially_established": 8,
+    "missing_evidence": 17,
+    "clarification_required": 3,
+    "conflict": 1,
+    "not_evaluated": 0
+  },
+  "claims": 17,
+  "established": [],
+  "note": "Offline diagnostic across the entire pack. Web upload is bounded to 10 files per request. These are preliminary deterministic claims, not an audit opinion."
+}

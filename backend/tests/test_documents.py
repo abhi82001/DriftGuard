@@ -273,7 +273,7 @@ def test_11_established_facts_are_not_re_asked():
     assert "most recent completed review" in cadence_request.prompt
 
 
-TEST_TXT_FILE = "test.txt"
+TEST_TXT_FILE = "Access_Review_Policy.txt"
 TEST_TXT = (
     b"User access to production systems must be reviewed quarterly. "
     b"Reviews include employees, contractors, privileged accounts, and service accounts. "
@@ -367,9 +367,8 @@ def test_9_extraction_formats_and_bad_files():
     ])
     status, _, location = _call("POST", "/analyze", body=body,
                                 content_type=f"multipart/form-data; boundary={boundary}")
-    assert status == 303
-    status, text, _ = _call("GET", location)
-    assert status == 200 and "unsupported file type" in text
+    # CP012: reject unsupported uploads at the HTTP boundary before assessment creation.
+    assert status == 415
 
 
 TESTS = [

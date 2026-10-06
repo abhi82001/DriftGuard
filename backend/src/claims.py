@@ -30,6 +30,9 @@ class SecurityClaim:
     snippet: str
     evidence_nature: str
     attributes: dict = field(default_factory=dict)
+    extraction_method: str = "deterministic-local"
+    artifact_type: str = "UNKNOWN"
+    evidence_date: str = ""
 
 
 class ClaimExtractor(Protocol):
@@ -37,8 +40,8 @@ class ClaimExtractor(Protocol):
         ...
 
 
-_MFA = re.compile(r"\b(multi[- ]?factor|mfa|two[- ]?factor|2fa|second (authentication )?factor)\b", re.I)
-_REQUIRE = re.compile(r"\b(require[sd]?|enforce[sd]?|enforcement|mandatory|must)\b", re.I)
+_MFA = re.compile(r"\b(multi[- ]?factor|mfa|two[- ]?factor|2fa|second[- ](?:authentication[- ]?)?factor)\b", re.I)
+_REQUIRE = re.compile(r"\b(require[sd]?|enforce[sd]?|enforcement|mandatory|must|shall|compulsory)\b", re.I)
 _SCOPE = {
     "production": "production systems",
     "identity provider": "identity provider",
@@ -49,8 +52,8 @@ _SCOPE = {
     "admin": "administrators",
 }
 _REVIEW = re.compile(
-    r"(?:\b(?:access|entitlement)\w*\b[^.]{0,80}\breview)"
-    r"|(?:\breview\w*\b[^.]{0,80}\b(?:access|entitlement|employee|contractor|"
+    r"(?:\b(?:access|entitlement|account|user)\w*\b[^.]{0,80}\b(?:review|recertification|certification|attestation))"
+    r"|(?:\b(?:review\w*|recertification|certification|attestation|certification campaign)\b[^.]{0,80}\b(?:access|entitlement|employee|contractor|"
     r"service account|privileged account|shared account))",
     re.I,
 )
@@ -65,8 +68,8 @@ _POPULATIONS = ("employees", "contractors", "service accounts", "shared accounts
                 "administrative accounts", "administrators")
 _DATE = re.compile(r"\b(20\d{2}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/20\d{2})\b")
 _LATEST = re.compile(r"\b(review[ _-]?date|reviewed on|review completed|completed on|last review)\b", re.I)
-_REMOVAL = re.compile(r"\b(removed|revoked|deprovision(?:ed|ing)?|disabled)\b", re.I)
-_TERMINATION = re.compile(r"\b(terminat\w+|offboard\w+|separation|departure)\b", re.I)
+_REMOVAL = re.compile(r"\b(removed|revoked|deprovision(?:ed|ing)?|disabled|deactivat(?:e|ed|ion))\b", re.I)
+_TERMINATION = re.compile(r"\b(terminat\w+|off[- ]?board(?:ing|ed)?|separation|depart\w*|leaver\w*|last working day)\b", re.I)
 _TIMEFRAME = re.compile(r"\bwithin (\d+) (hours?|business days?|calendar days?|days?)\b", re.I)
 _PRIVILEGED = re.compile(r"\b(privileged|administrative|administrator|admin|root|elevated)\b", re.I)
 _JIT = re.compile(r"\b(just[- ]in[- ]time|jit|time[- ]bound(?:ed)?|time[- ]limited|temporary elevation)\b", re.I)
@@ -76,19 +79,31 @@ _RESTRICTED = re.compile(r"\b(restricted|limited|authorized personnel|approved p
 _REVIEWED = re.compile(r"\breview(?:ed|s|ing)?\b", re.I)
 _AT_REST = re.compile(r"\b(encrypt\w*)\b[^.]{0,60}\b(at rest|database|databases|storage|volume|bucket|snapshot)s?\b|\b(at rest|database|databases|storage|volume|bucket)s?\b[^.]{0,60}\b(encrypt\w*)\b", re.I)
 _KEY_MGMT = re.compile(r"\b(kms|key management|key custody|customer[- ]managed key|key rotation)\b", re.I)
-_TRANSPORT = re.compile(r"\b(tls|https|in transit|encrypted transport|transport encryption|transport security|mutual tls)\b", re.I)
+_TRANSPORT = re.compile(r"\b(tls|https|in[- ]transit|encrypted transport|transport encryption|transport security|mutual tls)\b", re.I)
 _VERIFIED = re.compile(r"\b(verified|validated|scan\w*|test result|handshake|certificate report)\b", re.I)
 _ENFORCED_VALUE = re.compile(r"\b(enabled|enforced|active|true|compliant_state)\b", re.I)
 _CONFIG = re.compile(r"\b(configuration|config|export|setting|conditional access|policy assignment)\b", re.I)
+_NEGATED_EVIDENCE = re.compile(
+    r"\b(no evidence|not (?:enabled|enforced|performed|completed|implemented|verified)|"
+    r"has not been|have not been|was not|were not|pending approval|not approved)\b", re.I)
 
 
 def _nature(document: Document, text: str) -> str:
     if document.kind == "policy":
         return "PROCEDURE" if "procedure" in document.filename.lower() else "POLICY"
+    # Evidence nature must not be inferred from an incidental date or the word
+    # "open"/"enabled" in an unrelated risk, inventory or deletion record.
+    name = document.filename.lower()
+    if any(token in name for token in ("risk_register", "risk-register", "risk register")):
+        return "RISK_REGISTER"
+    if any(token in name for token in ("access_review", "access-review", "access certification", "recertification")):
+        return "OPERATING_EVIDENCE"
+    if any(token in name for token in ("mfa_config", "mfa_configuration", "idp_mfa_configuration", "conditional_access")):
+        return "CONFIGURATION"
+    if any(token in name for token in ("data_inventory", "deletion_record", "data_deletion")):
+        return "OTHER_RECORD"
     if _CONFIG.search(text) or _ENFORCED_VALUE.search(text):
         return "CONFIGURATION"
-    if _DATE.search(text):
-        return "RECORD"
     return "UNKNOWN"
 
 
@@ -132,25 +147,32 @@ class DemoClaimExtractor:
 
     @staticmethod
     def _rules(text: str, nature: str) -> list[tuple[str, dict]]:
+        # A risk treatment or unrelated inventory row can mention MFA/access
+        # reviews, but is not evidence for the narrow access/crypto claim
+        # contracts implemented here. Do not generate even a clarification
+        # from incidental cross-domain terminology.
+        if nature in {"RISK_REGISTER", "OTHER_RECORD"}:
+            return []
         low = text.lower()
         operating = nature in OPERATING_NATURES
+        negated = bool(_NEGATED_EVIDENCE.search(text))
         out: list[tuple[str, dict]] = []
 
         if _MFA.search(text):
             attrs: dict = {}
-            if _REQUIRE.search(text):
+            if _REQUIRE.search(text) and not negated:
                 attrs["requirement"] = "required"
             scope = sorted({label for key, label in _SCOPE.items() if key in low})
             if scope:
                 attrs["scope"] = scope
-            if operating and _ENFORCED_VALUE.search(text):
+            if operating and _ENFORCED_VALUE.search(text) and not negated:
                 attrs["enforcement_evidence"] = True
             out.append(("mfa", attrs))
 
         # A privileged-only review sentence belongs to privileged_access, not to
         # the general user access review.
         privileged_only = _PRIVILEGED.search(text) and not _USER_POPULATION.search(text)
-        if _REVIEW.search(text) and not privileged_only:
+        if _REVIEW.search(text) and not privileged_only and not negated and nature != "RISK_REGISTER":
             attrs = {}
             cadence = _CADENCE.search(text)
             if cadence:
@@ -158,14 +180,23 @@ class DemoClaimExtractor:
             pops = [p for p in _POPULATIONS if p in low]
             if pops:
                 attrs["populations"] = pops
-            if operating and (_LATEST.search(text) or _DATE.search(text)):
-                date = _DATE.search(text)
-                attrs["latest_review"] = date.group(1) if date else True
+            # Only an explicit completion statement in an access-review artifact
+            # can establish a completed campaign. A generic row date (including
+            # a risk register's review date) is never a completed access review.
+            completed = re.search(
+                r"\b(?:access|user|entitlement) review\b.{0,55}\b(?:completed|closed|certified)\b"
+                r"|\b(?:completed|closed|certified)\b.{0,55}\b(?:access|user|entitlement) review\b",
+                text, re.I,
+            )
+            if operating and completed and _DATE.search(text):
+                attrs["latest_review"] = _DATE.search(text).group(1)
+            if operating and completed and pops:
+                attrs["reviewed_populations"] = pops
             if operating and _REMOVAL.search(text):
                 attrs["removal_evidence"] = True
             out.append(("access_review", attrs))
 
-        if _TERMINATION.search(text):
+        if _TERMINATION.search(text) and not negated:
             attrs = {}
             timeframe = _TIMEFRAME.search(text)
             if timeframe:
@@ -174,7 +205,7 @@ class DemoClaimExtractor:
                 attrs["revocation_evidence"] = True
             out.append(("termination", attrs))
 
-        if _PRIVILEGED.search(text):
+        if _PRIVILEGED.search(text) and not negated:
             attrs = {}
             if _JIT.search(text):
                 attrs["privilege_model"] = "time-bounded / just-in-time"
@@ -189,15 +220,21 @@ class DemoClaimExtractor:
                 attrs["privileged_review_evidence"] = True
             out.append(("privileged_access", attrs))
 
-        if _AT_REST.search(text):
+        if _AT_REST.search(text) and not negated:
             attrs = {"rest_requirement": "storage encrypted at rest"}
             if operating and (_CONFIG.search(text) or _ENFORCED_VALUE.search(text)
                               or _KEY_MGMT.search(text)):
                 attrs["rest_config_evidence"] = True
             out.append(("encryption_at_rest", attrs))
 
-        if _TRANSPORT.search(text):
-            attrs = {"transport_requirement": "encrypted transport required"}
+        if _TRANSPORT.search(text) and not negated:
+            attrs = {}
+            # A bare mention of TLS/HTTPS is not a requirement.  Require
+            # normative language or a declarative policy statement that the
+            # transport is actually used.
+            if (_REQUIRE.search(text) or re.search(
+                    r"\b(?:uses?|using|all .* traffic .* encrypted transport)\b", text, re.I)):
+                attrs["transport_requirement"] = "encrypted transport required"
             if operating and (_VERIFIED.search(text) or _CONFIG.search(text)
                               or _ENFORCED_VALUE.search(text)):
                 attrs["transport_config_evidence"] = True

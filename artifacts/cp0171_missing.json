@@ -1,0 +1,224 @@
+{
+  "files_supplied": 1,
+  "files_processed": 1,
+  "files_rejected": 0,
+  "errors": [],
+  "semantic_status": "NEEDS_REVIEW",
+  "questionnaire_counts": {
+    "documents_analyzed": 1,
+    "established": 0,
+    "partially_established": 0,
+    "missing_evidence": 29,
+    "clarification_required": 0,
+    "conflict": 0,
+    "not_evaluated": 0
+  },
+  "questionnaire_results": [
+    {
+      "question_id": "QN-ACCESS-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q06",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q08",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q09",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q10",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-ACCESS-001-Q11",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-NETSEC-001-Q06",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q06",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-OPS-001-Q07",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q01",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q02",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q03",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q04",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    },
+    {
+      "question_id": "QN-PHYSEC-001-Q05",
+      "status": "NOT_ESTABLISHED",
+      "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+      "missing_facts": [],
+      "provenance": []
+    }
+  ],
+  "evidence_results": [],
+  "cross_artifact_findings": [],
+  "recovery_findings": []
+}

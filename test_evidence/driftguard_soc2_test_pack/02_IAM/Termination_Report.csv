@@ -1,0 +1,4 @@
+Employee,Worker Type,Termination Effective,IAM Case,Expected SLA Hours,Current IAM Status
+Daniel Cho,Employee,2026-09-26 18:00 UTC,IAM-TERM-8821,24,Enabled
+Nisha Kapoor,Contractor,2026-06-30 17:00 UTC,IAM-TERM-8610,24,Disabled
+Leo Grant,Employee,2026-08-14 12:00 UTC,IAM-TERM-8732,24,Disabled

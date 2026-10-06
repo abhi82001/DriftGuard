@@ -1,0 +1,4 @@
+Worker ID,Worker Type,Start Date,Check Required,Check Completed,Exception
+E1001,Employee,2023-01-16,Yes,2023-01-10,
+E1002,Employee,2024-04-01,Yes,2024-03-25,
+C2007,Contractor,2026-08-01,Yes,,Vendor attestation pending

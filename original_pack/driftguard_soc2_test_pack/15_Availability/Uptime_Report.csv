@@ -1,0 +1,4 @@
+Service,Month,Availability %,SLO %,Major Incidents,Status
+Customer API,2026-07,99.98,99.9,0,Met
+Customer API,2026-08,99.72,99.9,1,Missed
+Customer API,2026-09,99.96,99.9,0,Met

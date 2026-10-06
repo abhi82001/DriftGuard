@@ -1,0 +1,46 @@
+[
+  {
+    "files": 10,
+    "parsed": 10,
+    "errors": 0,
+    "ingestion_s": 0.0001,
+    "structured_qa_s": 0.0,
+    "assessment_s": 0.0107,
+    "reconciliation_s": 0.0001,
+    "total_s": 0.0108,
+    "semantic": "UNAVAILABLE / not executed"
+  },
+  {
+    "files": 25,
+    "parsed": 25,
+    "errors": 0,
+    "ingestion_s": 0.0003,
+    "structured_qa_s": 0.0,
+    "assessment_s": 0.0066,
+    "reconciliation_s": 0.0,
+    "total_s": 0.0069,
+    "semantic": "UNAVAILABLE / not executed"
+  },
+  {
+    "files": 50,
+    "parsed": 50,
+    "errors": 0,
+    "ingestion_s": 0.0002,
+    "structured_qa_s": 0.0,
+    "assessment_s": 0.0122,
+    "reconciliation_s": 0.0,
+    "total_s": 0.0124,
+    "semantic": "UNAVAILABLE / not executed"
+  },
+  {
+    "files": 100,
+    "parsed": 100,
+    "errors": 0,
+    "ingestion_s": 0.0003,
+    "structured_qa_s": 0.0,
+    "assessment_s": 0.025,
+    "reconciliation_s": 0.0,
+    "total_s": 0.0253,
+    "semantic": "UNAVAILABLE / not executed"
+  }
+]
