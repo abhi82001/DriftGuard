@@ -1,7 +1,7 @@
 {
-  "files": 52,
+  "files": 57,
   "ingestion": {
-    "OK": 52
+    "OK": 57
   },
   "tabular_qa": {
     "RISK_REGISTER": 1,
@@ -29,18 +29,21 @@
     "DATA_DELETION_RECORD": 1,
     "DATA_INVENTORY": 1,
     "CAPACITY_MONITORING": 1,
-    "UPTIME_REPORT": 1
+    "UPTIME_REPORT": 1,
+    "PRIVACY_CONSENT_REGISTER": 1,
+    "PRIVACY_RIGHTS_BREACH_LOG": 1,
+    "PRIVACY_PROCESSOR_ASSESSMENT": 1
   },
   "questionnaire_counts": {
-    "documents_analyzed": 52,
+    "documents_analyzed": 57,
     "established": 0,
-    "partially_established": 8,
-    "missing_evidence": 17,
-    "clarification_required": 3,
+    "partially_established": 9,
+    "missing_evidence": 14,
+    "clarification_required": 5,
     "conflict": 1,
     "not_evaluated": 0
   },
-  "claims": 17,
+  "claims": 21,
   "established": [],
   "files_detail": [
     {
@@ -426,6 +429,45 @@
       "qa_type": "UPTIME_REPORT",
       "qa_state": "NEEDS_REVIEW",
       "qa_checks": 2
+    },
+    {
+      "file": "16_DPDP_Privacy\\DPDP_Consent_Register.csv",
+      "bytes": 488,
+      "ingestion": "OK",
+      "chunks": 8,
+      "qa_type": "PRIVACY_CONSENT_REGISTER",
+      "qa_state": "SUPPORTED",
+      "qa_checks": 1
+    },
+    {
+      "file": "16_DPDP_Privacy\\DPDP_Data_Deletion_Evidence.txt",
+      "bytes": 421,
+      "ingestion": "OK",
+      "chunks": 1
+    },
+    {
+      "file": "16_DPDP_Privacy\\DPDP_Data_Protection_Policy.txt",
+      "bytes": 2098,
+      "ingestion": "OK",
+      "chunks": 8
+    },
+    {
+      "file": "16_DPDP_Privacy\\DPDP_Rights_Requests_and_Breach_Log.csv",
+      "bytes": 454,
+      "ingestion": "OK",
+      "chunks": 6,
+      "qa_type": "PRIVACY_RIGHTS_BREACH_LOG",
+      "qa_state": "SUPPORTED",
+      "qa_checks": 1
+    },
+    {
+      "file": "16_DPDP_Privacy\\Processor_DPDP_Assessments.csv",
+      "bytes": 276,
+      "ingestion": "OK",
+      "chunks": 5,
+      "qa_type": "PRIVACY_PROCESSOR_ASSESSMENT",
+      "qa_state": "SUPPORTED",
+      "qa_checks": 1
     },
     {
       "file": "README_TEST_PACK.txt",

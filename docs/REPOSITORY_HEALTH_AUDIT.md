@@ -4,7 +4,7 @@ Baseline (integrated CP009 archive): 119 pytest tests passed, 4 warnings. Warnin
 
 ## Findings and treatment
 
-- HIGH: `/api/evidence-map` and `/analyze` accepted unbounded multipart files into memory, bypassing ingestion's file-count limit. Fixed: bounded reads, 10-file limit, 5 MiB/file, allowlisted extensions, path/filename rejection, PDF signature and Office ZIP structure checks, expanded Office ZIP limit. A reverse proxy must enforce a request-body limit before multipart parsing.
+- HIGH: `/api/evidence-map` and `/analyze` accepted unbounded multipart files into memory, bypassing ingestion's file-count limit. Fixed: bounded reads, 25-file limit, 5 MiB/file, allowlisted extensions, path/filename rejection, PDF signature and Office ZIP structure checks, expanded Office ZIP limit. A reverse proxy must enforce a request-body limit before multipart parsing.
 - HIGH: no production-grade identity, RBAC, tenant isolation or durable secure storage. NOT FIXED: external platform design/approval needed. Do not expose this app to real multi-tenant production evidence.
 - MEDIUM: API lacked even a shared-secret gate. Added optional `DRIFTGUARD_API_KEY` for `/api/evidence-map` as a local/pilot protection layer. It is NOT enterprise authentication; `/analyze` and other HTML routes remain unauthenticated. A trusted gateway must protect the entire application.
 - MEDIUM: optional semantic fallback could propagate provider exceptions. Fixed: bounded proposal input and safe clarification on provider failure. No live LLM connection was added.

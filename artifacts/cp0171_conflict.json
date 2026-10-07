@@ -239,8 +239,8 @@
     {
       "filename": "idp.csv",
       "role": "IDENTITY_PROVIDER_EXPORT",
-      "state": "NEEDS_REVIEW",
-      "needs_review": true
+      "state": "SUPPORTED",
+      "needs_review": false
     }
   ],
   "cross_artifact_findings": [

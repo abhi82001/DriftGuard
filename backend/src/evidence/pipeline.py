@@ -30,7 +30,8 @@ from .model import (
 )
 from .tabular import TabularError, is_tabular, read_tabular
 from .validation import validate_user_access_review
-from .structured_registry import recognize, analyze_register
+from .structured_registry import SCHEMAS, recognize, analyze_register
+from .operational_registers import analyze_operational, recognize_operational
 
 VALIDATORS = {USER_ACCESS_REVIEW: validate_user_access_review}
 
@@ -57,6 +58,12 @@ def analyze_evidence_file(
 
     classification = classify(workbook)
     if not classification.supported:
+        # Exact register schemas stay authoritative; operational exports are matched
+        # by header synonyms only when no exact schema fits.
+        exact = any(set(sp.required) <= set(sh.headers) for sh in workbook.sheets for sp in SCHEMAS)
+        operational = None if exact else recognize_operational(workbook)
+        if operational is not None:
+            return analyze_operational(workbook, operational[0], operational[1], as_of=as_of)
         register = recognize(workbook)
         if register is not None:
             spec, sheet = register

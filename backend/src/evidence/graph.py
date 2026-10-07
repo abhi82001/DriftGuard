@@ -59,6 +59,8 @@ RELATIONSHIPS = (
  ('asset inventory ↔ disk encryption','ASSET_INVENTORY','DISK_ENCRYPTION_REPORT',(('asset id','asset','hostname','device'),),'COVERS'),
  ('asset inventory ↔ vulnerability scan','ASSET_INVENTORY','VULNERABILITY_REMEDIATION',(('asset id','asset','hostname','device','system'),),'COVERS'),
  ('data inventory ↔ deletion records','DATA_INVENTORY','DATA_DELETION_RECORD',(('dataset',),),'CONFIRMS'),
+ ('data inventory ↔ consent register','DATA_INVENTORY','PRIVACY_CONSENT_REGISTER',(('dataset','principal id'),),'GOVERNED_BY'),
+ ('vendor ↔ privacy processor assessment','VENDOR_INVENTORY','PRIVACY_PROCESSOR_ASSESSMENT',(('vendor','processor'),),'ASSESSED_BY'),
  ('firewall baseline ↔ firewall export','FIREWALL_BASELINE','FIREWALL_RULE_EXPORT',(('rule id','rule'),),'IMPLEMENTS'),
  ('vulnerability ↔ remediation ticket','VULNERABILITY_REMEDIATION','PRODUCTION_CHANGE_TICKETS',(('ticket','ticket id','change','remediation ticket'),),'REMEDIATED_BY'),
  ('incident ↔ postmortem','INCIDENT_RECORD','INCIDENT_POSTMORTEM',(('incident','incident id'),),'CONFIRMS'),

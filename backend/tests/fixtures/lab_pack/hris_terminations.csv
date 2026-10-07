@@ -1,0 +1,9 @@
+employee_id,email,employment_status,termination_date
+u001,ben.lee1@example-lab.test,TERMINATED,2025-04-30
+u007,hana.reyes7@example-lab.test,TERMINATED,2025-09-12
+u008,ivan.cole8@example-lab.test,TERMINATED,2025-05-28
+u014,omar.khan14@example-lab.test,TERMINATED,2025-09-24
+u015,pia.novak15@example-lab.test,TERMINATED,2025-07-17
+u017,sam.reyes17@example-lab.test,TERMINATED,2025-05-16
+u040,pia.shah40@example-lab.test,TERMINATED,2025-03-18
+u047,xin.reyes47@example-lab.test,TERMINATED,2025-09-08

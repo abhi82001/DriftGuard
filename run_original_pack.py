@@ -36,7 +36,7 @@ def run(pack: Path):
               'questionnaire_counts': assessment.counts, 'claims': len(assessment.claims),
               'established': [{'question': a.question_id, 'sources': [f.source_file + ':' + f.source_locator for f in a.known_facts]} for a in assessment.areas if a.status == 'ESTABLISHED'],
               'files_detail': results,
-              'note': 'Offline diagnostic across the entire pack. Web upload is bounded to 10 files per request. These are preliminary deterministic claims, not an audit opinion.'}
+              'note': 'Offline diagnostic across the entire pack. Web upload is bounded to 25 files per request. These are preliminary deterministic claims, not an audit opinion.'}
     (ROOT / 'ORIGINAL_PACK_RUN_RESULTS.json').write_text(json.dumps(report, indent=2))
     print(json.dumps({k:v for k,v in report.items() if k != 'files_detail'}, indent=2))
     return report

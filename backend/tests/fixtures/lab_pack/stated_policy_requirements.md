@@ -1,0 +1,13 @@
+# Example-Lab Security Policy (SYNTHETIC)
+- Audit period 2025-01-01..2025-12-31
+- MFA required for all users
+- Terminated users deprovisioned within 1 day
+- Accounts inactive >90 days disabled
+- Privileged users must be approved by CISO
+- Quarterly access review must cover 100% of users; revoke decisions remediated
+- All changes need independent approval before deploy, passing CI
+- Vulnerability SLAs: Critical 15d, High 30d, Medium 90d, Low 180d
+- Daily backups, failures retried
+- Every incident needs a postmortem
+- Vendors reassessed every 12 months
+- Annual security training for all staff

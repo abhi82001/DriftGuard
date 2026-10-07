@@ -1,0 +1,5 @@
+employee_id,email,approved_by,approved_date
+u000,ava.shah0@example-lab.test,ciso@example-lab.test,2025-01-10
+u001,ben.lee1@example-lab.test,ciso@example-lab.test,2025-01-10
+u002,chen.park2@example-lab.test,ciso@example-lab.test,2025-01-10
+u003,dev.ortiz3@example-lab.test,ciso@example-lab.test,2025-01-10

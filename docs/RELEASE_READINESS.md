@@ -1,23 +1,29 @@
 # DriftGuard release readiness
 
-**Status: ready for thorough LOCAL / SYNTHETIC testing; NOT approved for real multi-tenant enterprise deployment.**
+**Status: strong LOCAL / SYNTHETIC development baseline; NOT approved for real multi-tenant enterprise deployment.**
 
-## Verified
-- Existing CP009 pipeline preserved; full available pytest suite 128 passed with warnings as errors.
-- Knowledge JSON validator 0 errors and 0 warnings; Python compilation succeeds.
-- Safer upload boundary, optional API key for one JSON endpoint, semantic provider exception isolation.
+For the authoritative current test and acceptance baseline, see `docs/CURRENT_BASELINE.md`.
 
-## Business-rule blockers
-- Only QN-ACCESS-001 Q01/Q03–Q06 verified in mapping; all other questions remain NOT_EVALUATED.
-- Organization-approved scope/period/population comparison and evidence join keys are absent.
-- Smart-request prioritization and source-specific owner assignment require approved metadata.
+## Current verification
 
-## External/security blockers
-- Enterprise authentication, authorization, tenant isolation, retention, encryption, malware scanning, request limits at gateway, secrets lifecycle, audit logging, monitoring, backup/restore and deployment security review.
-- Live semantic provider integration requires data-sharing approval, timeout/retry configuration and prompt-injection evaluation.
+- Complete repository suite: **559 passed, 0 failed**.
+- Standalone latest DriftGuard Test Pack: pack runner exit code 0; 58 files processed, 0 rejected, 0 processing errors.
+- FastAPI smoke checks: `/`, `/login`, `/register`, and `/openapi.json` returned HTTP 200 through the application test client.
+- The engine continues to report adverse/insufficient evidence states rather than equating successful ingestion with compliance.
+
+Historical CP013/CP016/CP017/CP017.1 reports retain their original lower test totals because those totals describe those historical checkpoints.
+
+## Product limitations / release blockers
+
+- AI/semantic infrastructure exists, but broad provider-neutral grounded AI evidence intelligence is not yet the primary evidence-understanding path.
+- Evidence understanding and questionnaire/control establishment coverage still need expansion; successful parsing alone is not proof of operating effectiveness.
+- Persistent enterprise-grade tenancy, authorization, secret lifecycle, retention/deletion controls, malware/content scanning strategy, deployment hardening, monitoring, backup/restore, and formal security review remain release gates.
+- External/public API contracts, service credentials/scopes, rate limiting, webhook security, and enterprise connector lifecycle need production hardening before third-party enterprise integration is advertised as production-ready.
+- Live AI-provider acceptance requires explicit provider configuration, data-handling approval, timeout/retry/cost controls, and prompt-injection/adversarial evaluation.
 
 ## Human-review gates
-- Ground-truth benchmark with anonymized real evidence; owner/auditor review of output language; data-handling approval; release sign-off.
 
-## Deferred
-- Browser dashboard and persistent reviewer workflow; additional scenario-specific evidence extractors.
+- Ground-truth benchmark with anonymized representative evidence.
+- Compliance/auditor review of control mappings, output language, and exception semantics.
+- Security/privacy review of evidence and AI-provider data handling.
+- Formal release sign-off after production-hardening checkpoints.

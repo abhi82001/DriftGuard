@@ -20,6 +20,9 @@ class RegisterSpec:
     classification_signals: tuple[str, ...] = ()
 
 SCHEMAS = (
+    RegisterSpec('PRIVACY_CONSENT_REGISTER', ('principal_id','purpose','consent_obtained_on','consent_status','withdrawn_on','withdrawal_processed_on','is_child','parental_consent'), 'principal_id', ('consent_obtained_on','withdrawn_on','withdrawal_processed_on')),
+    RegisterSpec('PRIVACY_RIGHTS_BREACH_LOG', ('record_id','type','received_on','acknowledged_on','closed_on','notes'), 'record_id', ('received_on','acknowledged_on','closed_on')),
+    RegisterSpec('PRIVACY_PROCESSOR_ASSESSMENT', ('processor','personal_data_processed','contract_has_dpdp_clauses','last_assurance_review','country'), 'processor', ('last_assurance_review',)),
     RegisterSpec('RISK_REGISTER', ('risk id','risk','inherent','treatment','residual','review date'), 'risk id', ('review date',), ('owner','status')),
     RegisterSpec('DATA_INVENTORY', ('dataset','classification','system','retention','deletion method'), 'dataset', (), ('owner',)),
     RegisterSpec('DATA_DELETION_RECORD', ('request','dataset','requested','completed','method','validator','status'), 'request', ('requested','completed'), ('validator','status')),
@@ -62,6 +65,9 @@ def recognize(workbook):
     if not candidates:
         from .schema_generalization import infer_workbook, canonicalize_sheet
         inf=infer_workbook(workbook)
+        if inf is None:
+            from .ai_mapping import infer_with_ai  # no-op while AI is disabled
+            inf=infer_with_ai(workbook)
         if inf is not None:
             spec=next((s for s in SCHEMAS if s.kind==inf.role), None)
             if spec is None:
@@ -198,7 +204,10 @@ def analyze_register(workbook, spec, sheet, *, as_of=None):
         (Provenance(workbook.filename,sheet.name,spec.key),)))
     checks=tuple(issues) or (ValidationCheck('REGISTER-STRUCTURE','Register structure readable',SUPPORTED,
         f'{len(rows)} records read with recognized {spec.kind} columns. This is structural quality only, not proof of operating effectiveness.',{},spec.kind),)
+    ai_unconfirmed='ai_suggested_unconfirmed' in spec.classification_signals
+    notes=(f'{spec.kind}: structural data-quality review only; no control effectiveness or questionnaire sufficiency inferred.',NOT_A_FAILURE)
+    if ai_unconfirmed: notes=('Column mapping was suggested by AI and is not yet confirmed; confirm it before relying on these facts.',)+notes
     return StructuredEvidenceResult(filename=workbook.filename,evidence_type=spec.kind,knowledge_evidence_id='',
-        state=NEEDS_REVIEW if issues else SUPPORTED,needs_review=bool(issues),facts=tuple(facts),checks=checks,
-        notes=(f'{spec.kind}: structural data-quality review only; no control effectiveness or questionnaire sufficiency inferred.',NOT_A_FAILURE),
+        state=NEEDS_REVIEW if issues else SUPPORTED,needs_review=bool(issues) or ai_unconfirmed,facts=tuple(facts),checks=checks,
+        notes=notes,
         classification_confidence=spec.classification_confidence,matched_signals=spec.classification_signals or spec.required,extractor='schema-register-v1')

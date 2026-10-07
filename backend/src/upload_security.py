@@ -14,8 +14,8 @@ from io import BytesIO
 from fastapi import HTTPException, Request
 from ingestion import MAX_BYTES, MAX_FILES, SUPPORTED
 
-MAX_UPLOAD_FILES = 10
-MAX_TOTAL_BYTES = min(MAX_BYTES * MAX_UPLOAD_FILES, 100 * 1024 * 1024)
+MAX_UPLOAD_FILES = MAX_FILES
+MAX_TOTAL_BYTES = 100 * 1024 * 1024
 
 
 def authorize_api(request: Request) -> None:

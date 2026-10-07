@@ -10,3 +10,18 @@ __pycache__/
 !.env.example
 .venv/
 venv/
+
+# Runtime/generated state
+*.db
+*.sqlite
+*.sqlite3
+artifacts/*.tmp
+*.log
+
+# Local tooling
+.claude/
+.vscode/
+.idea/
+
+# Packaged artifacts
+*.zip

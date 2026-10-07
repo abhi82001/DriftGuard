@@ -106,7 +106,8 @@ def infer_sheet(sheet:Sheet):
     return SchemaInference(role,conf,min(1.0,score),mapping,tuple(f'{k}←{v}' for k,v in mapping.items()),sheet)
 
 def canonicalize_sheet(sheet:Sheet, inf:SchemaInference):
-    reverse={v:k for k,v in inf.mapping.items()}
+    reverse={}
+    for k,v in inf.mapping.items(): reverse.setdefault(v,k)  # first (role-required) name wins; a header can serve two fields
     headers=tuple(reverse.get(h,h) for h in sheet.headers)
     return Sheet(sheet.filename,sheet.name,sheet.rows,sheet.header_row,headers,sheet.header_columns)
 

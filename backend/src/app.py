@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 """DriftGuard MVP web app: vendor -> questionnaire -> assessment -> results.
 
-Server-rendered HTML, in-memory state, no database and no authentication.
+Server-rendered HTML MVP with bounded in-memory active state plus local SQLite account/session persistence.
 Run:  uvicorn backend.src.app:app --reload
 """
 
 from __future__ import annotations
 
 import html
+import logging
+import os
+import secrets
 import sys
 from pathlib import Path
-from urllib.parse import parse_qs
+from urllib.parse import quote, parse_qs
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse, Response
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -46,8 +50,8 @@ from ingestion import SUPPORTED, extract_many  # noqa: E402
 from evidence.backbone import analyze_artifacts  # noqa: E402
 from evidence.mapping import map_questionnaire  # noqa: E402
 from evidence.intelligence import build_intelligence  # noqa: E402
-from upload_security import authorize_api, read_uploads  # noqa: E402
-from semantic_extraction import configured_provider  # noqa: E402
+from upload_security import authorize_api, read_uploads, MAX_TOTAL_BYTES  # noqa: E402
+from semantic_extraction import configured_provider, SEMANTIC_ACTIVE  # noqa: E402
 from narrative_claims import HybridGroundedExtractor  # noqa: E402
 from production_hardening import BoundedAssessmentStore, safe_event  # noqa: E402
 
@@ -58,6 +62,64 @@ _SEMANTIC_PROVIDER, _SEMANTIC_STATUS = configured_provider()
 ANALYZER = DocumentAnalyzer(KNOWLEDGE, extractor=HybridGroundedExtractor(_SEMANTIC_PROVIDER))
 ASSESSMENTS = BoundedAssessmentStore()
 DOC_ASSESSMENTS = BoundedAssessmentStore()
+_ASSESSMENT_OWNERS: dict[tuple[str, str], str] = {}
+_GUEST_COOKIE = 'driftguard_guest'
+_GUEST_MAX_FILES = 3
+_GUEST_MAX_TOTAL_BYTES = 10 * 1024 * 1024
+_GUEST_MAX_FILE_BYTES = 5 * 1024 * 1024
+
+
+def _mode_label() -> str:
+    """DEMO (stub), CLAUDE (key+model ready) or RULES-ONLY (AI off; deterministic checks still run)."""
+    if demo_mode_enabled():
+        return "DEMO"
+    return "CLAUDE" if _SEMANTIC_STATUS == SEMANTIC_ACTIVE else "RULES-ONLY"
+
+
+def _ai_health() -> dict:
+    """AI readiness without any network call. Never exposes the key."""
+    has_key = bool(os.getenv("ANTHROPIC_API_KEY", "").strip())
+    has_model = bool(os.getenv("DRIFTGUARD_CLAUDE_MODEL", "").strip())
+    missing = [n for n, ok in (("ANTHROPIC_API_KEY", has_key), ("DRIFTGUARD_CLAUDE_MODEL", has_model)) if not ok]
+    return {"mode": _mode_label(), "semantic_status": _SEMANTIC_STATUS,
+            "ai_active": _SEMANTIC_STATUS == SEMANTIC_ACTIVE,
+            "missing_config": [] if demo_mode_enabled() else missing,
+            "note": "AI is optional; without it all deterministic checks still run and semantic items show NEEDS_REVIEW."}
+
+
+@app.get("/health")
+def health() -> JSONResponse:
+    return JSONResponse({"status": "ok", "ai": _ai_health()})
+
+
+def _wants_html(request: Request) -> bool:
+    return not request.url.path.startswith("/api") and "text/html" in request.headers.get("accept", "text/html")
+
+
+def _error_response(request: Request, status: int, message: str):
+    if _wants_html(request):
+        return _page("Something went wrong",
+                     f"<div class='card'><h2>Something went wrong</h2><p>{_esc(message)}</p>"
+                     "<a class='pill' href='/'>Back to start</a></div>", status)
+    return JSONResponse({"error": message}, status_code=status)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def _http_error(request: Request, exc: StarletteHTTPException):
+    if exc.status_code in (301, 302, 303, 307, 308):
+        return Response(status_code=exc.status_code, headers=exc.headers)
+    return _error_response(request, exc.status_code, str(exc.detail))
+
+
+@app.exception_handler(Exception)
+async def _unhandled_error(request: Request, exc: Exception):
+    logging.getLogger("driftguard").exception("unhandled error on %s", request.url.path)
+    return _error_response(request, 500, "Unexpected error. Your data was not changed; please retry. "
+                                         "If it persists, check the server log.")
+
+
+def _guest_error(msg: str, code: int) -> HTMLResponse:
+    return _page('Guest demo', f"<div class='card'><h2>Guest demo</h2><p>{_esc(msg)}</p><a class='pill' href='/guest'>Back</a></div>", code)
 
 CSS = """
 :root{--bg:#f4f5fb;--card:#fff;--ink:#161b2e;--mut:#5f6880;--line:#e3e6f0;--acc:#5b5bf0;--acc2:#8b5cf6;--acc-ink:#fff;--soft:#eef0f9;
@@ -76,6 +138,17 @@ header .logo svg{width:20px;height:20px}
 header h1{margin:0;font-size:18px;letter-spacing:-.02em;line-height:1.1}
 header p{margin:2px 0 0;font-size:12px;color:var(--mut)}
 header .sp{flex:1}
+.hnav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:13.5px;font-weight:600}
+.hnav a{padding:7px 12px;border-radius:999px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
+.hnav a:hover{background:var(--soft);color:var(--acc)}
+.hnav a.cta{background:var(--grad);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--acc) 35%,transparent)}
+.hnav a.cta:hover{filter:brightness(1.07);color:#fff}
+.hnav form{margin:0}.hnav button{padding:7px 14px;font-size:13.5px;border-radius:999px}
+.hnav .gchip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:var(--mut);font-size:12.5px;white-space:nowrap}
+.hnav .gchip::before{content:'';width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 3px color-mix(in srgb,#f59e0b 25%,transparent)}
+.hnav .vr{width:1px;height:20px;background:var(--line);margin:0 4px}
+header .sp{min-width:0}@media (max-width:1000px){header a.brand p{display:none}header{gap:10px}.hnav .vr{display:none}}
+@media (max-width:560px){.hnav a:not(.cta){padding:7px 9px}.hnav .gchip{font-size:11.5px;padding:5px 9px}header .t-mode{display:none}}
 header a.brand{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}
 main{max-width:1120px;margin:0 auto;padding:22px clamp(12px,3vw,24px) 56px}
 h2{font-size:17px;margin:26px 0 10px;letter-spacing:-.01em}
@@ -216,7 +289,8 @@ html.js .wizard .step.on{display:block;animation:rise .25s ease}
 @media (max-width:760px){
 .choices,.kf{grid-template-columns:1fr}
 header p{display:none}
-.tabs{top:61px}
+.tabs{top:61px;gap:4px;padding:6px;scroll-snap-type:x proximity}
+.tabs button{padding:8px 10px;font-size:13px;gap:5px;scroll-snap-align:start}
 .top{gap:14px}
 .gauge{width:88px;height:88px}
 .wz-nav .mid{order:3;flex-basis:100%}
@@ -311,8 +385,16 @@ LOGO = ("<svg viewBox='0 0 24 24' fill='none' stroke='#fff' stroke-width='2.2' s
         "stroke-linejoin='round'><path d='M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z'/><path d='M9 12l2 2 4-4'/></svg>")
 
 
+import contextvars  # noqa: E402
+_NAV = contextvars.ContextVar('dg_nav', default="<a href='/login'>Sign in</a><a class='cta' href='/register'>Create account</a>")
+_NAV_USER = ("<a href='/'>Workspace</a><a href='/my-assessments'>My assessments</a><span class='vr'></span>"
+             "<form method='post' action='/logout'><button type='submit' class='ghost'>Log out</button></form>")
+_NAV_GUEST = ("<span class='gchip' title='Temporary guest session'>Guest demo &middot; ~30 min</span><span class='vr'></span>"
+              "<a href='/login'>Sign in</a><a class='cta' href='/register'>Create account</a>")
+
+
 def _page(title: str, body: str, status_code: int = 200) -> HTMLResponse:
-    mode = "DEMO" if demo_mode_enabled() else "CLAUDE"
+    mode = _mode_label()
     return HTMLResponse(status_code=status_code, content=(
         f"<!doctype html><html lang='en'><head><meta charset='utf-8'>"
         f"<meta name='viewport' content='width=device-width,initial-scale=1'>"
@@ -321,6 +403,7 @@ def _page(title: str, body: str, status_code: int = 200) -> HTMLResponse:
         f"<header><a class='brand' href='/'><span class='logo'>{LOGO}</span><span><h1>DriftGuard</h1>"
         f"<p>SOC 2 CC6/CC7 readiness signals from a "
         f"grounded knowledge base. Not an audit opinion.</p></span></a><span class='sp'></span>"
+        f"<nav class='nop hnav'>{_NAV.get()}</nav>"
         f"<span class='tag t-mode nop'>{mode}</span></header>"
         f"<main>{body}</main><script>{JS}</script></body></html>"
     ))
@@ -374,10 +457,61 @@ async def _form(request: Request) -> dict[str, list[str]]:
     return parse_qs((await request.body()).decode("utf-8"))
 
 
+def _public_landing() -> HTMLResponse:
+    return _page("DriftGuard", """
+<div class='hero'>
+  <span class='tag t-mode'>EVIDENCE-FIRST COMPLIANCE</span>
+  <h2>See what your evidence actually proves.</h2>
+  <p>Try a bounded, temporary assessment without creating an account, or sign in for saved assessments, exports and history.</p>
+</div>
+<div class='choices'>
+  <div class='card choice main'><h3>Try DriftGuard</h3>
+    <p>Temporary guest workspace. Up to 3 files, 5 MB each and 10 MB total. Results are not saved to an account.</p>
+    <form method='post' action='/guest/start'><button class='btn-main' type='submit'>Try without signing in</button></form>
+  </div>
+  <div class='card choice'><h3>Full workspace</h3>
+    <p>Save assessments, compare runs, export reports and keep an assessment history.</p>
+    <div class='actions'><a class='pill' href='/login'>Sign in</a><a class='pill' href='/register'>Create account</a></div>
+  </div>
+</div>
+<p class='disclaimer'>Guest mode is for evaluation. Do not upload highly sensitive or regulated information to a demo environment.</p>
+""")
+
+
+@app.post("/guest/start")
+def guest_start():
+    token = secrets.token_urlsafe(32)
+    r = RedirectResponse('/guest', status_code=303)
+    r.set_cookie(_GUEST_COOKIE, token, httponly=True, samesite='strict',
+                 secure=os.getenv('DRIFTGUARD_SECURE_COOKIES', '1' if os.getenv('DRIFTGUARD_ENV') == 'production' else '0') == '1',
+                 max_age=30*60)
+    return r
+
+
+@app.get('/guest', response_class=HTMLResponse)
+def guest_workspace(request: Request):
+    if not request.cookies.get(_GUEST_COOKIE):
+        return RedirectResponse('/', status_code=303)
+    types = ' '.join(e.lstrip('.').upper() for e in SUPPORTED)
+    return _page('Guest Demo', f"""
+<div class='hero'><span class='tag t-mode'>GUEST DEMO</span><h2>Try a temporary evidence assessment</h2>
+<p>Your guest assessment is isolated from registered users and is not written to account history.</p></div>
+<div class='card'><form method='post' action='/guest/analyze' enctype='multipart/form-data'>
+<label for='vendor'>Company / test name</label><input type='text' id='vendor' name='vendor' required maxlength='200' placeholder='Demo Company'>
+<label for='files' style='margin-top:14px'>Evidence files</label><input type='file' id='files' name='files' multiple required accept='{','.join(SUPPORTED)}'>
+<p class='small'>{types} · maximum 3 files · 5 MB each · 10 MB total</p>
+<button type='submit'>Analyze guest evidence</button></form>
+<form method='post' action='/guest/sample' style='margin-top:12px'><button type='submit' class='ghost'>Use sample evidence instead</button></form></div>
+<div class='card small'><strong>Guest limits:</strong> no saved history, exports, integrations or API access. Create an account when you want a persistent workspace.</div>
+""")
+
+
 @app.get("/", response_class=HTMLResponse)
-def index() -> HTMLResponse:
-    mode = "DEMO" if demo_mode_enabled() else "CLAUDE"
-    types = " ".join(e.lstrip(".").upper() for e in SUPPORTED)
+def index(request: Request) -> HTMLResponse:
+    if _auth_required() and _user_id(request) is None:
+        return _public_landing()
+    mode = _mode_label()
+    types =" ".join(e.lstrip(".").upper() for e in SUPPORTED)
     return _page("DriftGuard", f"""
 <div class="hero">
   <span class="tag t-mode">MODE: {mode}</span>
@@ -399,9 +533,13 @@ def index() -> HTMLResponse:
     <input type="file" id="files" name="files" multiple
            accept="{','.join(SUPPORTED)}"
            ondragenter="this.parentNode.classList.add('over')" ondragleave="this.parentNode.classList.remove('over')" ondrop="this.parentNode.classList.remove('over')"></span>
-    <div class="small" style="margin-top:6px">{types} &middot; max 10 files per browser/API request, 5 MB each</div></div>
+    <div class="small" style="margin-top:6px">{types} &middot; max 25 files per browser/API request, 5 MB each</div></div>
     <button type="submit" class="btn-main">Analyze Documents</button>
     <div id="ingestion-progress" class="card small" hidden role="status" aria-live="polite">Uploading and analyzing evidence&hellip; classification, Evidence QA, semantic status and questionnaire evaluation will appear on the results page.</div>
+  </form>
+  <form method="post" action="/analyze-sample" onsubmit="this.querySelector('button').disabled=true;document.getElementById('sample-progress').hidden=false">
+    <button type="submit" class="btn-main">Try with sample evidence pack</button>
+    <div id="sample-progress" class="card small" hidden role="status" aria-live="polite">Analyzing sample evidence pack&hellip; results will open shortly.</div>
   </form>
 </div>
 <div class="card choice">
@@ -440,15 +578,23 @@ _STRUCTURED_TARGETS = {
     "PRIVILEGED_ACCOUNT_INVENTORY": (("QN-ACCESS-001-Q08", "a privileged access review or inventory"),),
     "ENDPOINT_PROTECTION_COVERAGE": (("QN-NETSEC-001-Q06", "measured protective-software coverage against an inventory"),),
     "SECURITY_LOG_COVERAGE": (("QN-OPS-001-Q02", "measured security-log source coverage"),),
+    "ACCESS_REVIEW_LOG": (("QN-ACCESS-001-Q03", "the most recent completed review"),
+                          ("QN-ACCESS-001-Q04", "the population covered by the most recent review")),
+    "PRIVILEGED_APPROVAL_LIST": (("QN-ACCESS-001-Q08", "a privileged access review or inventory"),),
+    "VULNERABILITY_REMEDIATION": (("QN-OPS-001-Q07", "operating evidence of scan coverage"),),
+    "INCIDENT_REGISTER": (("QN-OPS-001-Q06", "completed root-cause/postmortem record"),),
 }
 
 
-def _apply_structured_evidence_results(result):
-    """Operating evidence from validated tabular files supports its question as PARTIAL.
+def _apply_structured_evidence_results(result, blocked=frozenset()):
+    """Operating evidence from validated tabular files moves its question forward.
 
-    Never ESTABLISHED: the design side (policy) must come from narrative evidence,
-    and clarification/conflict states are never downgraded."""
-    from documents import Fact, PARTIAL, CLARIFICATION, NOT_ESTABLISHED
+    Clean (SUPPORTED) evidence completes a question whose design side is already
+    established (ESTABLISHED) and otherwise supports it as PARTIAL; evidence with
+    rule deviations (NEEDS_REVIEW) asks for clarification. `blocked` holds questions
+    with cross-file deviations, which never reach ESTABLISHED. Conflicts are never
+    downgraded, and an unrecognized file never appears here at all."""
+    from documents import Fact, ESTABLISHED, PARTIAL, CLARIFICATION, NOT_ESTABLISHED
     byid = {a.question_id: a for a in result.areas}
     for e in result.evidence:
         if e.state not in {"SUPPORTED", "NEEDS_REVIEW"}: continue
@@ -456,15 +602,48 @@ def _apply_structured_evidence_results(result):
         p = next((pp for f in e.facts for pp in f.provenance), None)
         for qid, label in _STRUCTURED_TARGETS.get(e.evidence_type, ()):
             a = byid.get(qid)
-            if a is None or a.status != NOT_ESTABLISHED: continue
+            if a is None: continue
+            fact = Fact(label, f"{label}: {e.evidence_type} validated as {e.state}",
+                        e.filename, (f"{p.sheet} {p.locator}".strip() if p else ""),
+                        (getattr(p, "excerpt", "") if p else ""), "OPERATING_EVIDENCE",
+                        "deterministic-structured", "TABULAR", "OPERATING_EVIDENCE")
+            if (e.state == "SUPPORTED" and a.status == PARTIAL and qid not in blocked
+                    and a.missing_facts and set(a.missing_facts) <= {label}):
+                a.status = ESTABLISHED
+                a.reason = (f"Design evidence is established and operating evidence ({e.evidence_type}, "
+                            f"{e.filename}) shows no deviation from the stated rule.")
+                a.known_facts.append(fact)
+                a.missing_facts = []
+                continue
+            if e.state == "NEEDS_REVIEW" and a.status in {PARTIAL, NOT_ESTABLISHED}:
+                bad = "; ".join(c.detail for c in e.checks if c.state == "NEEDS_REVIEW")[:300]
+                a.status = CLARIFICATION
+                a.reason = f"Operating evidence ({e.evidence_type}, {e.filename}) needs review: {bad}"
+                a.known_facts.append(fact)
+                continue
+            if a.status != NOT_ESTABLISHED: continue
             a.status = PARTIAL if e.state == "SUPPORTED" else CLARIFICATION
             a.reason = (f"Operating evidence supplied ({e.evidence_type}, {e.filename}); "
                         "the documented requirement (design evidence) is still needed.")
-            a.known_facts.append(Fact(label, f"{label}: {e.evidence_type} validated as {e.state}",
-                                      e.filename, (f"{p.sheet} {p.locator}".strip() if p else ""),
-                                      (getattr(p, "excerpt", "") if p else ""), "OPERATING_EVIDENCE",
-                                      "deterministic-structured", "TABULAR", "OPERATING_EVIDENCE"))
+            a.known_facts.append(fact)
             a.missing_facts = [m for m in a.missing_facts if m != label]
+
+
+def _apply_cross_file_findings(result, findings):
+    """Deviations found by comparing files (e.g. IdP vs approved list) ask for review.
+
+    CONFLICT is left untouched; no deviation is ever reported as a control failure."""
+    from documents import Fact, CONFLICT, CLARIFICATION
+    byid = {a.question_id: a for a in result.areas}
+    for qid, f in findings:
+        a = byid.get(qid)
+        if a is None: continue
+        ids = ", ".join(i for _, i in f.records[:8]) + (" ..." if len(f.records) > 8 else "")
+        if a.status != CONFLICT:
+            a.status = CLARIFICATION
+            a.reason = f"{f.title} ({len(f.records)}): {ids}. {f.detail} Confirm or provide remediation evidence."
+        a.known_facts.append(Fact(f.code, f"{f.title}: {ids}", "cross-file comparison", f"{len(f.records)} records",
+                                  ids, "OPERATING_EVIDENCE", "deterministic-structured", "TABULAR", "OPERATING_EVIDENCE"))
 
 
 def _contradiction_block(a) -> str:
@@ -523,11 +702,51 @@ def analyze_payloads(vendor: str, payloads, *, assessment_date=None):
         result.recovery=RecoveryAssessment(result.recovery.facts,result.recovery.issues+(issue,))
     from evidence.graph import graph_from_files
     result.evidence_graph = graph_from_files(payloads)
-    _apply_structured_evidence_results(result)
+    from evidence.operational_registers import reconcile
+    cross = reconcile(payloads, as_of=assessment_date)
+    _apply_structured_evidence_results(result, frozenset(q for q, _ in cross))
+    _apply_cross_file_findings(result, cross)
     _apply_graph_question_results(result)
     result.files_received = len(payloads)
     safe_event("assessment_completed", assessment_id=result.assessment_id, files_received=len(payloads), files_parsed=len(documents), parse_errors=len(errors))
     return result
+
+@app.post('/guest/analyze')
+async def guest_analyze(request: Request):
+    guest = request.cookies.get(_GUEST_COOKIE)
+    if not guest:
+        return RedirectResponse('/', status_code=303)
+    if not _rate_ok(f'guest:{guest}', 5, 3600):
+        return _guest_error('Guest assessment limit reached. Please try again later or create an account.', 429)
+    async with request.form() as form:
+        vendor = str(form.get('vendor') or 'Guest Demo')[:200]
+        payloads = await read_uploads(form)
+    if not payloads:
+        return _guest_error('No files were uploaded.', 400)
+    if (len(payloads) > _GUEST_MAX_FILES or sum(len(d) for _, d in payloads) > _GUEST_MAX_TOTAL_BYTES
+            or any(len(d) > _GUEST_MAX_FILE_BYTES for _, d in payloads)):
+        return _guest_error('Guest limits: 3 files, 5 MB per file, 10 MB total.', 413)
+    result = analyze_payloads(vendor, payloads)
+    DOC_ASSESSMENTS[result.assessment_id] = result
+    _ASSESSMENT_OWNERS[('doc-results', result.assessment_id)] = f'guest:{guest}'
+    return RedirectResponse(f'/doc-results/{result.assessment_id}', status_code=303)
+
+
+@app.post('/guest/sample')
+def guest_sample(request: Request):
+    guest = request.cookies.get(_GUEST_COOKIE)
+    if not guest:
+        return RedirectResponse('/', status_code=303)
+    if not _rate_ok(f'guest:{guest}', 5, 3600):
+        return _guest_error('Guest assessment limit reached. Please try again later or create an account.', 429)
+    payloads = [(p.name, p.read_bytes()) for p in sorted(SAMPLE_PACK_DIR.glob('*')) if p.is_file() and p.suffix.lower() in SUPPORTED][:_GUEST_MAX_FILES]
+    if not payloads:
+        return _guest_error('Sample evidence pack not found.', 404)
+    result = analyze_payloads('Guest Sample Company', payloads)
+    DOC_ASSESSMENTS[result.assessment_id] = result
+    _ASSESSMENT_OWNERS[('doc-results', result.assessment_id)] = f'guest:{guest}'
+    return RedirectResponse(f'/doc-results/{result.assessment_id}', status_code=303)
+
 
 @app.post("/analyze")
 async def analyze(request: Request):
@@ -538,12 +757,28 @@ async def analyze(request: Request):
         return JSONResponse({"error": "no files were uploaded"}, status_code=400)
     result = analyze_payloads(vendor, payloads)
     DOC_ASSESSMENTS[result.assessment_id] = result
+    _bind_owner("doc-results", result.assessment_id, request)
+    return RedirectResponse(f"/doc-results/{result.assessment_id}", status_code=303)
+
+
+SAMPLE_PACK_DIR = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "files"
+
+
+@app.post("/analyze-sample")
+def analyze_sample(request: Request):
+    payloads = [(p.name, p.read_bytes()) for p in sorted(SAMPLE_PACK_DIR.glob("*"))
+                if p.is_file() and p.suffix.lower() in SUPPORTED]
+    if not payloads:
+        return JSONResponse({"error": "sample evidence pack not found"}, status_code=404)
+    result = analyze_payloads("Sample Company", payloads)
+    DOC_ASSESSMENTS[result.assessment_id] = result
+    _bind_owner("doc-results", result.assessment_id, request)
     return RedirectResponse(f"/doc-results/{result.assessment_id}", status_code=303)
 
 
 @app.get("/doc-results/{assessment_id}", response_class=HTMLResponse)
-def doc_results(assessment_id: str) -> HTMLResponse:
-    a = DOC_ASSESSMENTS.get(assessment_id)
+def doc_results(assessment_id: str, request: Request = None) -> HTMLResponse:
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
     if a is None:
         return _page("Not found", "<div class='card'>Unknown assessment. "
                                   "<a href='/'>Start again</a>.</div>", 404)
@@ -574,6 +809,14 @@ def doc_results(assessment_id: str) -> HTMLResponse:
     cnt = {k: v for k, v in summary}
     ev_n = cnt["Established"] + cnt["Partial"] + cnt["Not established"] + cnt["Clarification"] + cnt["Conflict"]
     pct = round(100 * (cnt["Established"] + cnt["Partial"]) / ev_n) if ev_n else 0
+    # Presentation-only evidence-health signal. It summarizes ingestion/QA quality and
+    # never participates in deterministic compliance evaluation.
+    received = max(1, a.files_received or len(a.documents))
+    parsed_ratio = len(a.documents) / received
+    unclassified = sum(e.evidence_type == "UNCLASSIFIED" for e in a.evidence)
+    health = max(0, min(100, round(100 * parsed_ratio) - min(30, len(a.errors) * 10)
+                              - min(25, unclassified * 5) - min(25, cnt["Conflict"] * 10)))
+    health_label = "Strong" if health >= 85 else "Needs attention" if health >= 60 else "Weak"
     gauge = (f"<svg class='gauge' viewBox='0 0 36 36' role='img' aria-label='Readiness {pct}%'>"
              f"<circle cx='18' cy='18' r='15.9' fill='none' stroke='var(--line)' stroke-width='3.5'/>"
              f"<circle cx='18' cy='18' r='15.9' fill='none' stroke='var(--ok)' stroke-width='3.5' stroke-linecap='round' "
@@ -691,7 +934,7 @@ def doc_results(assessment_id: str) -> HTMLResponse:
             )
         form_block = _wizard(f"/clarify/{_esc(a.assessment_id)}", steps, "Submit answers") if steps else ""
         follow_form = f"""
-<h2>DriftGuard needs clarification</h2>
+<h2>DriftGuard needs clarification</h2><div class="small"><strong>Smart evidence requests:</strong> targeted from the deterministic gaps below.</div>
 <div class="card"><p class="small">Only what your material did not settle is shown.</p>
 {requests}{form_block}</div>"""
     n_follow = sum(1 for y in follow if y.kind == "question") or len(follow)
@@ -779,8 +1022,9 @@ def doc_results(assessment_id: str) -> HTMLResponse:
     if top_missing:
         bad_pts.append("Top missing items: " + _esc("; ".join(top_missing)) + ".")
     good_pts, bad_pts = good_pts[:3], bad_pts[:3]
+    guest_cta = ("<div class='card'><strong>Guest assessment</strong><p class='small'>This result is temporary. Create an account to save assessments, compare runs and export reports.</p><a class='pill' href='/register'>Create free account</a></div>" if _user_id(request) is None else "")
     key_findings = (
-        "<h2>Key findings</h2><div class='card kf'><div class='kf-ok'><strong>What's in place</strong><ul>"
+        guest_cta + "<h2>Key findings</h2><div class='card kf'><div class='kf-ok'><strong>What's in place</strong><ul>"
         + ("".join(f"<li>{p}</li>" for p in good_pts) or "<li>Nothing established yet.</li>")
         + "</ul></div><div class='kf-bad'><strong>What's lacking</strong><ul>"
         + ("".join(f"<li>{p}</li>" for p in bad_pts) or "<li>No gaps identified.</li>")
@@ -801,11 +1045,21 @@ def doc_results(assessment_id: str) -> HTMLResponse:
     semantic_label = ("SEMANTIC ANALYSIS ACTIVE" if a.semantic_status == "SEMANTIC_ACTIVE"
                       else "SEMANTIC ANALYSIS UNAVAILABLE - NEEDS_REVIEW"
                       if a.semantic_status in {"SEMANTIC_UNAVAILABLE", "NEEDS_REVIEW"} else a.semantic_status)
+    def _sig(ok, good, bad):
+        return f"<li>{'&#10003;' if ok else '&#9888;'} {_esc(good if ok else bad)}</li>"
+    health_card = ("<div class='card'><strong>Evidence quality signals</strong><ul class='small'>"
+        + _sig(parsed_ratio >= 1, f"All {received} file(s) parsed", f"{len(a.documents)} of {received} file(s) parsed")
+        + _sig(not a.errors, "No ingestion errors", f"{len(a.errors)} ingestion error(s)")
+        + _sig(not unclassified, "No unclassified artifacts", f"{unclassified} unclassified artifact(s)")
+        + _sig(not cnt["Conflict"], "No evidence conflicts", f"{cnt['Conflict']} conflict(s) detected")
+        + "</ul><div class='small'>Advisory only. These signals describe input quality, not compliance; they never change any status.</div></div>")
     overview = f"""
 <div class="card top">{gauge}<div style="flex:1;min-width:220px"><h2>Vendor: {_esc(a.vendor)}</h2>
 <div class="small">Readiness: {pct}% of evaluated questions established or partial ({ev_n} evaluated)</div>
 <div class="meta"><span class="tag t-mode">MODE: {_esc(a.mode)}</span>{docs_chips}</div></div></div>
 <div class="card">{dist}{legend}</div>
+{health_card}
+{_what_changed_card(request, a)}
 {key_findings}{gaps_table}
 {_contradiction_block(a)}
 {mode_note}{errors}
@@ -840,12 +1094,14 @@ certification.</p></details>"""
     return _page(f"DriftGuard results: {a.vendor}", f"""
 {_tabs(tab_items)}
 <div class="actions nop"><a class="pill" href="/assessment?vendor={_esc(a.vendor)}">Answer full questionnaire manually</a>
-<a class="pill" href="/export/{_esc(a.assessment_id)}">Export JSON report</a> <a class="pill" href="/">Start over</a></div>""")
+{(f'<a class="pill" href="/export/{_esc(a.assessment_id)}">Export JSON report</a> <a class="pill" href="/export-pdf/{_esc(a.assessment_id)}">Download PDF</a>' if request is None or _user_id(request) is not None else '<a class="pill" href="/register">Create account to save &amp; export</a>')}<a class="pill" href="/">Start over</a></div>""")
 
 
 @app.get("/export/{assessment_id}")
-def export_assessment(assessment_id: str):
-    a = DOC_ASSESSMENTS.get(assessment_id)
+def export_assessment(assessment_id: str, request: Request = None):
+    if request is not None and _auth_required() and _user_id(request) is None:
+        return JSONResponse({'error':'create an account to use reports and exports'}, status_code=403)
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
     if a is None:
         return JSONResponse({"error": "Unknown assessment"}, status_code=404)
     payload = {
@@ -875,6 +1131,66 @@ def export_assessment(assessment_id: str):
     body = _json.dumps(payload, indent=2, ensure_ascii=False)
     return Response(body, media_type="application/json", headers={
         "Content-Disposition": f'attachment; filename="driftguard-{a.assessment_id}.json"'
+    })
+
+
+@app.get("/export-pdf/{assessment_id}")
+def export_pdf(assessment_id: str, request: Request = None):
+    if request is not None and _auth_required() and _user_id(request) is None:
+        return JSONResponse({'error':'create an account to use reports and exports'}, status_code=403)
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
+    if a is None:
+        return JSONResponse({"error": "Unknown assessment"}, status_code=404)
+    from fpdf import FPDF
+    from documents import QUESTION_SPECS
+
+    def t(s) -> str:  # core PDF fonts are latin-1 only
+        return str(s).encode("latin-1", "replace").decode("latin-1")
+
+    implemented = [x for x in a.areas if x.question_id in QUESTION_SPECS]
+    good = sum(x.status in (ESTABLISHED, PARTIAL) for x in implemented)
+    ev_n = sum(x.status in (ESTABLISHED, PARTIAL, NOT_ESTABLISHED, CLARIFICATION, CONFLICT) for x in implemented)
+    pct = round(100 * good / ev_n) if ev_n else 0
+    sev = {CONFLICT: 0, CLARIFICATION: 1, NOT_ESTABLISHED: 2, PARTIAL: 3}
+    gaps = sorted((x for x in implemented if x.status in sev), key=lambda x: sev[x.status])
+
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    def h(text, size=13):
+        pdf.set_font("Helvetica", "B", size)
+        pdf.multi_cell(0, 7, t(text), new_x="LMARGIN", new_y="NEXT")
+
+    def p(text, size=10, style=""):
+        pdf.set_font("Helvetica", style, size)
+        pdf.multi_cell(0, 5, t(text), new_x="LMARGIN", new_y="NEXT")
+
+    h("DriftGuard SOC 2 Readiness Report", 16)
+    p(f"Vendor: {a.vendor}    Assessment: {a.assessment_id}")
+    pdf.ln(2)
+    h(f"Readiness score: {pct}%")
+    p(f"{good} of {ev_n} evaluated questions established or partial.")
+    pdf.ln(2)
+    h(f"Gaps to close ({len(gaps)})")
+    for x in gaps:
+        p(f"{x.area} - {x.status.replace('_', ' ')}", style="B")
+        p("Evidence needed: " + ("; ".join(x.evidence_needed) or "-"))
+        pdf.ln(1)
+    pdf.ln(2)
+    h("Per-question evidence")
+    for x in a.areas:
+        p(f"{x.question_id}: {x.question} [{x.status.replace('_', ' ')}]", style="B")
+        if not x.known_facts:
+            p("No supporting evidence found in the uploaded files.")
+        for f in x.known_facts:
+            loc = f" ({f.source_locator})" if f.source_locator else ""
+            p(f"- {f.statement}  Source: {f.source_file}{loc}")
+        pdf.ln(1)
+    pdf.ln(3)
+    p("Readiness evidence analysis only; not a SOC 2 compliance conclusion, audit opinion, or certification.", 9, "I")
+    return Response(bytes(pdf.output()), media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="driftguard-{a.assessment_id}.pdf"'
     })
 
 
@@ -975,9 +1291,11 @@ def _evidence_block(a: DocumentAssessment) -> str:
 
 
 @app.get("/evidence-report/{assessment_id}", response_class=HTMLResponse)
-def evidence_report(assessment_id: str) -> HTMLResponse:
+def evidence_report(assessment_id: str, request: Request = None) -> HTMLResponse:
+    if request is not None and _auth_required() and _user_id(request) is None:
+        return JSONResponse({'error':'create an account to use reports and exports'}, status_code=403)
     """Standalone Evidence QA report - the page a compliance lead reviews."""
-    a = DOC_ASSESSMENTS.get(assessment_id)
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
     if a is None:
         return _page("Not found", "<div class='card'>Unknown assessment. "
                                   "<a href='/'>Start again</a>.</div>", 404)
@@ -997,8 +1315,10 @@ certification.</p>
 
 @app.post("/clarify/{assessment_id}")
 async def clarify(assessment_id: str, request: Request):
-    a = DOC_ASSESSMENTS.get(assessment_id)
-    vendor = a.vendor if a else "Unnamed vendor"
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
+    if a is None:
+        return JSONResponse({"error": "Unknown assessment"}, status_code=404)
+    vendor = a.vendor
     form = await _form(request)
     answers: dict[tuple[str, str], object] = {}
     for key, raw in form.items():
@@ -1014,6 +1334,7 @@ async def clarify(assessment_id: str, request: Request):
         )
     result = run_assessment(KNOWLEDGE, vendor, answers)
     ASSESSMENTS[result.assessment_id] = result
+    _bind_owner("results", result.assessment_id, request)
     return RedirectResponse(f"/results/{result.assessment_id}", status_code=303)
 
 
@@ -1033,7 +1354,7 @@ def _question_form(vendor: str) -> HTMLResponse:
     hidden = f"<input type='hidden' name='vendor' value='{_esc(vendor)}'>"
     return _page("DriftGuard assessment", f"""
 <div class="card"><strong>Vendor:</strong> {_esc(vendor)}
-<span class="tag t-mode">MODE: {'DEMO' if demo_mode_enabled() else 'CLAUDE'}</span>
+<span class="tag t-mode">MODE: {_mode_label()}</span>
 <p class="small" style="margin:6px 0 0">Leave a question blank to skip it. One question at a time &mdash; tap an answer to continue.</p></div>
 <div class="card">{_wizard('/run', steps, 'Run Assessment', hidden)}</div>""")
 
@@ -1068,12 +1389,13 @@ async def run(request: Request):
 
     result = run_assessment(KNOWLEDGE, vendor, answers)
     ASSESSMENTS[result.assessment_id] = result
+    _bind_owner("results", result.assessment_id, request)
     return RedirectResponse(f"/results/{result.assessment_id}", status_code=303)
 
 
 @app.get("/results/{assessment_id}", response_class=HTMLResponse)
-def results(assessment_id: str) -> HTMLResponse:
-    a = ASSESSMENTS.get(assessment_id)
+def results(assessment_id: str, request: Request = None) -> HTMLResponse:
+    a = _owned_get(ASSESSMENTS, "results", assessment_id, request)
     if a is None:
         return _page("Not found", "<div class='card'>Unknown assessment. "
                                   "<a href='/'>Start again</a>.</div>", 404)
@@ -1147,3 +1469,418 @@ def results(assessment_id: str) -> HTMLResponse:
 SOC 2 compliance conclusion, audit opinion, or certification. Items marked NEEDS
 REVIEW require human judgement.</p>
 <p><a href="/">Start another assessment</a></p>""")
+
+
+# ---------------------------------------------------------------------------
+# Accounts + per-user persistence (SQLite). Anonymous use of every route above
+# keeps working; assessments created while logged in are saved and reopenable.
+# ---------------------------------------------------------------------------
+import hashlib  # noqa: E402
+import hmac  # noqa: E402
+import os  # noqa: E402
+import json  # noqa: E402
+import dataclasses  # noqa: E402
+import importlib  # noqa: E402
+from datetime import date, datetime, timedelta, timezone  # noqa: E402
+import re  # noqa: E402
+import secrets  # noqa: E402
+from driftguard_platform.config import PlatformConfig  # noqa: E402
+from driftguard_platform.persistence.accounts import DuplicateUserError  # noqa: E402
+from driftguard_platform.persistence.repositories import create_account_repository  # noqa: E402
+import time  # noqa: E402
+from collections import defaultdict, deque  # noqa: E402
+
+_COOKIE = "dg_session"
+_SAVED_PATH = re.compile(r"^/(doc-results|results)/([^/?#]+)")
+_STORES = {"doc-results": DOC_ASSESSMENTS, "results": ASSESSMENTS}
+
+
+def _accounts():
+    """Configured identity/session/history repository; domain logic is storage-agnostic."""
+    return create_account_repository(PlatformConfig.from_env())
+
+
+def _hash_pw(password: str, salt: bytes | None = None, iterations: int = 600_000) -> str:
+    salt = salt or secrets.token_bytes(16)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, iterations)
+    return f"pbkdf2_sha256${iterations}${salt.hex()}${dk.hex()}"
+
+
+def _check_pw(password: str, stored: str) -> bool:
+    try:
+        if stored.startswith("pbkdf2_sha256$"):
+            _, rounds, salt_hex, digest = stored.split("$", 3)
+            actual = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt_hex), int(rounds)).hex()
+            return hmac.compare_digest(actual, digest)
+        # Backward compatibility for pre-hardening 200k hashes. Login upgrades them.
+        salt_hex, digest = stored.split("$", 1)
+        actual = hashlib.pbkdf2_hmac("sha256", password.encode(), bytes.fromhex(salt_hex), 200_000).hex()
+        return hmac.compare_digest(actual, digest)
+    except (ValueError, TypeError):
+        return False
+
+
+_SAFE_STATE_MODULES = {"assessment", "documents", "evidence.model", "evidence.graph", "bcp_dr", "narrative_intelligence", "policy_conflicts"}
+
+_SRC_DIR = Path(__file__).resolve().parent
+
+def _state_module_allowed(module_name: str) -> bool:
+    """Allow explicit modules plus first-party modules inside src/ (never stdlib/third-party)."""
+    if module_name in _SAFE_STATE_MODULES:
+        return True
+    parts = module_name.split(".")
+    if not all(p.isidentifier() for p in parts):
+        return False
+    base = _SRC_DIR.joinpath(*parts)
+    return base.with_suffix(".py").is_file() or (base / "__init__.py").is_file()
+
+def _state_encode(value):
+    if dataclasses.is_dataclass(value):
+        return {"__type__": f"{value.__class__.__module__}.{value.__class__.__name__}",
+                "fields": {f.name: _state_encode(getattr(value, f.name)) for f in dataclasses.fields(value)}}
+    if isinstance(value, tuple): return {"__tuple__": [_state_encode(v) for v in value]}
+    if isinstance(value, list): return [_state_encode(v) for v in value]
+    if isinstance(value, dict): return {str(k): _state_encode(v) for k, v in value.items()}
+    if isinstance(value, (date, datetime)): return {"__date__": value.isoformat(), "datetime": isinstance(value, datetime)}
+    if value is None or isinstance(value, (str, int, float, bool)): return value
+    raise TypeError(f"Unsupported saved-state type: {type(value).__name__}")
+
+def _state_decode(value):
+    if isinstance(value, list): return [_state_decode(v) for v in value]
+    if not isinstance(value, dict): return value
+    if "__tuple__" in value: return tuple(_state_decode(v) for v in value["__tuple__"])
+    if "__date__" in value:
+        return datetime.fromisoformat(value["__date__"]) if value.get("datetime") else date.fromisoformat(value["__date__"])
+    if "__type__" in value:
+        module_name, _, class_name = value["__type__"].rpartition(".")
+        if not _state_module_allowed(module_name):
+            raise ValueError("Saved-state type is not allowed")
+        cls = getattr(importlib.import_module(module_name), class_name, None)
+        if cls is None or not dataclasses.is_dataclass(cls):
+            raise ValueError("Saved-state class is not allowed")
+        return cls(**{k: _state_decode(v) for k, v in value.get("fields", {}).items()})
+    return {k: _state_decode(v) for k, v in value.items()}
+
+def _serialize_state(obj) -> str:
+    return json.dumps(_state_encode(obj), separators=(",", ":"), ensure_ascii=False)
+
+def _deserialize_state(blob):
+    if isinstance(blob, bytes): blob = blob.decode("utf-8")
+    return _state_decode(json.loads(blob))
+
+def _user_id(request: Request):
+    token = request.cookies.get(_COOKIE) if request is not None else None
+    if not token:
+        return None
+    return _accounts().user_for_session(token, datetime.now(timezone.utc).isoformat())
+
+
+def _auth_required() -> bool:
+    return os.getenv("DRIFTGUARD_REQUIRE_AUTH", "1").strip().lower() not in {"0", "false", "no"}
+
+def _principal(request: Request) -> str | None:
+    uid = _user_id(request)
+    if uid is not None:
+        return f'user:{uid}'
+    guest = request.cookies.get(_GUEST_COOKIE) if request is not None else None
+    return f'guest:{guest}' if guest else None
+
+def _bind_owner(kind: str, aid: str, request: Request) -> None:
+    principal = _principal(request)
+    if principal is not None:
+        _ASSESSMENT_OWNERS[(kind, aid)] = principal
+
+def _owned_get(store, kind: str, aid: str, request: Request):
+    obj = store.get(aid)
+    if not _auth_required():
+        return obj
+    principal = _principal(request)
+    if principal is None:
+        return None
+    owner = _ASSESSMENT_OWNERS.get((kind, aid))
+    if owner is None and principal.startswith('user:'):
+        uid = int(principal.split(':',1)[1])
+        if _accounts().saved_exists(uid, kind, aid):
+            _ASSESSMENT_OWNERS[(kind, aid)] = principal
+            return obj
+        return None
+    return obj if owner is not None and hmac.compare_digest(str(owner), principal) else None
+
+_RATE_BUCKETS = defaultdict(deque)
+
+def _rate_ok(key: str, limit: int, window: int) -> bool:
+    now = time.monotonic(); q = _RATE_BUCKETS[key]
+    while q and now - q[0] > window: q.popleft()
+    if len(q) >= limit: return False
+    q.append(now)
+    if len(_RATE_BUCKETS) > 10000:
+        for k in list(_RATE_BUCKETS)[:1000]:
+            if not _RATE_BUCKETS[k]: _RATE_BUCKETS.pop(k, None)
+    return True
+
+_PROTECTED_POSTS = {"/analyze", "/analyze-sample", "/assessment", "/run", "/api/evidence-map"}
+
+@app.middleware("http")
+async def _security_boundary(request: Request, call_next):
+    try:
+        _NAV.set(_NAV_USER if _user_id(request) is not None
+                 else _NAV_GUEST if request.cookies.get(_GUEST_COOKIE) else _NAV.get())
+    except Exception:
+        pass
+    content_length = request.headers.get("content-length")
+    if content_length and content_length.isdigit() and int(content_length) > MAX_TOTAL_BYTES + 1024 * 1024:
+        return JSONResponse({"error": "request body too large"}, status_code=413)
+    if request.url.path == "/login" and request.method == "POST":
+        ip = request.client.host if request.client else "unknown"
+        if not _rate_ok(f"login:{ip}", 10, 300):
+            return JSONResponse({"error": "too many login attempts"}, status_code=429)
+    if _auth_required():
+        protected = request.method in {"POST", "PUT", "PATCH", "DELETE"} and (
+            request.url.path in _PROTECTED_POSTS or request.url.path.startswith("/clarify/")
+        ) or request.url.path.startswith("/api/v1/")
+        uid = _user_id(request)
+        api_key_ok = False
+        if request.url.path == "/api/evidence-map":
+            configured = os.getenv("DRIFTGUARD_API_KEY", "")
+            supplied = request.headers.get("x-driftguard-api-key", "")
+            api_key_ok = bool(configured and hmac.compare_digest(configured, supplied))
+        if protected and request.url.path not in {"/login", "/register"} and uid is None and not api_key_ok:
+            if request.url.path.startswith("/api/"):
+                return JSONResponse({"error": "authentication required"}, status_code=401)
+            next_path = request.url.path
+            return RedirectResponse(f"/login?next={quote(next_path, safe='/')}", status_code=303)
+        if protected and uid is not None and not _rate_ok(f"work:{uid}", 60, 60):
+            return JSONResponse({"error": "rate limit exceeded"}, status_code=429)
+        if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+            origin = request.headers.get("origin")
+            if origin:
+                expected = f"{request.url.scheme}://{request.headers.get('host', '')}"
+                if origin.rstrip("/") != expected.rstrip("/"):
+                    return JSONResponse({"error": "cross-site request rejected"}, status_code=403)
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "same-origin")
+    response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+    response.headers.setdefault("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'")
+    return response
+
+@app.middleware("http")
+async def _persist_assessments(request: Request, call_next):
+    uid = _user_id(request)
+    m = _SAVED_PATH.match(request.url.path)
+    if uid and m and request.method == "GET" and _STORES[m.group(1)].get(m.group(2)) is None:
+        blob = _accounts().load_saved(uid, m.group(1), m.group(2))
+        if blob is not None:
+            try:
+                _STORES[m.group(1)][m.group(2)] = _deserialize_state(blob)
+                _ASSESSMENT_OWNERS[(m.group(1), m.group(2))] = f'user:{uid}'
+            except (ValueError, TypeError, KeyError, AttributeError, ImportError):
+                pass  # unreadable saved state: treat as not found instead of a 500
+    response = await call_next(request)
+    m = _SAVED_PATH.match(response.headers.get("location", ""))
+    if uid and m and response.status_code in (302, 303):
+        obj = _STORES[m.group(1)].get(m.group(2))
+        if obj is not None:
+            label = str(getattr(obj, "vendor", "") or getattr(obj, "vendor_name", "") or "Assessment")
+            _accounts().save_bounded(uid, m.group(1), m.group(2), label, _serialize_state(obj), limit=100)
+    return response
+
+
+def _what_changed_card(request: Request, a) -> str:
+    """Compare against the user's previous saved run for the same company (needs login/history)."""
+    uid = _user_id(request)
+    if not uid:
+        return ""
+    prev_blob = _accounts().previous_saved_blob(uid, "doc-results", a.assessment_id, str(a.vendor))
+    if not prev_blob:
+        return ""
+    try:
+        old = {x.question_id: x for x in _deserialize_state(prev_blob).areas}
+    except (ValueError, TypeError, KeyError, AttributeError, ImportError):
+        return ""
+    rank = {ESTABLISHED: 2, PARTIAL: 1}
+    improved, regressed, still_open = [], [], []
+    for x in a.areas:
+        o = old.get(x.question_id)
+        if o is None or x.status == NOT_EVALUATED or o.status == NOT_EVALUATED:
+            continue
+        line = f"{_esc(x.area)}: {_esc(o.status.replace('_', ' '))} &rarr; {_esc(x.status.replace('_', ' '))}"
+        if rank.get(x.status, 0) > rank.get(o.status, 0):
+            improved.append(line)
+        elif rank.get(x.status, 0) < rank.get(o.status, 0):
+            regressed.append(line)
+        elif x.status != ESTABLISHED:
+            still_open.append(f"{_esc(x.area)}: {_esc(x.status.replace('_', ' '))}")
+
+    def block(title: str, items: list[str]) -> str:
+        lis = "".join(f"<li>{i}</li>" for i in items) or "<li class='small'>none</li>"
+        return f"<div><strong>{title} ({len(items)})</strong><ul>{lis}</ul></div>"
+
+    return ("<div class='card' id='what-changed'><h2 style='margin-top:0'>What changed</h2>"
+            "<div class='small'>Versus your previous run for this company.</div>"
+            + block("Improved", improved) + block("Regressed", regressed)
+            + block("Still open", still_open) + "</div>")
+
+
+def _safe_next(value: str | None) -> str:
+    value = (value or "").strip()
+    return value if value.startswith("/") and not value.startswith("//") else "/my-assessments"
+
+_AUTH_CSS = """<style>
+.auth{max-width:440px;margin:28px auto}.auth .card{padding:28px 26px}
+.auth h2{margin:0 0 4px;font-size:24px;letter-spacing:-.02em}.auth .sub{color:var(--mut);font-size:14px;margin:0 0 20px}
+.auth label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+.auth input[type=email],.auth input[type=password]{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:var(--card);color:var(--ink)}
+.auth input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.auth .hint{font-size:12px;color:var(--mut);margin-top:5px}.auth .err{background:color-mix(in srgb,#ef4444 12%,transparent);border:1px solid #ef4444;color:var(--ink);padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:6px}
+.auth .btn-main{width:100%;margin-top:20px;padding:13px}.auth .alt{text-align:center;font-size:14px;margin-top:16px;color:var(--mut)}
+.auth .alt a{color:var(--acc);font-weight:600;text-decoration:none}.auth .or{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:12px;margin:22px 0 14px}
+.auth .or::before,.auth .or::after{content:'';flex:1;height:1px;background:var(--line)}.auth .guest{width:100%}
+</style>"""
+
+
+def _auth_form(kind: str, error: str = "", next_path: str = "") -> HTMLResponse:
+    reg = kind == "register"
+    title, sub = ("Create your account", "Save assessments, exports and history in a private workspace.") if reg else ("Welcome back", "Sign in to your DriftGuard workspace.")
+    err = f"<div class='err' role='alert'>{_esc(error)}</div>" if error else ""
+    hint = "<div class='hint'>At least 8 characters.</div>" if reg else ""
+    ac = "new-password" if reg else "current-password"
+    alt = ("Already have an account? <a href='/login'>Sign in</a>" if reg
+           else "New to DriftGuard? <a href='/register'>Create an account</a>")
+    return _page(title, (
+        f"{_AUTH_CSS}<div class='auth'><div class='card'><h2>{title}</h2><p class='sub'>{sub}</p>{err}"
+        f"<form method='post' action='/{kind}'>"
+        f"<input type='hidden' name='next' value='{_esc(_safe_next(next_path))}'>"
+        "<label for='email'>Email</label><input id='email' name='email' type='email' placeholder='you@company.com' autocomplete='email' required>"
+        f"<label for='password'>Password</label><input id='password' name='password' type='password' placeholder='Password' minlength='8' autocomplete='{ac}' required>{hint}"
+        f"<button type='submit' class='btn-main'>{'Create account' if reg else 'Sign in'}</button></form>"
+        f"<div class='alt'>{alt}</div>"
+        "<div class='or'>or</div>"
+        "<form method='post' action='/guest/start'><button type='submit' class='ghost guest'>Try as guest &mdash; no account needed</button></form>"
+        "</div></div>"), 400 if error else 200)
+
+
+async def _creds(request: Request):
+    f = parse_qs((await request.body()).decode("utf-8", "replace"))
+    return f.get("email", [""])[0].strip().lower(), f.get("password", [""])[0], _safe_next(f.get("next", [""])[0])
+
+
+def _start_session(uid: int, next_path: str = "/my-assessments") -> RedirectResponse:
+    token = secrets.token_urlsafe(32)
+    _accounts().replace_session(uid, token, (datetime.now(timezone.utc)+timedelta(hours=8)).isoformat())
+    r = RedirectResponse(_safe_next(next_path), status_code=303)
+    r.set_cookie(_COOKIE, token, httponly=True, samesite="strict", secure=os.getenv("DRIFTGUARD_SECURE_COOKIES", "1" if os.getenv("DRIFTGUARD_ENV") == "production" else "0") == "1", max_age=8*60*60)
+    return r
+
+
+@app.get("/register", response_class=HTMLResponse)
+def register_get(request: Request) -> HTMLResponse:
+    return _auth_form("register", next_path=request.query_params.get("next", ""))
+
+
+@app.post("/register")
+async def register_post(request: Request):
+    email, pw, next_path = await _creds(request)
+    if "@" not in email or len(pw) < 8:
+        return _auth_form("register", "Enter a valid email and a password of 8+ characters.", next_path)
+    try:
+        uid = _accounts().create_user(email, _hash_pw(pw))
+    except DuplicateUserError:
+        return _auth_form("register", "That email is already registered.", next_path)
+    return _start_session(uid, next_path)
+
+
+@app.get("/login", response_class=HTMLResponse)
+def login_get(request: Request) -> HTMLResponse:
+    return _auth_form("login", next_path=request.query_params.get("next", ""))
+
+
+@app.post("/login")
+async def login_post(request: Request):
+    email, pw, next_path = await _creds(request)
+    row = _accounts().find_user(email)
+    if not row or not _check_pw(pw, row[1]):
+        return _auth_form("login", "Invalid email or password.", next_path)
+    if not row[1].startswith("pbkdf2_sha256$600000$"):
+        _accounts().update_password(row[0], _hash_pw(pw))
+    return _start_session(row[0], next_path)
+
+
+@app.post("/logout")
+def logout(request: Request):
+    token = request.cookies.get(_COOKIE)
+    if token:
+        _accounts().delete_session(token)
+    r = RedirectResponse("/login", status_code=303)
+    r.delete_cookie(_COOKIE)
+    return r
+
+
+@app.get("/my-assessments", response_class=HTMLResponse)
+def my_assessments(request: Request):
+    uid = _user_id(request)
+    if uid is None:
+        return RedirectResponse("/login", status_code=303)
+    rows = _accounts().list_saved(uid)
+    items = "".join(f"<li><a href='/{_esc(row.kind)}/{_esc(row.aid)}'>{_esc(row.label)}</a> <small>{_esc(row.created)}</small></li>"
+                    for row in rows) or "<li>No saved assessments yet.</li>"
+    return _page("My assessments", (
+        f"<div class='card'><h2>My assessments</h2><ul>{items}</ul>"
+        "<form method='post' action='/logout'><button type='submit'>Log out</button></form></div>"))
+
+# ---------------------------------------------------------------------------
+# CP025 public integration surface. These endpoints expose platform capability
+# metadata only; evidence/assessment endpoints continue to use existing auth.
+@app.get('/api/v1/status')
+def api_v1_status():
+    from driftguard_platform.ai import registry as ai_registry
+    from driftguard_platform.frameworks import registry as fw_registry
+    from driftguard_platform.config import PlatformConfig
+    from driftguard_platform.persistence import registry as storage_registry
+    from driftguard_platform.integrations import registry as connector_registry
+    from driftguard_platform.secrets import registry as secret_registry
+    return {
+        'api_version':'v1',
+        'service':'DriftGuard',
+        'deterministic_authority':True,
+        'ai_default':__import__('os').getenv('DRIFTGUARD_AI_PROVIDER','disabled'),
+        'storage_provider':PlatformConfig.from_env().storage_provider,
+        'storage_providers':list(storage_registry.names()),
+        'secret_providers':list(secret_registry.names()),
+        'connector_providers':sorted(connector_registry._factories),
+        'frameworks':[{'key':f.key,'version':f.version} for f in fw_registry.list()],
+        'capabilities':['evidence','assessments','findings','remediations','integrations','webhooks','byoai'],
+    }
+
+@app.post('/api/v1/evidence/mapping/confirm')
+async def api_v1_confirm_mapping(request: Request):
+    """Persist a human-confirmed column mapping so the same layout is read without AI next time."""
+    import json as _json, os as _os
+    from evidence.ai_mapping import MappingStore, confirm_workbook
+    from evidence.tabular import read_tabular, TabularError
+    authorize_api(request)
+    path = _os.getenv('DRIFTGUARD_MAPPING_STORE')
+    if not path:
+        return JSONResponse({'error': 'DRIFTGUARD_MAPPING_STORE is not configured'}, status_code=409)
+    async with request.form() as form:
+        payloads = await read_uploads(form)
+        role, raw = str(form.get('role') or ''), str(form.get('mapping') or '')
+        customer = str(form.get('customer') or _os.getenv('DRIFTGUARD_CUSTOMER', 'default'))[:64]
+    try:
+        mapping = _json.loads(raw)
+        workbook = read_tabular(*payloads[0])
+    except (ValueError, IndexError, TabularError):
+        return JSONResponse({'error': 'Need one readable file and a JSON object in mapping'}, status_code=400)
+    if not isinstance(mapping, dict) or not confirm_workbook(MappingStore(path, customer), workbook, role, mapping):
+        return JSONResponse({'confirmed': False, 'error': 'Mapping does not match the file or the role'}, status_code=422)
+    return JSONResponse({'confirmed': True, 'role': role, 'customer': customer})
+
+@app.get('/api/v1/ai/capabilities')
+def api_v1_ai_capabilities():
+    return {
+        'provider_neutral': True,
+        'operations':['classify_artifact','extract_facts','map_controls','detect_conflicts','explain'],
+        'authoritative_compliance_verdicts': False,
+        'default_mode':'disabled',
+    }

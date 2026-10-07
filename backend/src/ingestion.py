@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Iterable
 from production_hardening import neutralize_formula
 
-MAX_FILES = 100
+MAX_FILES = 25
 MAX_BYTES = 5 * 1024 * 1024
 MAX_CHUNKS_PER_FILE = 400
 SUPPORTED = (".pdf", ".docx", ".xlsx", ".csv", ".json", ".txt", ".md")

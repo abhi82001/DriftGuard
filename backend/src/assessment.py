@@ -88,7 +88,7 @@ class DemoSemanticEvaluator:
             reason_codes = ("low_confidence",)
 
         return SemanticEvaluationResult(
-            result_id=f"SEMRES-DEMO-{uuid.uuid4().hex[:12].upper()}",
+            result_id=f"SEMRES-DEMO-{uuid.uuid4().hex.upper()}",
             condition_id=request.condition_id,
             question_id=request.question_id,
             assessment=assessment,
@@ -239,7 +239,7 @@ def run_assessment(
             )
 
     return Assessment(
-        assessment_id=uuid.uuid4().hex[:12],
+        assessment_id=uuid.uuid4().hex,
         vendor=vendor,
         mode="DEMO" if demo else "CLAUDE",
         results=results,

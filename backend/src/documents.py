@@ -196,7 +196,7 @@ class DocumentAnalyzer:
                 areas.append(self._area(qn_id, area, question, by_topic))
         self._apply_temporal_rules(areas, as_of=assessment_date)
         return DocumentAssessment(
-            assessment_id=uuid.uuid4().hex[:12],
+            assessment_id=uuid.uuid4().hex,
             vendor=vendor,
             mode="DEMO" if demo else "LOCAL",
             documents=[d.filename for d in documents],

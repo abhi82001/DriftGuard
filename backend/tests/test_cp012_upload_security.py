@@ -32,6 +32,6 @@ def test_upload_auth_and_count(monkeypatch):
             assert (await client.post('/api/evidence-map', files=files)).status_code == 401
             headers = {'x-driftguard-api-key': 'test-secret'}
             assert (await client.post('/api/evidence-map', files=files, headers=headers)).status_code == 200
-            many = [('files', (f'evidence{i}.txt', b'hello', 'text/plain')) for i in range(11)]
+            many = [('files', (f'evidence{i}.txt', b'hello', 'text/plain')) for i in range(101)]
             assert (await client.post('/api/evidence-map', files=many, headers=headers)).status_code == 413
     asyncio.run(check())
