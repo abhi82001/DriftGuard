@@ -1,0 +1,11 @@
+{"cases": [
+ {"id": "classify-uar", "operation": "classify_artifact", "source_ids": ["ART-1"],
+  "content": "Sheet 'Quarterly User Access Review' with columns User, Role, Reviewer, Review Campaign, Decision. Reply with JSON {\"artifact_type\": \"user_access_review\" or \"unknown\", \"confidence\": 0..1, \"source_ids\": [\"ART-1\"]}.",
+  "expect": {"artifact_type": "user_access_review"}},
+ {"id": "classify-unknown", "operation": "classify_artifact", "source_ids": ["ART-2"],
+  "content": "Sheet 'Lunch Menu' with columns Dish, Price. Reply with JSON {\"artifact_type\": \"user_access_review\" or \"unknown\", \"confidence\": 0..1, \"source_ids\": [\"ART-2\"]}.",
+  "expect": {"artifact_type": "unknown"}},
+ {"id": "extract-reviewer", "operation": "extract_facts", "source_ids": ["ART-3"],
+  "content": "Row 4: alice@example.com reviewed bob@example.com on 2025-03-01, decision: revoke. Reply with JSON {\"reviewer\": email, \"decision\": string, \"confidence\": 0..1, \"source_ids\": [\"ART-3\"]}.",
+  "expect": {"reviewer": "alice@example.com", "decision": "revoke"}}
+]}

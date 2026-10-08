@@ -1,0 +1,8 @@
+{
+  "record_type": "evidence",
+  "evidence_id": "EV-STUB-001",
+  "status": "test_stub",
+  "notes": [
+    "TEST STUB: placeholder identifiers only, not ISO/IEC 27001 content. Proves a framework needs knowledge files only."
+  ]
+}

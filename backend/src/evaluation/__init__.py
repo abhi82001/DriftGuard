@@ -33,6 +33,7 @@ from .providers.claude import (
     ClaudeOutputError,
     ClaudeProviderError,
     ClaudeSemanticEvaluator,
+    GatewaySemanticEvaluator,
 )
 from .semantic import (
     PROHIBITED_VERDICTS,
@@ -53,6 +54,7 @@ __all__ = [
     "ClaudeOutputError",
     "ClaudeProviderError",
     "ClaudeSemanticEvaluator",
+    "GatewaySemanticEvaluator",
     "EVAL_DETERMINISTIC",
     "EVAL_SEMANTIC",
     "GAP_GRAMMAR_VERSION",

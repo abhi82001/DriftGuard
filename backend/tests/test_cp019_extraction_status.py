@@ -100,3 +100,16 @@ def test_analyze_payloads_carries_status_per_file_and_dedupes(monkeypatch):
     by_name = {r["filename"]: r["status"] for r in result.extraction}
     assert by_name == {"policy_a.txt": EXTRACTED, "policy_b.txt": DUPLICATE, "scan.pdf": UNREADABLE_SCAN_NEEDS_OCR}
     assert result.files_received == 3 and len(result.documents) == 1 and len(result.errors) == 1
+
+
+def test_find_tesseract_prefers_env_then_windows_install(monkeypatch, tmp_path):
+    exe = tmp_path / "tesseract.exe"
+    exe.write_bytes(b"")
+    monkeypatch.setenv("TESSERACT_CMD", str(exe))
+    assert ingestion.find_tesseract() == str(exe)
+    monkeypatch.delenv("TESSERACT_CMD")
+    monkeypatch.setattr("shutil.which", lambda _n: None)
+    monkeypatch.setattr(ingestion, "_TESSERACT_WINDOWS_PATHS", (str(exe),))
+    assert ingestion.find_tesseract() == str(exe)
+    monkeypatch.setattr(ingestion, "_TESSERACT_WINDOWS_PATHS", (str(tmp_path / "missing.exe"),))
+    assert ingestion.find_tesseract() is None

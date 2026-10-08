@@ -98,8 +98,10 @@ def _inference(sheet: Sheet, role: str, mapping: dict[str, str], score: float, s
 
 
 def infer_with_ai(workbook: Workbook, provider=None, store: Optional[MappingStore] = None) -> Optional[SchemaInference]:
-    """Fallback after deterministic inference fails. None when disabled, unsure or invalid."""
-    from driftguard_platform.ai import AIOperation, AIProviderError, AIRequest, registry, validate_result
+    """Fallback after deterministic inference fails. None when disabled, unsure or invalid.
+    `provider` may be an AIProvider, an AIGateway, or None (process-wide gateway)."""
+    from driftguard_platform.ai import AIOperation, AIRequest
+    from driftguard_platform.ai_runtime import run_with
     store = store or MappingStore(os.getenv("DRIFTGUARD_MAPPING_STORE"), os.getenv("DRIFTGUARD_CUSTOMER", "default"))
     found: list[SchemaInference] = []
     sheets = [s for s in workbook.sheets if len(s.headers) >= 2][:MAX_SHEETS]
@@ -107,13 +109,11 @@ def infer_with_ai(workbook: Workbook, provider=None, store: Optional[MappingStor
         saved = store.get(sheet)
         if saved and (ok := _validate(sheet, {**saved, "confidence": 1.0})):
             found.append(_inference(sheet, ok[0], ok[1], 1.0, CONFIRMED_SIGNAL)); continue
-        try:
-            provider = provider or registry.create()
-            text, ids = build_request_text(sheet)
-            result = validate_result(provider.execute(
-                AIRequest(AIOperation.CLASSIFY, text, {"instructions": INSTRUCTIONS}, ids)))
-        except AIProviderError:
-            continue
+        text, ids = build_request_text(sheet)
+        outcome = run_with(provider, AIRequest(AIOperation.CLASSIFY, text, {"instructions": INSTRUCTIONS}, ids))
+        if not outcome.ok:
+            continue   # AI unavailable/refused: the sheet stays unclassified
+        result = outcome.result
         ok = _validate(sheet, {**dict(result.data), "confidence": result.confidence})
         if ok and ok[2] >= MIN_CONFIDENCE:
             found.append(_inference(sheet, ok[0], ok[1], min(ok[2], .85), AI_SIGNAL))

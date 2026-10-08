@@ -54,8 +54,15 @@ from upload_security import authorize_api, read_uploads, MAX_TOTAL_BYTES  # noqa
 from semantic_extraction import configured_provider, SEMANTIC_ACTIVE  # noqa: E402
 from narrative_claims import HybridGroundedExtractor  # noqa: E402
 from production_hardening import BoundedAssessmentStore, safe_event  # noqa: E402
+from observability import (  # noqa: E402
+    ErrorCode, assessment_id_from_path, assessment_id_var, code_for_status, log_event,
+    new_request_id, request_id_var, configure as _configure_logging,
+)
+from upload_store import UploadStore  # noqa: E402
+import jobs as _jobs  # noqa: E402
 
 app = FastAPI(title="DriftGuard MVP")
+_configure_logging()
 
 KNOWLEDGE = MvpKnowledge()
 _SEMANTIC_PROVIDER, _SEMANTIC_STATUS = configured_provider()
@@ -63,6 +70,7 @@ ANALYZER = DocumentAnalyzer(KNOWLEDGE, extractor=HybridGroundedExtractor(_SEMANT
 ASSESSMENTS = BoundedAssessmentStore()
 DOC_ASSESSMENTS = BoundedAssessmentStore()
 _ASSESSMENT_OWNERS: dict[tuple[str, str], str] = {}
+UPLOADS = UploadStore()
 _GUEST_COOKIE = 'driftguard_guest'
 _GUEST_MAX_FILES = 3
 _GUEST_MAX_TOTAL_BYTES = 10 * 1024 * 1024
@@ -70,20 +78,24 @@ _GUEST_MAX_FILE_BYTES = 5 * 1024 * 1024
 
 
 def _mode_label() -> str:
-    """DEMO (stub), CLAUDE (key+model ready) or RULES-ONLY (AI off; deterministic checks still run)."""
+    """DEMO (stub), CLAUDE / AI (provider ready) or RULES-ONLY (AI off; deterministic checks still run)."""
     if demo_mode_enabled():
         return "DEMO"
-    return "CLAUDE" if _SEMANTIC_STATUS == SEMANTIC_ACTIVE else "RULES-ONLY"
+    if _SEMANTIC_STATUS != SEMANTIC_ACTIVE:
+        return "RULES-ONLY"
+    return "CLAUDE" if getattr(_SEMANTIC_PROVIDER, "provider", "anthropic") == "anthropic" else "AI"
 
 
 def _ai_health() -> dict:
     """AI readiness without any network call. Never exposes the key."""
-    has_key = bool(os.getenv("ANTHROPIC_API_KEY", "").strip())
-    has_model = bool(os.getenv("DRIFTGUARD_CLAUDE_MODEL", "").strip())
-    missing = [n for n, ok in (("ANTHROPIC_API_KEY", has_key), ("DRIFTGUARD_CLAUDE_MODEL", has_model)) if not ok]
+    from driftguard_platform.ai_runtime import readiness
+    r = readiness()
     return {"mode": _mode_label(), "semantic_status": _SEMANTIC_STATUS,
             "ai_active": _SEMANTIC_STATUS == SEMANTIC_ACTIVE,
-            "missing_config": [] if demo_mode_enabled() else missing,
+            "provider": r["provider"], "model": r["model"],
+            "missing_config": [] if demo_mode_enabled() else r["missing"],
+            "reason": r["reason"],
+            "deprecated_env_in_use": r["deprecated_env_in_use"],
             "note": "AI is optional; without it all deterministic checks still run and semantic items show NEEDS_REVIEW."}
 
 
@@ -108,12 +120,15 @@ def _error_response(request: Request, status: int, message: str):
 async def _http_error(request: Request, exc: StarletteHTTPException):
     if exc.status_code in (301, 302, 303, 307, 308):
         return Response(status_code=exc.status_code, headers=exc.headers)
+    log_event("http_error", code=code_for_status(exc.status_code), level=logging.WARNING, status=exc.status_code,
+              method=request.method, path=request.url.path)
     return _error_response(request, exc.status_code, str(exc.detail))
 
 
 @app.exception_handler(Exception)
 async def _unhandled_error(request: Request, exc: Exception):
-    logging.getLogger("driftguard").exception("unhandled error on %s", request.url.path)
+    log_event("unhandled_error", code=ErrorCode.INTERNAL, level=logging.ERROR, method=request.method,
+              path=request.url.path, error_type=type(exc).__name__)   # class only: messages can embed evidence
     return _error_response(request, 500, "Unexpected error. Your data was not changed; please retry. "
                                          "If it persists, check the server log.")
 
@@ -122,18 +137,18 @@ def _guest_error(msg: str, code: int) -> HTMLResponse:
     return _page('Guest demo', f"<div class='card'><h2>Guest demo</h2><p>{_esc(msg)}</p><a class='pill' href='/guest'>Back</a></div>", code)
 
 CSS = """
-:root{--bg:#f4f5fb;--card:#fff;--ink:#161b2e;--mut:#5f6880;--line:#e3e6f0;--acc:#5b5bf0;--acc2:#8b5cf6;--acc-ink:#fff;--soft:#eef0f9;
---ok:#14935a;--par:#c47f00;--clr:#2a6fdb;--con:#d6384a;--na:#7b8494;--r:16px;
---sh:0 1px 2px rgba(22,27,46,.05),0 10px 28px rgba(22,27,46,.07);--grad:linear-gradient(135deg,var(--acc),var(--acc2))}
-@media (prefers-color-scheme:dark){:root{--bg:#0c0f1a;--card:#151a2a;--ink:#e8ebf5;--mut:#98a2bb;--line:#272e44;--acc:#8087ff;--acc2:#b18cff;--acc-ink:#0c0f1a;--soft:#1c2236;
+:root{--bg:#f5f7fa;--card:#fff;--ink:#14213d;--mut:#5b6678;--line:#dfe4ec;--acc:#2456d6;--acc2:#2456d6;--acc-ink:#fff;--soft:#eef2f8;
+--ok:#14935a;--par:#c47f00;--clr:#2a6fdb;--con:#d6384a;--na:#7b8494;--r:12px;
+--sh:0 1px 2px rgba(20,33,61,.06),0 4px 12px rgba(20,33,61,.04);--grad:var(--acc)}
+@media (prefers-color-scheme:dark){:root{--bg:#0e131d;--card:#161d2b;--ink:#e6eaf2;--mut:#9aa6bb;--line:#273044;--acc:#6b9bff;--acc2:#6b9bff;--acc-ink:#0e131d;--soft:#1d2636;
 --ok:#4cc380;--par:#e6b23a;--clr:#6aa2ff;--con:#ff6b7d;--na:#98a2bb;--sh:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.25)}}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;color:var(--ink);line-height:1.5;
-background:radial-gradient(900px 420px at 8% -8%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%),radial-gradient(800px 380px at 100% 0,color-mix(in srgb,var(--acc2) 14%,transparent),transparent 70%),var(--bg);background-attachment:fixed}
+background:var(--bg)}
 header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:14px;padding:12px clamp(14px,4vw,32px);
 background:color-mix(in srgb,var(--card) 80%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
-header .logo{width:36px;height:36px;border-radius:11px;background:var(--grad);display:grid;place-items:center;flex:none;box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 40%,transparent)}
+header .logo{width:34px;height:34px;border-radius:8px;background:var(--grad);display:grid;place-items:center;flex:none}
 header .logo svg{width:20px;height:20px}
 header h1{margin:0;font-size:18px;letter-spacing:-.02em;line-height:1.1}
 header p{margin:2px 0 0;font-size:12px;color:var(--mut)}
@@ -141,7 +156,7 @@ header .sp{flex:1}
 .hnav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:13.5px;font-weight:600}
 .hnav a{padding:7px 12px;border-radius:999px;color:var(--ink);text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
 .hnav a:hover{background:var(--soft);color:var(--acc)}
-.hnav a.cta{background:var(--grad);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--acc) 35%,transparent)}
+.hnav a.cta{background:var(--grad);color:var(--acc-ink)}
 .hnav a.cta:hover{filter:brightness(1.07);color:#fff}
 .hnav form{margin:0}.hnav button{padding:7px 14px;font-size:13.5px;border-radius:999px}
 .hnav .gchip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--soft);border:1px solid var(--line);color:var(--mut);font-size:12.5px;white-space:nowrap}
@@ -159,12 +174,12 @@ h3{margin:0}
 .cards .n{font-size:26px;font-weight:700;letter-spacing:-.02em}
 .cards .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
 label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
-input[type=text],textarea,select{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input[type=text],textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--card);color:var(--ink);transition:border-color .15s,box-shadow .15s}
 input[type=text]:focus,textarea:focus,select:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 18%,transparent)}
 button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 textarea{min-height:110px;resize:vertical}
-button{background:var(--grad);color:#fff;border:0;border-radius:12px;padding:12px 22px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .12s,box-shadow .15s,filter .15s;box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 35%,transparent)}
-button:hover{filter:brightness(1.07);transform:translateY(-1px)}
+button{background:var(--grad);color:var(--acc-ink);border:0;border-radius:8px;padding:10px 18px;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s}
+button:hover{filter:brightness(1.08)}
 button:active{transform:none}
 button:disabled{opacity:.4;cursor:default;transform:none;filter:none}
 button.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
@@ -190,7 +205,7 @@ th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing
 /* landing */
 .hero{text-align:center;padding:26px 8px 22px;max-width:760px;margin:0 auto}
 .hero h2{font-size:clamp(26px,5vw,40px);line-height:1.12;letter-spacing:-.03em;margin:10px 0}
-.hero h2 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h2 em{font-style:normal;color:var(--acc)}
 .hero p{color:var(--mut);margin:0 auto;max-width:600px}
 .steps3{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 .steps3 span{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);color:var(--mut)}
@@ -206,6 +221,16 @@ th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing
 .drop:hover,.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--soft))}
 .drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .drop b{display:block;font-size:15px}
+#filelist{margin-top:8px;max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+#filelist:empty{display:none}
+.frow{display:flex;align-items:center;gap:10px;padding:6px 10px;font-size:13px;border-bottom:1px solid var(--line)}
+.frow .fname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frow .fsize{color:var(--muted,#667);white-space:nowrap;font-size:12px}
+.frow.bad .fsize,.fwarn{color:#c0392b}
+.fx,.fmore{border:0;background:none;cursor:pointer;color:inherit;font:inherit;box-shadow:none}
+.fx{padding:2px 6px;opacity:.6}.fx:hover{opacity:1}
+.fmore{display:block;width:100%;padding:6px;font-size:13px;color:var(--acc)}
+.fwarn{padding:6px 10px;font-size:12px}
 .drop svg{width:30px;height:30px;color:var(--acc);margin-bottom:4px}
 .btn-main{width:100%}
 /* tabs */
@@ -213,14 +238,14 @@ th{background:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;display:flex;gap:8px;align-items:center;background:transparent;color:var(--mut);box-shadow:none;padding:9px 16px;font-size:14px;border-radius:10px}
 .tabs button:hover{background:var(--soft);transform:none;filter:none;color:var(--ink)}
-.tabs button.on{background:var(--grad);color:#fff;box-shadow:0 4px 12px color-mix(in srgb,var(--acc) 35%,transparent)}
+.tabs button.on{background:var(--grad);color:var(--acc-ink)}
 .tabs .bd{font-size:11px;min-width:20px;padding:1px 6px;border-radius:999px;background:color-mix(in srgb,currentColor 18%,transparent);text-align:center}
 .tabpanel{scroll-margin-top:130px}
 html.js .tabpanel{display:none}
 html.js .tabpanel.on{display:block;animation:rise .25s ease}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 /* results */
-.top{display:flex;gap:22px;align-items:center;flex-wrap:wrap;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 10%,var(--card)),var(--card) 60%)}
+.top{display:flex;gap:22px;align-items:center;flex-wrap:wrap;}
 .top h2{margin:0;font-size:22px;letter-spacing:-.02em}
 .top .meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .gauge{width:112px;height:112px;flex:none}
@@ -308,6 +333,40 @@ table.rt tr{margin:10px 0;border:1px solid var(--line);border-radius:12px;paddin
 table.rt td{border:0;padding:4px 0}
 table.rt td:before{content:attr(data-l);display:block;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
 }
+
+/* my assessments */
+.pg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+.pg-head h2{margin:0;font-size:22px}.pg-head p{margin:2px 0 0;color:var(--mut);font-size:13px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px;margin-bottom:12px}
+.toolbar input,.toolbar select{width:auto;flex:1 1 140px;min-width:120px;padding:8px 10px;font-size:13px}
+.toolbar input[type=text],.toolbar input[name=q]{flex:2 1 200px}
+.toolbar button{padding:8px 16px}
+.alist{list-style:none;margin:0;padding:0}
+.arow{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px 14px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.arow:first-child{border-top:0}.arow:hover{background:var(--soft)}
+.arow .nm{font-weight:600;text-decoration:none;color:var(--ink);overflow-wrap:anywhere}.arow .nm:hover{color:var(--acc)}
+.arow .sub{display:block;font-size:12px;color:var(--mut);font-weight:400;margin-top:1px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.acts form{margin:0}.acts button,.arow button.ghost{padding:5px 11px;font-size:12px;border-radius:6px}
+.acts details{position:relative}.acts details>summary{list-style:none;cursor:pointer;padding:5px 11px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-weight:600;background:var(--card)}
+.acts details>summary::-webkit-details-marker{display:none}
+.acts details .rn{position:absolute;right:0;top:34px;z-index:5;display:flex;gap:6px;padding:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--sh);min-width:260px}
+.acts details .rn input{padding:6px 8px;font-size:13px}
+button.danger{color:var(--con);border-color:color-mix(in srgb,var(--con) 40%,var(--line))}
+.empty{padding:34px 16px;text-align:center;color:var(--mut)}
+.cmpbar{position:sticky;bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;margin-top:12px}
+.cmpbar form{margin:0}
+.chip{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--soft);color:var(--mut);border:1px solid var(--line)}
+@media (max-width:640px){.arow{grid-template-columns:auto 1fr}.arow>.acts,.arow>.when{grid-column:2}.arow>.when{display:none}.acts{justify-content:flex-start}}
+/* results */
+.gv-card{padding:0}.gv-card>summary{cursor:pointer;padding:12px 16px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;font-weight:600}
+.gv-card .gb{padding:0 16px 14px;border-top:1px solid var(--line)}.gv-card .gb>*{margin-top:8px}
+.gv-card ul{margin:6px 0 0;padding-left:18px}.gv-card li{margin-bottom:4px;font-size:13px}
+.fileline{margin-top:8px}.fileline summary{cursor:pointer;font-size:12px;color:var(--mut);font-weight:600}
+.fileline div{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.chg{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.chg details{border:1px solid var(--line);border-radius:10px;padding:8px 12px}.chg summary{cursor:pointer;font-weight:600;font-size:14px}
+.chg ul{margin:6px 0 0;padding-left:18px;font-size:12px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 @media print{
 table.gaps{font-size:11px}table.gaps tr{break-inside:avoid}table.gaps thead{display:table-header-group}
@@ -316,11 +375,43 @@ body{background:#fff;color:#000}header{position:static;border:0}.strip button,.d
 details>*{display:block!important}details>summary{list-style:none}
 html.js .tabpanel{display:block!important}.tabs{display:none}
 form,.nop{display:none!important}}
+.busy{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:16px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.busy.on{display:grid}
+.busy-card{width:min(440px,100%);background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh);padding:28px 26px}
+.busy-card h3{margin:14px 0 2px;font-size:18px}
+.busy-card p{margin:0 0 16px;color:var(--mut);font-size:13px}
+.busy-spin{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--acc);animation:busyspin .9s linear infinite}
+@keyframes busyspin{to{transform:rotate(360deg)}}
+.busy-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14px}
+.busy-steps li{display:flex;align-items:center;gap:10px;color:var(--mut)}
+.busy-steps li::before{content:"";width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:none}
+.busy-steps li.act{color:var(--ink);font-weight:600}
+.busy-steps li.act::before{border-color:var(--acc);border-top-color:transparent;animation:busyspin .9s linear infinite}
+.busy-steps li.done{color:var(--ink)}
+.busy-steps li.done::before{background:var(--ok);border-color:var(--ok)}
+.busy-bar{height:4px;border-radius:4px;background:var(--soft);overflow:hidden;margin-top:18px}
+.busy-bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .6s ease}
 """
 
 JS = """
 (function(){
 var $=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+window.addEventListener('pageshow',function(e){if(e.persisted){var o=document.getElementById('busy-overlay');if(o)o.classList.remove('on');$('button').forEach(function(b){b.disabled=false})}});
+$('form[data-busy]').forEach(function(f){
+  f.addEventListener('submit',function(){
+    var ov=document.getElementById('busy-overlay');if(!ov)return;
+    var inp=f.querySelector('input[type=file]'),n=inp&&inp.files?inp.files.length:0;
+    var sub=document.getElementById('busy-sub');
+    if(sub)sub.textContent=n?(n+(n===1?' file':' files')+' received. This usually takes a few seconds.'):'This usually takes a few seconds.';
+    ov.classList.add('on');
+    $('button',document).forEach(function(b){b.disabled=true});
+    var st=$('.busy-steps li',ov),bar=$('.busy-bar i',ov)[0],i=0;
+    function paint(){st.forEach(function(li,k){li.className=k<i?'done':(k===i?'act':'')});
+      if(bar)bar.style.width=Math.round((i+1)/st.length*90)+'%'}
+    paint();
+    setInterval(function(){if(i<st.length-1){i++;paint()}},2200);
+  });
+});
 var tabBtns=$('.tabs button[data-tab]');
 function showTab(id){
   tabBtns.forEach(function(b){var on=b.dataset.tab===id;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
@@ -375,8 +466,30 @@ $('form[data-wizard]').forEach(function(f){
   render();
 });
 $('.drop input[type=file]').forEach(function(inp){
-  inp.addEventListener('change',function(){var m=document.getElementById('dropmsg');
-    if(m)m.textContent=inp.files.length+' file(s) selected: '+Array.prototype.map.call(inp.files,function(f){return f.name}).join(', ')})});
+  var LIM=5*1024*1024,MAXF=25,SHOW=5,open=false;
+  var m=document.getElementById('dropmsg'),box=document.getElementById('filelist');
+  function size(n){return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB'}
+  function ext(f){var i=f.name.lastIndexOf('.');return i<0?'FILE':f.name.slice(i+1).toUpperCase()}
+  function render(){
+    var fs=Array.prototype.slice.call(inp.files);
+    if(!fs.length){if(m)m.textContent='Drag & drop files here, or click to browse';if(box)box.innerHTML='';return}
+    var tot=0,kinds={};fs.forEach(function(f){tot+=f.size;var k=ext(f);kinds[k]=(kinds[k]||0)+1});
+    var bad=fs.filter(function(f){return f.size>LIM}).length+(fs.length>MAXF?fs.length-MAXF:0);
+    if(m)m.textContent=fs.length+(fs.length===1?' file':' files')+' · '+size(tot)+' · '+Object.keys(kinds).map(function(k){return k+' '+kinds[k]}).join(', ');
+    if(!box)return;
+    box.innerHTML='';
+    (open?fs:fs.slice(0,SHOW)).forEach(function(f,i){
+      var r=document.createElement('div');r.className='frow'+(f.size>LIM||i>=MAXF?' bad':'');
+      var n=document.createElement('span');n.className='fname';n.textContent=f.name;n.title=f.name;
+      var s=document.createElement('span');s.className='fsize';s.textContent=f.size>LIM?size(f.size)+' · over 5 MB':(i>=MAXF?'over 25-file limit':size(f.size));
+      var x=document.createElement('button');x.type='button';x.className='fx';x.textContent='✕';x.setAttribute('aria-label','Remove '+f.name);
+      x.addEventListener('click',function(){var dt=new DataTransfer();fs.forEach(function(g){if(g!==f)dt.items.add(g)});inp.files=dt.files;render()});
+      r.appendChild(n);r.appendChild(s);r.appendChild(x);box.appendChild(r)});
+    if(fs.length>SHOW){var t=document.createElement('button');t.type='button';t.className='fmore';
+      t.textContent=open?'Show less':'+'+(fs.length-SHOW)+' more';
+      t.addEventListener('click',function(){open=!open;render()});box.appendChild(t)}
+    if(bad){var w=document.createElement('div');w.className='fwarn';w.textContent=bad+' file(s) exceed the limits and will be rejected — remove them to continue.';box.appendChild(w)}}
+  inp.addEventListener('change',function(){open=false;render()})});
 })();
 """
 
@@ -524,7 +637,7 @@ def index(request: Request) -> HTMLResponse:
 <div class="card choice main">
   <h3><i>&#128196;</i>SOC 2 Readiness Assessment</h3>
   <p class="small">Recommended. Drop in policies, access reviews or registers and get a result in one pass.</p>
-  <form id="analyze-form" method="post" action="/analyze" enctype="multipart/form-data" onsubmit="document.getElementById('ingestion-progress').hidden=false">
+  <form id="analyze-form" method="post" action="/analyze" enctype="multipart/form-data" data-busy>
     <div><label for="vendor">Company</label>
     <input type="text" id="vendor" name="vendor" required placeholder="Acme Cloud Inc."></div>
     <div class="grow"><label for="files">Upload security material</label>
@@ -533,14 +646,25 @@ def index(request: Request) -> HTMLResponse:
     <input type="file" id="files" name="files" multiple
            accept="{','.join(SUPPORTED)}"
            ondragenter="this.parentNode.classList.add('over')" ondragleave="this.parentNode.classList.remove('over')" ondrop="this.parentNode.classList.remove('over')"></span>
+    <div id="filelist" aria-live="polite"></div>
     <div class="small" style="margin-top:6px">{types} &middot; max 25 files per browser/API request, 5 MB each</div></div>
     <button type="submit" class="btn-main">Analyze Documents</button>
-    <div id="ingestion-progress" class="card small" hidden role="status" aria-live="polite">Uploading and analyzing evidence&hellip; classification, Evidence QA, semantic status and questionnaire evaluation will appear on the results page.</div>
   </form>
-  <form method="post" action="/analyze-sample" onsubmit="this.querySelector('button').disabled=true;document.getElementById('sample-progress').hidden=false">
+  <form method="post" action="/analyze-sample" data-busy>
     <button type="submit" class="btn-main">Try with sample evidence pack</button>
-    <div id="sample-progress" class="card small" hidden role="status" aria-live="polite">Analyzing sample evidence pack&hellip; results will open shortly.</div>
   </form>
+  <div id="busy-overlay" class="busy" role="status" aria-live="polite">
+    <div class="busy-card">
+      <div class="busy-spin"></div>
+      <h3>Analysing your evidence</h3>
+      <p id="busy-sub">This usually takes a few seconds.</p>
+      <ul class="busy-steps">
+        <li>Reading files</li><li>Classifying documents</li><li>Extracting facts</li>
+        <li>Validating provenance</li><li>Mapping to questions</li>
+      </ul>
+      <div class="busy-bar"><i></i></div>
+    </div>
+  </div>
 </div>
 <div class="card choice">
   <h3><i>&#9998;</i>Prefer to answer questions?</h3>
@@ -681,16 +805,49 @@ def _apply_graph_question_results(result):
         for p in o.provenance:
             a.known_facts.append(Fact('cross-artifact observation',o.detail,p.filename,p.locator,p.excerpt,'OPERATING_EVIDENCE','deterministic-graph','TABULAR','OPERATING_EVIDENCE'))
 
-def analyze_payloads(vendor: str, payloads, *, assessment_date=None):
-    """Shared CP016 orchestration used by web and offline pack runner."""
-    safe_event("assessment_started", file_count=len(payloads))
-    received = len(payloads)
-    received_payloads = list(payloads)
-    documents, errors, extraction, payloads = extract_many_detailed(payloads)   # duplicates processed once
-    if not received:
-        errors.append("no files were uploaded")
-    evidence = analyze_evidence(payloads, as_of=assessment_date)
-    result = ANALYZER.analyze(vendor[:200], documents, errors, demo_mode_enabled(), evidence, assessment_date=assessment_date)
+class _RunCtx:
+    """Mutable state handed from stage to stage; the only thing a stage reads or writes."""
+
+    def __init__(self, vendor, payloads, assessment_date=None, assessment_id=None):
+        self.vendor, self.payloads_in, self.date, self.assessment_id = vendor, list(payloads), assessment_date, assessment_id
+        self.documents, self.errors, self.extraction, self.payloads = [], [], [], []
+        self.workbooks, self.classification, self.evidence = {}, {}, []
+        self.result = self.sufficiency = self.report = self.summary = None
+
+
+def _st_extract(ctx):
+    safe_event("assessment_started", file_count=len(ctx.payloads_in))
+    ctx.documents, ctx.errors, ctx.extraction, ctx.payloads = extract_many_detailed(ctx.payloads_in)   # duplicates processed once
+    if not ctx.payloads_in:
+        ctx.errors.append("no files were uploaded")
+
+
+def _st_classify(ctx):
+    """Structural classification of tabular files; parsed workbooks are reused by validate."""
+    from evidence.classify import classify
+    from evidence.tabular import TabularError, is_tabular, read_tabular
+    names = [n for n, _ in ctx.payloads]
+    for name, data in ctx.payloads:
+        if not is_tabular(name):
+            continue
+        try:
+            wb = read_tabular(name, data)
+        except TabularError:
+            continue                       # validate reports it as unreadable
+        c = classify(wb)
+        ctx.classification[name] = dict(evidence_type=c.evidence_type, supported=bool(c.supported), confidence=str(c.confidence))
+        if names.count(name) == 1:         # same-named files must not share a parsed workbook
+            ctx.workbooks[name] = wb
+
+
+def _st_validate(ctx):
+    ctx.evidence = analyze_evidence(ctx.payloads, as_of=ctx.date, workbooks=ctx.workbooks)
+
+
+def _st_map(ctx):
+    assessment_date = ctx.date
+    result = ANALYZER.analyze(ctx.vendor[:200], ctx.documents, ctx.errors, demo_mode_enabled(), ctx.evidence, assessment_date=assessment_date)
+    evidence, payloads = ctx.evidence, ctx.payloads
     # Backup execution proves runs, not recoverability. Surface the distinction when no restore test exists.
     if any(e.evidence_type=='BACKUP_JOB_REPORT' for e in evidence) and not any(f.key=='restore_result' for f in result.recovery.facts):
         from bcp_dr import RecoveryAssessment, RecoveryIssue
@@ -709,12 +866,46 @@ def analyze_payloads(vendor: str, payloads, *, assessment_date=None):
     _apply_structured_evidence_results(result, frozenset(q for q, _ in cross))
     _apply_cross_file_findings(result, cross)
     _apply_graph_question_results(result)
-    result.files_received = received
-    result.extraction = [r.to_dict() for r in extraction]
+    result.files_received = len(ctx.payloads_in)
+    result.extraction = [r.to_dict() for r in ctx.extraction]
     from evidence.reproducibility import run_stamp
-    result.run_stamp = run_stamp(received_payloads, assessment_date, result.semantic_status)
-    safe_event("assessment_completed", assessment_id=result.assessment_id, files_received=len(payloads), files_parsed=len(documents), parse_errors=len(errors))
-    return result
+    result.run_stamp = run_stamp(ctx.payloads_in, assessment_date, result.semantic_status)
+    if ctx.assessment_id:
+        result.assessment_id = ctx.assessment_id
+    ctx.result = result
+    safe_event("assessment_completed", assessment_id=result.assessment_id, files_received=len(payloads), files_parsed=len(ctx.documents), parse_errors=len(ctx.errors))
+
+
+def _st_sufficiency(ctx):
+    """Per-question sufficiency dimensions over the same files (not stored on the assessment)."""
+    from evidence.sufficiency import evaluate_sufficiency
+    analysis = analyze_artifacts(ctx.payloads)
+    suff = evaluate_sufficiency(analysis, map_questionnaire(analysis)).to_dict()
+    tally: dict[str, int] = {}
+    for r in suff["requirements"]:
+        for d in r["dimensions"]:
+            tally[d["state"]] = tally.get(d["state"], 0) + 1
+    ctx.sufficiency = dict(requirements=len(suff["requirements"]), dimension_states=tally)
+
+
+def _st_report(ctx):
+    from evidence.report import build_question_reports
+    rep = build_question_reports(ctx.result.areas, ctx.result.extraction)
+    ctx.report = dict(questions=len(rep["questions"]), evidence_missing_groups=len(rep["evidence_missing"]),
+                      unread_files=len(rep["unread_material"]), duplicate_files=len(rep["duplicates"]))
+    ctx.summary = dict(sufficiency=ctx.sufficiency, report=ctx.report)
+
+
+def _stages_core():
+    return [_st_extract, _st_classify, _st_validate, _st_map]
+
+
+def analyze_payloads(vendor: str, payloads, *, assessment_date=None, assessment_id=None):
+    """Shared CP016 orchestration used by web and offline pack runner (same stages as the background job)."""
+    ctx = _RunCtx(vendor, payloads, assessment_date, assessment_id)
+    for stage in _stages_core():
+        stage(ctx)
+    return ctx.result
 
 @app.post('/guest/analyze')
 async def guest_analyze(request: Request):
@@ -763,6 +954,13 @@ async def analyze(request: Request):
     result = analyze_payloads(vendor, payloads)
     DOC_ASSESSMENTS[result.assessment_id] = result
     _bind_owner("doc-results", result.assessment_id, request)
+    assessment_id_var.set(result.assessment_id)
+    uid = _user_id(request)
+    if uid is not None:
+        try:
+            UPLOADS.save(uid, result.assessment_id, payloads)
+        except (OSError, ValueError) as exc:   # analysis still succeeds; the raw files just are not retained
+            log_event("upload_store_failed", code=ErrorCode.STORAGE_FAILED, level=logging.ERROR, error_type=type(exc).__name__)
     return RedirectResponse(f"/doc-results/{result.assessment_id}", status_code=303)
 
 
@@ -860,8 +1058,8 @@ def doc_results(assessment_id: str, request: Request = None) -> HTMLResponse:
                 for f in x.known_facts) or "<div class='small'>Evidence used: none.</div>")
             + ("<div class='small'><strong>Contradictions:</strong> eligible evidence disagrees; inspect provenance above.</div>" if x.status == CONFLICT else "<div class='small'><strong>Contradictions:</strong> none surfaced for this question.</div>")
             + "<div class='small'><strong>Evidence rejected:</strong> ineligible source roles, future/invalid dates and ungrounded semantic candidates cannot satisfy the contract; aggregate semantic rejections are shown in Analysis diagnostics.</div>"
-            f"<div class='small'><strong>Still unknown:</strong> {_esc('; '.join(x.missing_facts)) or '&mdash;'}</div>"
-            f"<div class='small'><strong>Evidence still needed:</strong> {_esc('; '.join(x.evidence_needed)) or '&mdash;'}</div>"
+            f"<div class='small'><strong>Still unknown:</strong> {_esc('; '.join(m for m in x.missing_facts if m.strip() not in ('', '—')) or 'Nothing further requested')}</div>"
+            f"<div class='small'><strong>Evidence still needed:</strong> {_esc('; '.join(x.evidence_needed) or 'Nothing further requested')}</div>"
             f"<details><summary class='small'>details</summary>"
             f"<span class='small'>{_esc(', '.join(x.detail_ids + [x.question_id]))}</span></details>"
             f"</div></details>"
@@ -1035,17 +1233,9 @@ def doc_results(assessment_id: str, request: Request = None) -> HTMLResponse:
         + ("".join(f"<li>{p}</li>" for p in bad_pts) or "<li>No gaps identified.</li>")
         + "</ul></div></div>"
     )
-    gap_rows = "".join(
-        f"<tr class='s-{x.status}'><td data-l='Area'><strong>{_esc(x.area)}</strong></td>"
-        f"<td data-l='Status'><span class='tag {tags[x.status]}'>{_esc(x.status.replace('_',' '))}</span></td>"
-        f"<td data-l='What&#39;s missing'>{_esc('; '.join(x.missing_facts)) or '&mdash;'}</td>"
-        f"<td data-l='Evidence needed'>{_esc('; '.join(x.evidence_needed)) or '&mdash;'}</td></tr>"
-        for x in gaps
-    )
-    gaps_table = (
-        f"<h2>Gaps to close ({len(gaps)})</h2><table class='gaps'><thead><tr><th>Area</th><th>Status</th>"
-        f"<th>What's missing</th><th>Evidence needed</th></tr></thead><tbody>{gap_rows}</tbody></table>"
-    ) if gaps else ""
+    from evidence.gap_view import build_gap_view, render_gap_section
+    gap_view = build_gap_view(implemented, a.extraction)
+    gaps_table = render_gap_section(gap_view, a.assessment_id) if gap_view["groups"] else ""
     docs_chips = "".join(f"<span class='tag t-skip'>{_esc(d)}</span>" for d in a.documents) or "<span class='small'>none</span>"
     semantic_label = ("SEMANTIC ANALYSIS ACTIVE" if a.semantic_status == "SEMANTIC_ACTIVE"
                       else "SEMANTIC ANALYSIS UNAVAILABLE - NEEDS_REVIEW"
@@ -1061,7 +1251,8 @@ def doc_results(assessment_id: str, request: Request = None) -> HTMLResponse:
     overview = f"""
 <div class="card top">{gauge}<div style="flex:1;min-width:220px"><h2>Vendor: {_esc(a.vendor)}</h2>
 <div class="small">Readiness: {pct}% of evaluated questions established or partial ({ev_n} evaluated)</div>
-<div class="meta"><span class="tag t-mode">MODE: {_esc(a.mode)}</span>{docs_chips}</div></div></div>
+<div class="meta"><span class="tag t-mode">MODE: {_esc(a.mode)}</span><span class="chip">{len(a.documents)} file(s) analysed</span></div>
+<details class="fileline"><summary>Show files</summary><div>{docs_chips}</div></details></div></div>
 <div class="card">{dist}{legend}</div>
 {health_card}
 {_what_changed_card(request, a)}
@@ -1100,6 +1291,39 @@ certification.</p></details>"""
 {_tabs(tab_items)}
 <div class="actions nop"><a class="pill" href="/assessment?vendor={_esc(a.vendor)}">Answer full questionnaire manually</a>
 {(f'<a class="pill" href="/export/{_esc(a.assessment_id)}">Export JSON report</a> <a class="pill" href="/export-pdf/{_esc(a.assessment_id)}">Download PDF</a>' if request is None or _user_id(request) is not None else '<a class="pill" href="/register">Create account to save &amp; export</a>')}<a class="pill" href="/">Start over</a></div>""")
+
+
+def _gap_view_for(assessment_id: str, request):
+    if request is not None and _auth_required() and _user_id(request) is None:
+        return None, JSONResponse({'error': 'create an account to use reports and exports'}, status_code=403)
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
+    if a is None:
+        return None, JSONResponse({"error": "Unknown assessment"}, status_code=404)
+    from documents import QUESTION_SPECS
+    from evidence.gap_view import build_gap_view
+    return (a, build_gap_view([x for x in a.areas if x.question_id in QUESTION_SPECS], a.extraction)), None
+
+
+@app.get("/gaps/{assessment_id}", response_class=HTMLResponse)
+def gaps_request_page(assessment_id: str, request: Request = None):
+    got, err = _gap_view_for(assessment_id, request)
+    if err is not None:
+        return err
+    from evidence.gap_view import render_request_page
+    a, view = got
+    return HTMLResponse(render_request_page(view, a.vendor, a.assessment_id))
+
+
+@app.get("/gaps-csv/{assessment_id}")
+def gaps_csv_export(assessment_id: str, request: Request = None):
+    got, err = _gap_view_for(assessment_id, request)
+    if err is not None:
+        return err
+    from evidence.gap_view import gaps_csv
+    a, view = got
+    return Response(gaps_csv(view), media_type="text/csv; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="evidence-request-{a.assessment_id}.csv"'})
+
 
 
 @app.get("/export/{assessment_id}")
@@ -1597,6 +1821,23 @@ def _bind_owner(kind: str, aid: str, request: Request) -> None:
     if principal is not None:
         _ASSESSMENT_OWNERS[(kind, aid)] = principal
 
+def _load_own_saved(kind: str, aid: str, principal: str):
+    """Rehydrate the caller's own saved, non-deleted assessment after a restart or cache eviction."""
+    if not principal.startswith('user:'):
+        return None
+    uid = int(principal.split(':', 1)[1])
+    blob = _accounts().load_saved(uid, kind, aid)   # scoped by user_id and deleted_at IS NULL
+    if blob is None:
+        return None
+    try:
+        obj = _deserialize_state(blob)
+    except (ValueError, TypeError, KeyError, AttributeError, ImportError):
+        return None
+    _STORES[kind][aid] = obj
+    _ASSESSMENT_OWNERS[(kind, aid)] = principal
+    return obj
+
+
 def _owned_get(store, kind: str, aid: str, request: Request):
     obj = store.get(aid)
     if not _auth_required():
@@ -1605,6 +1846,8 @@ def _owned_get(store, kind: str, aid: str, request: Request):
     if principal is None:
         return None
     owner = _ASSESSMENT_OWNERS.get((kind, aid))
+    if obj is None:
+        return _load_own_saved(kind, aid, principal)
     if owner is None and principal.startswith('user:'):
         uid = int(principal.split(':',1)[1])
         if _accounts().saved_exists(uid, kind, aid):
@@ -1625,7 +1868,7 @@ def _rate_ok(key: str, limit: int, window: int) -> bool:
             if not _RATE_BUCKETS[k]: _RATE_BUCKETS.pop(k, None)
     return True
 
-_PROTECTED_POSTS = {"/analyze", "/analyze-sample", "/assessment", "/run", "/api/evidence-map"}
+_PROTECTED_POSTS = {"/analyze", "/analyze-sample", "/assessment", "/run", "/api/evidence-map", "/jobs"}
 
 @app.middleware("http")
 async def _security_boundary(request: Request, call_next):
@@ -1643,7 +1886,7 @@ async def _security_boundary(request: Request, call_next):
             return JSONResponse({"error": "too many login attempts"}, status_code=429)
     if _auth_required():
         protected = request.method in {"POST", "PUT", "PATCH", "DELETE"} and (
-            request.url.path in _PROTECTED_POSTS or request.url.path.startswith("/clarify/")
+            request.url.path in _PROTECTED_POSTS or request.url.path.startswith(("/clarify/", "/jobs/"))
         ) or request.url.path.startswith("/api/v1/")
         uid = _user_id(request)
         api_key_ok = False
@@ -1694,6 +1937,27 @@ async def _persist_assessments(request: Request, call_next):
     return response
 
 
+@app.middleware("http")
+async def _request_context(request: Request, call_next):
+    """Outermost: request/assessment ids on every log line, and one access line per request (no query string)."""
+    rid = new_request_id(request.headers.get("x-request-id"))
+    request_id_var.set(rid)
+    assessment_id_var.set(assessment_id_from_path(request.url.path))
+    t0 = time.monotonic()
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        log_event("request_failed", code=ErrorCode.INTERNAL, level=logging.ERROR, method=request.method,
+                  path=request.url.path, error_type=type(exc).__name__,
+                  duration_ms=round((time.monotonic() - t0) * 1000))
+        raise
+    response.headers["X-Request-ID"] = rid
+    fields = {} if response.status_code < 400 else {"code": code_for_status(response.status_code)}
+    log_event("request", method=request.method, path=request.url.path, status=response.status_code,
+              duration_ms=round((time.monotonic() - t0) * 1000), **fields)
+    return response
+
+
 def _what_changed_card(request: Request, a) -> str:
     """Compare against the user's previous saved run for the same company (needs login/history)."""
     uid = _user_id(request)
@@ -1721,13 +1985,15 @@ def _what_changed_card(request: Request, a) -> str:
             still_open.append(f"{_esc(x.area)}: {_esc(x.status.replace('_', ' '))}")
 
     def block(title: str, items: list[str]) -> str:
-        lis = "".join(f"<li>{i}</li>" for i in items) or "<li class='small'>none</li>"
-        return f"<div><strong>{title} ({len(items)})</strong><ul>{lis}</ul></div>"
+        if not items:
+            return f"<div class='small' style='padding:8px 12px'>{title} (0)</div>"
+        lis = "".join(f"<li>{i}</li>" for i in items)
+        return f"<details><summary>{title} ({len(items)})</summary><ul>{lis}</ul></details>"
 
     return ("<div class='card' id='what-changed'><h2 style='margin-top:0'>What changed</h2>"
-            "<div class='small'>Versus your previous run for this company.</div>"
+            "<div class='small'>Versus your previous run for this company.</div><div class='chg' style='margin-top:10px'>"
             + block("Improved", improved) + block("Regressed", regressed)
-            + block("Still open", still_open) + "</div>")
+            + block("Still open", still_open) + "</div></div>")
 
 
 def _safe_next(value: str | None) -> str:
@@ -1824,17 +2090,394 @@ def logout(request: Request):
     return r
 
 
+_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_LIFECYCLE_ACTIONS = {"rename", "archive", "unarchive", "delete", "restore", "purge"}
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _retention_days() -> int:
+    """Days a soft-deleted item stays restorable before it is purged (DRIFTGUARD_RETENTION_DAYS, default 30)."""
+    try:
+        return max(0, int(os.getenv("DRIFTGUARD_RETENTION_DAYS", "30")))
+    except ValueError:
+        return 30
+
+
+def _evict_saved(kind: str, aid: str, uid: int | None = None) -> None:
+    """Drop in-memory state and stored uploads/checkpoints so a deleted/purged item cannot be served or recovered."""
+    _STORES[kind].pop(aid, None)
+    _ASSESSMENT_OWNERS.pop((kind, aid), None)
+    if uid is not None:
+        try:
+            UPLOADS.delete(uid, aid)
+        except (OSError, ValueError) as exc:
+            log_event("upload_delete_failed", code=ErrorCode.STORAGE_FAILED, level=logging.ERROR, error_type=type(exc).__name__)
+
+
+def _sweep_uploads(uid: int) -> None:
+    """Remove upload directories whose saved row is gone (e.g. dropped by the per-user history cap)."""
+    repo = _accounts()
+    live = {r.aid for deleted in (False, True) for r in repo.list_saved(uid, deleted=deleted)}
+    UPLOADS.sweep(uid, live)
+
+
+def _purge_expired_saved() -> None:
+    for _uid, kind, aid in _accounts().purge_expired(_now_iso(), _retention_days()):
+        _evict_saved(kind, aid, _uid)
+
+
+def _not_found() -> HTMLResponse:
+    return _page("Not found", "<div class='card'><h2>Not found</h2><p><a href='/my-assessments'>Back to My assessments</a></p></div>", 404)
+
+
+def _status_text(value: str) -> str:
+    return _esc(str(value).replace("_", " "))
+
+
 @app.get("/my-assessments", response_class=HTMLResponse)
 def my_assessments(request: Request):
     uid = _user_id(request)
     if uid is None:
         return RedirectResponse("/login", status_code=303)
-    rows = _accounts().list_saved(uid)
-    items = "".join(f"<li><a href='/{_esc(row.kind)}/{_esc(row.aid)}'>{_esc(row.label)}</a> <small>{_esc(row.created)}</small></li>"
-                    for row in rows) or "<li>No saved assessments yet.</li>"
+    _purge_expired_saved()
+    _sweep_uploads(uid)
+    qp = request.query_params
+    trash = qp.get("view") == "trash"
+    q = qp.get("q", "").strip()[:100]
+    kind = qp.get("kind", "") if qp.get("kind", "") in _STORES else ""
+    d_from = qp.get("from", "") if _DATE_RE.match(qp.get("from", "")) else ""
+    d_to = qp.get("to", "") if _DATE_RE.match(qp.get("to", "")) else ""
+    arch = qp.get("archived", "active")
+    arch = arch if arch in {"active", "archived", "all"} else "active"
+    repo = _accounts()
+    rows = repo.list_saved(uid, query=q, kind=kind, date_from=d_from, date_to=d_to,
+                           archived={"active": False, "archived": True, "all": None}[arch], deleted=trash)
+    days = _retention_days()
+
+    def btn(action, row, text, extra=""):
+        return (f"<form method='post' action='/my-assessments/{action}' style='display:inline'>"
+                f"<input type='hidden' name='kind' value='{_esc(row.kind)}'><input type='hidden' name='aid' value='{_esc(row.aid)}'>"
+                f"{extra}<button type='submit' class='ghost'>{text}</button></form>")
+
+    kind_name = {"doc-results": "Evidence assessment", "results": "Questionnaire"}
+
+    def item(row):
+        kn = _esc(kind_name.get(row.kind, row.kind))
+        if trash:
+            return (f"<li class='arow'><span></span><span class='nm'>{_esc(row.label)}<span class='sub'>{kn} &middot; deleted {_esc(row.deleted_at)} "
+                    f"&middot; purged {days} days after deletion</span></span><span class='when'></span>"
+                    f"<span class='acts'>{btn('restore', row, 'Restore')}{btn('purge', row, 'Delete permanently')}</span></li>")
+        rename = f"<input name='label' value='{_esc(row.label)}' maxlength='200' aria-label='New name' required>"
+        tag = " <span class='chip'>Archived</span>" if row.archived_at else ""
+        rn = (f"<details><summary>Rename</summary><div class='rn'>"
+              f"<form method='post' action='/my-assessments/rename' style='display:flex;gap:6px;flex:1'>"
+              f"<input type='hidden' name='kind' value='{_esc(row.kind)}'><input type='hidden' name='aid' value='{_esc(row.aid)}'>"
+              f"{rename}<button type='submit'>Save</button></form></div></details>")
+        delete = btn('delete', row, 'Delete').replace("class='ghost'", "class='ghost danger'")
+        return (f"<li class='arow'><input type='checkbox' form='cmp' name='pick' value='{_esc(row.kind)}:{_esc(row.aid)}' aria-label='Select for compare'>"
+                f"<a class='nm' href='/{_esc(row.kind)}/{_esc(row.aid)}'>{_esc(row.label)}{tag}<span class='sub'>{kn}</span></a>"
+                f"<span class='when small'>{_esc(row.created)}</span>"
+                f"<span class='acts'>{rn}"
+                f"{btn('unarchive' if row.archived_at else 'archive', row, 'Unarchive' if row.archived_at else 'Archive')}"
+                f"{delete}</span></li>")
+
+    filtered = bool(q or kind or d_from or d_to)
+    items = "".join(item(r) for r in rows) or ("<li class='empty'>Nothing matches.</li>" if filtered else
+                                               "<li class='empty'>Trash is empty.</li>" if trash else
+                                               "<li class='empty'>No saved assessments yet. <a href='/'>Start one</a>.</li>")
+
+    def sel(cur, val):
+        return " selected" if cur == val else ""
+
+    filters = (
+        "<form method='get' action='/my-assessments' class='card toolbar'>"
+        f"<input name='q' value='{_esc(q)}' placeholder='Search by name' aria-label='Search name'>"
+        f"<select name='kind' aria-label='Kind'><option value=''>All types</option>"
+        f"<option value='doc-results'{sel(kind, 'doc-results')}>Evidence assessment</option>"
+        f"<option value='results'{sel(kind, 'results')}>Questionnaire</option></select>"
+        f"<input type='date' name='from' value='{_esc(d_from)}' aria-label='From date'>"
+        f"<input type='date' name='to' value='{_esc(d_to)}' aria-label='To date'>"
+        f"<select name='archived' aria-label='Archived'><option value='active'{sel(arch, 'active')}>Active</option>"
+        f"<option value='archived'{sel(arch, 'archived')}>Archived</option><option value='all'{sel(arch, 'all')}>All</option></select>"
+        + ("<input type='hidden' name='view' value='trash'>" if trash else "")
+        + "<button type='submit'>Filter</button></form>")
+    switch = ("<a class='pill' href='/my-assessments'>&larr; Back to assessments</a>" if trash
+              else "<a class='pill' href='/my-assessments?view=trash'>Trash</a><a class='pill' href='/'>+ New assessment</a>")
+    compare = "" if trash else ("<div class='card cmpbar nop'><span class='small'>Tick two rows to compare runs.</span>"
+                                "<form id='cmp' method='get' action='/my-assessments/compare'>"
+                                "<button type='submit'>Compare two selected</button></form></div>")
+    audit = "".join(f"<li><small>{_esc(a.at)} &middot; {_esc(a.action)} &middot; {_esc(a.kind)}/{_esc(a.aid)} {_esc(a.detail)}</small></li>"
+                    for a in repo.list_audit(uid, 10)) or "<li><small>No activity yet.</small></li>"
     return _page("My assessments", (
-        f"<div class='card'><h2>My assessments</h2><ul>{items}</ul>"
-        "<form method='post' action='/logout'><button type='submit'>Log out</button></form></div>"))
+        f"<div class='pg-head'><div><h2>{'Trash' if trash else 'My assessments'}</h2>"
+        f"<p>{len(rows)} item(s)</p></div><div class='actions' style='margin:0'>{switch}</div></div>"
+        f"{filters}<div class='card' style='padding:0'><ul class='alist'>{items}</ul></div>{compare}"
+        f"<details class='fold'><summary>Recent activity</summary><ul class='small'>{audit}</ul></details>"))
+
+
+@app.post("/my-assessments/{action}")
+async def my_assessments_action(action: str, request: Request):
+    """Owner-only lifecycle actions. Anything not owned by the caller is indistinguishable from missing (404)."""
+    uid = _user_id(request)
+    if uid is None:
+        return RedirectResponse("/login", status_code=303)
+    f = parse_qs((await request.body()).decode("utf-8", "replace"))
+    kind, aid = f.get("kind", [""])[0], f.get("aid", [""])[0][:200]
+    if action not in _LIFECYCLE_ACTIONS or kind not in _STORES or not aid:
+        return _not_found()
+    repo, now = _accounts(), _now_iso()
+    if action == "rename":
+        label = " ".join(f.get("label", [""])[0].split())[:200]
+        if not label:
+            return _page("Rename", "<div class='card'><h2>Name required</h2><p><a href='/my-assessments'>Back</a></p></div>", 400)
+        ok = repo.rename_saved(uid, kind, aid, label, now)
+    elif action in ("archive", "unarchive"):
+        ok = repo.set_archived(uid, kind, aid, action == "archive", now)
+    elif action == "delete":
+        ok = repo.soft_delete_saved(uid, kind, aid, now)
+    elif action == "restore":
+        ok = repo.restore_saved(uid, kind, aid, now, _retention_days())
+    else:
+        ok = repo.purge_saved(uid, kind, aid, now)
+    if not ok:
+        repo.record_audit(uid, f"{action}.denied", kind, aid, now)
+        return _not_found()
+    if action in ("delete", "purge"):
+        _evict_saved(kind, aid, uid)
+    return RedirectResponse("/my-assessments", status_code=303)
+
+
+@app.get("/my-assessments/compare", response_class=HTMLResponse)
+def my_assessments_compare(request: Request):
+    from assessment_compare import CompareUnsupported, compare_assessments
+    uid = _user_id(request)
+    if uid is None:
+        return RedirectResponse("/login", status_code=303)
+    picks = list(dict.fromkeys(request.query_params.getlist("pick")))
+    if len(picks) != 2:
+        return _page("Compare", "<div class='card'><h2>Select exactly two assessments</h2><p><a href='/my-assessments'>Back</a></p></div>", 400)
+    repo, loaded = _accounts(), []
+    for pick in picks:
+        kind, _, aid = pick.partition(":")
+        meta = repo.get_saved_meta(uid, kind, aid) if kind in _STORES and aid else None
+        blob = repo.load_saved(uid, kind, aid) if meta else None
+        if blob is None:
+            repo.record_audit(uid, "compare.denied", kind[:40], aid[:200], _now_iso())
+            return _not_found()
+        try:
+            loaded.append((meta, _deserialize_state(blob)))
+        except (ValueError, TypeError, KeyError, AttributeError, ImportError):
+            return _page("Compare", "<div class='card'><h2>Saved state is unreadable</h2></div>", 422)
+    loaded.sort(key=lambda m: m[0].created)  # older run is the baseline
+    (m1, o1), (m2, o2) = loaded
+    try:
+        cmp = compare_assessments(o1, o2)
+    except CompareUnsupported as exc:
+        return _page("Compare", f"<div class='card'><h2>Cannot compare</h2><p>{_esc(str(exc))}</p><p><a href='/my-assessments'>Back</a></p></div>", 422)
+    repo.record_audit(uid, "compare", m1.kind, m1.aid, _now_iso(), f"with {m2.kind}/{m2.aid}")
+    statuses = sorted(set(cmp.base_counts) | set(cmp.other_counts))
+    counts = "".join(f"<tr><td>{_status_text(s)}</td><td>{cmp.base_counts.get(s, 0)}</td><td>{cmp.other_counts.get(s, 0)}</td></tr>" for s in statuses)
+
+    def side(s):
+        if s is None:
+            return "<em>not present</em>"
+        src = f"{_esc(s.source_file)} &middot; {_esc(s.source_locator)}" if (s.source_file or s.source_locator) else "no source recorded"
+        snip = f"<br><small>{_esc(s.source_snippet)}</small>" if s.source_snippet else ""
+        return f"{_status_text(s.status)}<br><small>{src}</small>{snip}"
+
+    changed = [c for c in cmp.changes if c.change != "UNCHANGED"]
+    rows = "".join(f"<tr><td>{_esc(c.question_id)}<br><small>{_esc(c.area)}</small></td><td>{_esc(c.change.title())}</td>"
+                   f"<td>{side(c.base)}</td><td>{side(c.other)}</td></tr>" for c in changed) or "<tr><td colspan='4'>No status changes.</td></tr>"
+    return _page("Compare assessments", (
+        f"<div class='card'><h2>Compare assessments</h2><p><strong>Baseline:</strong> {_esc(m1.label)} <small>{_esc(m1.created)}</small><br>"
+        f"<strong>Comparison:</strong> {_esc(m2.label)} <small>{_esc(m2.created)}</small></p>"
+        f"<h3>Counts by status</h3><table><tr><th>Status</th><th>Baseline</th><th>Comparison</th></tr>{counts}</table>"
+        f"<h3>Question changes</h3><p><small>{cmp.unchanged} question(s) unchanged. Observations only; no determination is made.</small></p>"
+        f"<table><tr><th>Question</th><th>Change</th><th>Baseline</th><th>Comparison</th></tr>{rows}</table>"
+        "<p><a href='/my-assessments'>Back to My assessments</a></p></div>"))
+
+# ---------------------------------------------------------------------------
+# Evidence-to-question audit trail (queryable per question, exportable).
+@app.get("/audit-trail/{assessment_id}")
+def audit_trail(assessment_id: str, request: Request = None):
+    if request is not None and _auth_required() and _user_id(request) is None:
+        return JSONResponse({'error': 'create an account to use reports and exports'}, status_code=403)
+    a = _owned_get(DOC_ASSESSMENTS, "doc-results", assessment_id, request)
+    if a is None:
+        return JSONResponse({"error": "Unknown assessment"}, status_code=404)
+    from evidence import audit_trail as at
+    trail = at.build_audit_trail(a)
+    qid = request.query_params.get("question", "") if request is not None else ""
+    if qid:
+        if qid not in {x.question_id for x in a.areas}:
+            return JSONResponse({"error": "Unknown question"}, status_code=404)
+        trail = at.for_question(trail, qid)
+    if (request.query_params.get("format", "json") if request is not None else "json") == "csv":
+        return Response(at.to_csv(trail), media_type="text/csv; charset=utf-8",
+                        headers={"Content-Disposition": f'attachment; filename="audit-trail-{a.assessment_id}.csv"'})
+    return JSONResponse(trail)
+
+
+# ---------------------------------------------------------------------------
+# Background analysis job: stages with checkpoints, progress, per-stage timeouts.
+import threading as _threading  # noqa: E402
+
+_JOB_SLOTS = _threading.BoundedSemaphore(max(1, int(os.getenv("DRIFTGUARD_JOB_WORKERS", "2") or 2)))
+
+
+def _job_stages() -> list:
+    enc, dec = _state_encode, _state_decode
+
+    def save_extract(c):
+        return dict(documents=enc(c.documents), errors=list(c.errors), extraction=enc(c.extraction),
+                    unique_sha=[r.sha256 for r in c.extraction if r.status != "DUPLICATE"])
+
+    def load_extract(c, p):
+        c.documents, c.errors, c.extraction = dec(p["documents"]), list(p["errors"]), dec(p["extraction"])
+        want, c.payloads = set(p["unique_sha"]), []
+        for name, data in c.payloads_in:
+            d = hashlib.sha256(data).hexdigest()
+            if d in want:
+                want.discard(d)
+                c.payloads.append((name, data))
+
+    def save_map(c):
+        return enc(c.result)
+
+    def load_map(c, p):
+        c.result = dec(p)
+        c.result.assessment_id = c.assessment_id
+
+    S = _jobs.Stage
+    return [
+        S("extract", _st_extract, save_extract, load_extract),
+        S("classify", _st_classify, lambda c: c.classification, lambda c, p: c.classification.update(p)),
+        S("validate", _st_validate, lambda c: enc(c.evidence), lambda c, p: setattr(c, "evidence", dec(p))),
+        S("map", _st_map, save_map, load_map),
+        S("sufficiency", _st_sufficiency, lambda c: c.sufficiency, lambda c, p: setattr(c, "sufficiency", p), required=False),
+        S("report", _st_report, None, None, required=False),
+    ]
+
+
+def _job_view(uid: int, aid: str):
+    """Status of a job owned by uid; the directory is keyed by owner, so another user's job simply does not exist."""
+    try:
+        job = _jobs.Job(UPLOADS.dir_for(uid, aid))
+    except ValueError:
+        return None
+    st = job.status()
+    return (job, st) if st else None
+
+
+def _job_worker(uid: int, aid: str, rid: str) -> None:
+    request_id_var.set(rid)
+    assessment_id_var.set(aid)
+    try:
+        with _JOB_SLOTS:
+            _job_worker_body(uid, aid)
+    finally:
+        with _jobs._ACTIVE_LOCK:
+            _jobs.ACTIVE.discard(aid)
+
+
+def _job_worker_body(uid: int, aid: str) -> None:
+    job = _jobs.Job(UPLOADS.dir_for(uid, aid))
+    try:
+        payloads = UPLOADS.load(uid, aid)
+    except (OSError, ValueError) as exc:
+        rec = job.read()
+        rec.update(state="failed", error_code=ErrorCode.STORAGE_FAILED.value)
+        job.write(rec)
+        log_event("job_stopped", code=ErrorCode.STORAGE_FAILED, level=logging.ERROR, error_type=type(exc).__name__)
+        return
+    ctx = _RunCtx(job.read().get("vendor", "Unnamed vendor"), payloads, assessment_id=aid)
+
+    def finish(c):
+        result = c.result
+        DOC_ASSESSMENTS[aid] = result
+        _ASSESSMENT_OWNERS[("doc-results", aid)] = f"user:{uid}"
+        _accounts().save_bounded(uid, "doc-results", aid, str(result.vendor), _serialize_state(result), limit=100)
+        try:
+            _sweep_uploads(uid)
+        except OSError:
+            pass
+
+    job.run(_job_stages(), ctx, on_complete=finish)
+
+
+def _start_job(uid: int, aid: str, rid: str) -> None:
+    """Mark the job queued and active before the thread exists, so a status read right after the 202 is truthful."""
+    job = _jobs.Job(UPLOADS.dir_for(uid, aid))
+    rec = job.read()
+    rec.update(state="queued", error_code="")
+    job.write(rec)
+    with _jobs._ACTIVE_LOCK:
+        _jobs.ACTIVE.add(aid)
+    _threading.Thread(target=_job_worker, args=(uid, aid, rid), daemon=True, name=f"dg-job-{aid[:8]}").start()
+
+
+def _job_json(st: dict, aid: str) -> dict:
+    out = dict(st, assessment_id=aid, status_url=f"/jobs/{aid}")
+    if st.get("state") == "completed":
+        out["result_url"] = f"/doc-results/{aid}"
+    return out
+
+
+@app.post("/jobs")
+async def jobs_create(request: Request):
+    uid = _user_id(request)
+    if uid is None:
+        return JSONResponse({"error": "authentication required"}, status_code=401)
+    async with request.form() as form:
+        vendor = str(form.get("vendor") or "Unnamed vendor")[:200]
+        payloads = await read_uploads(form)
+    if not payloads:
+        return JSONResponse({"error": "no files were uploaded"}, status_code=400)
+    aid = secrets.token_hex(16)
+    assessment_id_var.set(aid)
+    try:
+        UPLOADS.save(uid, aid, payloads)
+        job = _jobs.Job(UPLOADS.dir_for(uid, aid))
+        job.create(aid, vendor, [s.name for s in _job_stages()])
+    except (OSError, ValueError) as exc:
+        log_event("job_create_failed", code=ErrorCode.STORAGE_FAILED, level=logging.ERROR, error_type=type(exc).__name__)
+        return JSONResponse({"error": "could not store the upload", "error_code": ErrorCode.STORAGE_FAILED.value}, status_code=500)
+    log_event("job_queued", file_count=len(payloads), bytes=sum(len(d) for _, d in payloads))
+    _start_job(uid, aid, request_id_var.get())
+    return JSONResponse(_job_json(job.status(), aid), status_code=202)
+
+
+@app.get("/jobs/{job_id}")
+def jobs_status(job_id: str, request: Request):
+    uid = _user_id(request)
+    if uid is None:
+        return JSONResponse({"error": "authentication required"}, status_code=401)
+    got = _job_view(uid, job_id)
+    if got is None:
+        return JSONResponse({"error": "Unknown job"}, status_code=404)
+    return JSONResponse(_job_json(got[1], job_id))
+
+
+@app.post("/jobs/{job_id}/resume")
+def jobs_resume(job_id: str, request: Request):
+    uid = _user_id(request)
+    if uid is None:
+        return JSONResponse({"error": "authentication required"}, status_code=401)
+    got = _job_view(uid, job_id)
+    if got is None:
+        return JSONResponse({"error": "Unknown job"}, status_code=404)
+    job, st = got
+    if not job.resumable():
+        return JSONResponse({"error": "job is not resumable", "error_code": ErrorCode.JOB_NOT_RESUMABLE.value,
+                             "state": st["state"]}, status_code=409)
+    assessment_id_var.set(job_id)
+    log_event("job_resume", state=st["state"], completed_stages=st.get("completed_stages", []))
+    _start_job(uid, job_id, request_id_var.get())
+    return JSONResponse(_job_json(job.status(), job_id), status_code=202)
+
 
 # ---------------------------------------------------------------------------
 # CP025 public integration surface. These endpoints expose platform capability

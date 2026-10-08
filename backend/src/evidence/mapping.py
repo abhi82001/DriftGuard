@@ -7,13 +7,13 @@ observations and cannot silently become EV-IAM-001 or prove enforcement.
 """
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 from .backbone import EvidenceAnalysis, ArtifactProvenance
-from .knowledge import _knowledge_root
+from .knowledge import (_knowledge_root, evaluated_questions, framework_identity,
+                        load_questionnaire)
 
 OBSERVED = "EVIDENCE_OBSERVED"
 PARTIAL = "PARTIAL_EVIDENCE"
@@ -45,23 +45,29 @@ class QuestionEvidence:
     explanation: str
     next_action: str
     links: tuple[EvidenceLink, ...]
+    framework: str = ""
+    framework_version: str = ""
 
     def to_dict(self) -> dict:
         return dict(question_id=self.question_id, question=self.question,
                     related_controls=list(self.related_controls),
                     expected_evidence=list(self.expected_evidence), state=self.state,
                     explanation=self.explanation, next_action=self.next_action,
-                    links=[link.to_dict() for link in self.links])
+                    links=[link.to_dict() for link in self.links],
+                    framework=self.framework, framework_version=self.framework_version)
 
 
 @dataclass(frozen=True)
 class MappingView:
     questionnaire_id: str
     questions: tuple[QuestionEvidence, ...]
+    framework: str = ""
+    framework_version: str = ""
 
     def to_dict(self) -> dict:
         return dict(record_type="evidence_question_mapping",
                     questionnaire_id=self.questionnaire_id,
+                    framework=self.framework, framework_version=self.framework_version,
                     questions=[q.to_dict() for q in self.questions])
 
 
@@ -70,14 +76,16 @@ def map_questionnaire(analysis: EvidenceAnalysis,
                       knowledge_root: Optional[Path] = None) -> MappingView:
     """Map existing classified artifacts to authoritative questionnaire edges.
 
-    CP009 slice evaluates Q01 and Q03-Q06 only. Q02 needs explicit auth-path
-    enumeration, not a keyword match. Other questions remain NOT_EVALUATED.
+    Which questions are evaluated comes from the framework's
+    ``framework/mapping_profile.json`` (SOC 2: Q01 and Q03-Q06 of QN-ACCESS-001;
+    Q02 needs explicit auth-path enumeration, not a keyword match). Every other
+    question remains NOT_EVALUATED. The framework is whatever ``knowledge_root``
+    holds; nothing here is specific to one framework.
     """
-    if questionnaire_id != "QN-ACCESS-001":
-        raise ValueError("CP009 slice currently supports QN-ACCESS-001 only")
     base = Path(knowledge_root) if knowledge_root is not None else _knowledge_root()
-    questionnaire = json.loads((base / "questionnaires" /
-                                f"{questionnaire_id}.json").read_text(encoding="utf-8"))
+    questionnaire = load_questionnaire(questionnaire_id, base)
+    framework, version = framework_identity(base)
+    evaluated = evaluated_questions(questionnaire_id, base)
     output = []
     for question in questionnaire["questions"]:
         qid = question["question_id"]
@@ -89,10 +97,11 @@ def map_questionnaire(analysis: EvidenceAnalysis,
         for control_id in controls:
             if not (base / "controls" / f"{control_id}.json").is_file():
                 raise ValueError(f"Question {qid} references missing control {control_id}")
-        if qid not in {f"QN-ACCESS-001-Q{i:02d}" for i in (1, 3, 4, 5, 6)}:
+        stamp = dict(framework=question["framework"], framework_version=question["framework_version"])
+        if qid not in evaluated:
             output.append(QuestionEvidence(qid, question["text"], controls, expected,
                 NOT_EVALUATED, "Outside CP009 deterministic vertical slice.",
-                "Use human assessment; do not infer an answer from uploaded files.", ()))
+                "Use human assessment; do not infer an answer from uploaded files.", (), **stamp))
             continue
 
         # Strict ID matching prevents a policy paragraph from impersonating an
@@ -118,7 +127,7 @@ def map_questionnaire(analysis: EvidenceAnalysis,
                       qid == "QN-ACCESS-001-Q01" else
                       f"Upload and classify the required evidence: {', '.join(expected)}.")
             output.append(QuestionEvidence(qid, question["text"], controls, expected,
-                                           REQUEST, explanation, action, context_links))
+                                           REQUEST, explanation, action, context_links, **stamp))
             continue
         if len(matches) > 1 or any(a.needs_review for a in matches):
             state = REVIEW
@@ -137,5 +146,5 @@ def map_questionnaire(analysis: EvidenceAnalysis,
                   "and closure evidence as applicable." if state != OBSERVED else
                   "Verify scope, period and enforcement independently before answering the question.")
         output.append(QuestionEvidence(qid, question["text"], controls, expected,
-                                       state, detail, action, links))
-    return MappingView(questionnaire_id, tuple(output))
+                                       state, detail, action, links, **stamp))
+    return MappingView(questionnaire_id, tuple(output), framework, version)

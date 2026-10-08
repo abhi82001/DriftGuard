@@ -3,6 +3,7 @@
   "knowledge_base_id": "KB-DRIFTGUARD-SOC2",
   "name": "DriftGuard SOC 2 Knowledge Base",
   "framework": "SOC2",
+  "registry_version": "2017",
   "framework_full_name": "SOC 2 - System and Organization Controls 2",
   "framework_authority": "AICPA",
   "criteria_set": {

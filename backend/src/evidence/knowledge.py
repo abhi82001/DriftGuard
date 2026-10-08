@@ -45,6 +45,63 @@ def grounding(evidence_id: str, rule_id: str = "") -> str:
     return f"{evidence_id}/{rule_id}"
 
 
+def framework_identity(root: Optional[Path] = None) -> tuple[str, str]:
+    """(framework id, framework version) of a knowledge directory.
+
+    Read from ``framework/metadata.json``; a directory without it is labelled by
+    its own name with an empty version rather than guessed.
+    """
+    base = Path(root) if root else _knowledge_root()
+    path = base / "framework" / "metadata.json"
+    if not path.is_file():
+        return base.name, ""
+    meta = json.loads(path.read_text(encoding="utf-8"))
+    return meta.get("framework", base.name), str(meta.get("registry_version", ""))
+
+
+def load_controls(root: Optional[Path] = None) -> list[dict]:
+    """Control records stamped with ``framework`` / ``framework_version``.
+
+    A value already on the record wins; the stamp only fills a missing one.
+    """
+    base = Path(root) if root else _knowledge_root()
+    key, version = framework_identity(base)
+    out = []
+    for path in sorted((base / "controls").glob("*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        record.setdefault("framework", key)
+        record.setdefault("framework_version", version)
+        out.append(record)
+    return out
+
+
+def load_questionnaire(questionnaire_id: str, root: Optional[Path] = None) -> dict:
+    """A questionnaire whose questions each carry ``framework`` / ``framework_version``."""
+    base = Path(root) if root else _knowledge_root()
+    path = base / "questionnaires" / f"{questionnaire_id}.json"
+    if not path.is_file():
+        raise ValueError(f"unknown questionnaire {questionnaire_id!r}")
+    record = json.loads(path.read_text(encoding="utf-8"))
+    key, version = framework_identity(base)
+    record.setdefault("framework", key)
+    record.setdefault("framework_version", version)
+    for question in record["questions"]:
+        question.setdefault("framework", record["framework"])
+        question.setdefault("framework_version", record["framework_version"])
+    return record
+
+
+def evaluated_questions(questionnaire_id: str, root: Optional[Path] = None) -> frozenset[str]:
+    """Question ids the evidence mapping evaluates, from ``framework/mapping_profile.json``."""
+    base = Path(root) if root else _knowledge_root()
+    path = base / "framework" / "mapping_profile.json"
+    if not path.is_file():
+        return frozenset()
+    profile = json.loads(path.read_text(encoding="utf-8"))
+    entry = profile.get("questionnaires", {}).get(questionnaire_id, {})
+    return frozenset(entry.get("evaluated_questions", ()))
+
+
 def _knowledge_root() -> Path:
     from evaluation.engine import resolve_knowledge_root
 

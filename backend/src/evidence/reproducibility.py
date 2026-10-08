@@ -26,6 +26,12 @@ def input_hash(payloads: Iterable[tuple[str, bytes]]) -> str:
     return hashlib.sha256(json.dumps(pairs).encode()).hexdigest()
 
 
+def file_manifest(payloads: Iterable[tuple[str, bytes]]) -> list[dict]:
+    """Per-file SHA-256 and size, sorted, so a saved run records exactly which bytes it analysed."""
+    return sorted(({"filename": name, "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+                   for name, data in payloads), key=lambda r: (r["filename"], r["sha256"]))
+
+
 def knowledge_hash(root: Optional[Path] = None) -> str:
     from evaluation.engine import resolve_knowledge_root
     base = Path(root) if root else resolve_knowledge_root()
@@ -40,6 +46,7 @@ def run_stamp(payloads, assessment_date: Optional[date], ai_status: str = "DETER
     from evaluation.engine import GAP_GRAMMAR_VERSION
     return dict(
         input_hash=input_hash(payloads),
+        input_files=file_manifest(payloads),
         assessment_date=(assessment_date or date.today()).isoformat(),
         assessment_date_source="supplied" if assessment_date else "system date (not supplied)",
         engine_version=ENGINE_VERSION,

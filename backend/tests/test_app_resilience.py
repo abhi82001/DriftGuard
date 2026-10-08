@@ -15,12 +15,13 @@ client = TestClient(appmod.app, raise_server_exceptions=False)
 
 def test_health_reports_ai_off_without_key(monkeypatch):
     monkeypatch.delenv("DRIFTGUARD_DEMO_MODE", raising=False)
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.delenv("DRIFTGUARD_CLAUDE_MODEL", raising=False)
+    for name in ("ANTHROPIC_API_KEY", "DRIFTGUARD_AI_PROVIDER", "DRIFTGUARD_AI_MODEL",
+                 "DRIFTGUARD_SEMANTIC_PROVIDER", "DRIFTGUARD_CLAUDE_MODEL"):
+        monkeypatch.delenv(name, raising=False)
     body = client.get("/health").json()
     assert body["status"] == "ok"
     assert body["ai"]["ai_active"] is False
-    assert set(body["ai"]["missing_config"]) == {"ANTHROPIC_API_KEY", "DRIFTGUARD_CLAUDE_MODEL"}
+    assert set(body["ai"]["missing_config"]) == {"DRIFTGUARD_AI_PROVIDER", "DRIFTGUARD_AI_MODEL"}
 
 
 def test_health_never_leaks_key(monkeypatch):

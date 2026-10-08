@@ -1,0 +1,50 @@
+{
+  "record_type": "questionnaire",
+  "questionnaire_id": "QN-ISO-STUB-001",
+  "name": "ISO27001 stub questionnaire",
+  "status": "test_stub",
+  "notes": [
+    "TEST STUB: placeholder identifiers only, not ISO/IEC 27001 content. Proves a framework needs knowledge files only."
+  ],
+  "questions": [
+    {
+      "question_id": "QN-ISO-STUB-001-Q01",
+      "text": "Stub question Q01 for control A.5.15?",
+      "related_controls": [
+        "ISO-A.5.15-001"
+      ],
+      "related_criteria": [
+        "A.5.15"
+      ],
+      "expected_evidence": [
+        "EV-STUB-001"
+      ]
+    },
+    {
+      "question_id": "QN-ISO-STUB-001-Q02",
+      "text": "Stub question Q02 for control A.5.17?",
+      "related_controls": [
+        "ISO-A.5.17-001"
+      ],
+      "related_criteria": [
+        "A.5.17"
+      ],
+      "expected_evidence": [
+        "EV-STUB-001"
+      ]
+    },
+    {
+      "question_id": "QN-ISO-STUB-001-Q03",
+      "text": "Stub question Q03 for control A.8.15?",
+      "related_controls": [
+        "ISO-A.8.15-001"
+      ],
+      "related_criteria": [
+        "A.8.15"
+      ],
+      "expected_evidence": [
+        "EV-STUB-002"
+      ]
+    }
+  ]
+}

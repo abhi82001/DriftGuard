@@ -1,0 +1,10 @@
+{
+  "record_type": "framework_metadata",
+  "framework": "ISO27001",
+  "registry_version": "2022",
+  "name": "ISO 27001 stub",
+  "status": "test_stub",
+  "notes": [
+    "TEST STUB: placeholder identifiers only, not ISO/IEC 27001 content. Proves a framework needs knowledge files only."
+  ]
+}

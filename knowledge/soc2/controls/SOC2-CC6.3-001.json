@@ -89,7 +89,8 @@
   "questionnaire_questions": [
     "QN-ACCESS-001-Q03",
     "QN-ACCESS-001-Q04",
-    "QN-ACCESS-001-Q05"
+    "QN-ACCESS-001-Q05",
+    "QN-ACCESS-001-Q06"
   ],
   "related_controls": [
     {

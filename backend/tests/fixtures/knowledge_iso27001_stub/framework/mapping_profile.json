@@ -1,0 +1,13 @@
+{
+  "record_type": "mapping_profile",
+  "framework": "ISO27001",
+  "registry_version": "2022",
+  "questionnaires": {
+    "QN-ISO-STUB-001": {
+      "evaluated_questions": [
+        "QN-ISO-STUB-001-Q01",
+        "QN-ISO-STUB-001-Q03"
+      ]
+    }
+  }
+}

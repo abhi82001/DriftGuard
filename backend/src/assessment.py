@@ -25,7 +25,7 @@ from evaluation.engine import (  # noqa: E402
     resolve_knowledge_root,
 )
 from evaluation.execution import SemanticEvaluationRunner  # noqa: E402
-from evaluation.providers.claude import ClaudeSemanticEvaluator  # noqa: E402
+from evaluation.providers.claude import GatewaySemanticEvaluator  # noqa: E402
 from evaluation.semantic import (  # noqa: E402
     SemanticError,
     SemanticEvaluationRequest,
@@ -179,7 +179,7 @@ class QuestionResult:
 class Assessment:
     assessment_id: str
     vendor: str
-    mode: str                     # DEMO | CLAUDE
+    mode: str                     # DEMO | CLAUDE | AI
     results: list[QuestionResult]
 
     @property
@@ -217,11 +217,13 @@ def run_assessment(
         evaluator = DemoSemanticEvaluator()
     else:
         try:
-            evaluator = ClaudeSemanticEvaluator()
+            evaluator = GatewaySemanticEvaluator()
         except Exception as exc:  # noqa: BLE001 - fail safe, not fatal
             evaluator_error = f"semantic evaluation unavailable: {exc}"
     runner = SemanticEvaluationRunner(engine.knowledge, evaluator) if evaluator else None
-    source = "demo-stub" if demo else "claude"
+    provider = getattr(evaluator, "provider", "") or "anthropic"
+    source = "demo-stub" if demo else ("claude" if provider == "anthropic" else provider)
+    mode = "DEMO" if demo else ("CLAUDE" if provider == "anthropic" else "AI")
 
     results: list[QuestionResult] = []
     for doc in knowledge.questionnaires:
@@ -242,7 +244,7 @@ def run_assessment(
     return Assessment(
         assessment_id=uuid.uuid4().hex,
         vendor=vendor,
-        mode="DEMO" if demo else "CLAUDE",
+        mode=mode,
         results=results,
     )
 

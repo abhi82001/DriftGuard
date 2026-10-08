@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Protocol, runtime_checkable
 
 
@@ -14,6 +15,23 @@ class SavedAssessmentRow:
     aid: str
     label: str
     created: str
+    archived_at: str | None = None
+    deleted_at: str | None = None
+
+
+@dataclass(frozen=True)
+class AuditEntry:
+    user_id: int
+    action: str
+    kind: str
+    aid: str
+    at: str
+    detail: str = ""
+
+
+def retention_cutoff(now_iso: str, retention_days: int) -> str:
+    """ISO timestamp; items soft-deleted at or before it are outside the retention window."""
+    return (datetime.fromisoformat(now_iso) - timedelta(days=max(0, int(retention_days)))).isoformat()
 
 
 @runtime_checkable
@@ -29,4 +47,15 @@ class AccountRepository(Protocol):
     def update_password(self, user_id: int, password_hash: str) -> None: ...
     def replace_session(self, user_id: int, token: str, expires: str) -> None: ...
     def delete_session(self, token: str) -> None: ...
-    def list_saved(self, user_id: int) -> tuple[SavedAssessmentRow, ...]: ...
+    def list_saved(self, user_id: int, *, query: str = "", kind: str = "", date_from: str = "", date_to: str = "",
+                   archived: bool | None = None, deleted: bool = False) -> tuple[SavedAssessmentRow, ...]: ...
+    def get_saved_meta(self, user_id: int, kind: str, aid: str) -> SavedAssessmentRow | None: ...
+    # Lifecycle: every call is owner-scoped (user_id match) and returns False/empty for anyone else's item.
+    def rename_saved(self, user_id: int, kind: str, aid: str, label: str, now_iso: str) -> bool: ...
+    def set_archived(self, user_id: int, kind: str, aid: str, archived: bool, now_iso: str) -> bool: ...
+    def soft_delete_saved(self, user_id: int, kind: str, aid: str, now_iso: str) -> bool: ...
+    def restore_saved(self, user_id: int, kind: str, aid: str, now_iso: str, retention_days: int) -> bool: ...
+    def purge_saved(self, user_id: int, kind: str, aid: str, now_iso: str) -> bool: ...
+    def purge_expired(self, now_iso: str, retention_days: int) -> tuple[tuple[int, str, str], ...]: ...
+    def record_audit(self, user_id: int, action: str, kind: str, aid: str, now_iso: str, detail: str = "") -> None: ...
+    def list_audit(self, user_id: int, limit: int = 20) -> tuple[AuditEntry, ...]: ...

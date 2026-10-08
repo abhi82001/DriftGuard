@@ -27,11 +27,9 @@ What this adapter deliberately does NOT do:
     duplicated here;
   * retry, fall back to another provider, cache, or persist anything.
 
-Configuration (never hard-coded credentials):
-  ANTHROPIC_API_KEY        read by the Anthropic SDK itself; may also be passed
-                           explicitly to the constructor by the caller
-  DRIFTGUARD_CLAUDE_MODEL  REQUIRED model id (no default is assumed); may also
-                           be passed as model= to the constructor
+Transport is the unified AI gateway (driftguard_platform.ai_runtime). Configuration is
+DRIFTGUARD_AI_PROVIDER, DRIFTGUARD_AI_MODEL and the provider key; DRIFTGUARD_CLAUDE_MODEL is
+a deprecated fallback. ClaudeSemanticEvaluator remains as a thin wrapper.
 """
 
 from __future__ import annotations
@@ -50,7 +48,7 @@ from ..semantic import (
 )
 
 ENV_API_KEY = "ANTHROPIC_API_KEY"
-ENV_MODEL = "DRIFTGUARD_CLAUDE_MODEL"
+ENV_MODEL = "DRIFTGUARD_CLAUDE_MODEL"   # DEPRECATED fallback; DRIFTGUARD_AI_MODEL is the configuration
 DEFAULT_MAX_TOKENS = 4096
 
 
@@ -125,137 +123,62 @@ SYSTEM_PROMPT = (
 
 
 # ------------------------------------------------------------------- adapter
-class ClaudeSemanticEvaluator:
-    """SemanticEvaluator backed by Claude via the official Anthropic SDK.
+class GatewaySemanticEvaluator:
+    """SemanticEvaluator that runs through the AI gateway (ai_runtime.run_with).
 
-    The SDK is imported lazily, so importing this module (and running the test
-    suite) does not require the `anthropic` package. Tests inject a fake client
-    at the same boundary a real client occupies; no network call is ever made
-    from this repository's tests.
+    Only transport lives in the gateway: provider selection, retries, budget, structured output.
+    Everything this module's header promises still holds: the request is the only content sent,
+    output stays untrusted, `_to_result` maps it strictly without repair, and
+    validate_semantic_result() remains the single judge of vocabularies, grounding and verdicts.
+
+    `target` is None (process gateway built from DRIFTGUARD_AI_*), an AIGateway, or a bare AIProvider.
     """
 
-    def __init__(
-        self,
-        client: Any = None,
-        *,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
-        max_tokens: int = DEFAULT_MAX_TOKENS,
-        timeout: Optional[float] = None,
-    ) -> None:
-        resolved = model or os.environ.get(ENV_MODEL)
-        if not resolved:
-            raise ClaudeProviderError(
-                f"no Claude model configured: set {ENV_MODEL} to a model id your "
-                f"Anthropic account/SDK supports, or pass model= explicitly"
-            )
-        self.model = resolved
+    def __init__(self, target: Any = None, *, max_tokens: int = DEFAULT_MAX_TOKENS,
+                 assessment_id: str = "default") -> None:
         self.max_tokens = max_tokens
-        self._client = client if client is not None else self._build_client(api_key, timeout)
-
-    @staticmethod
-    def _build_client(api_key: Optional[str], timeout: Optional[float]) -> Any:
-        """Construct a real Anthropic client. Credentials are never hard-coded.
-
-        With no explicit api_key the SDK resolves credentials itself (e.g.
-        ANTHROPIC_API_KEY); the key is never read into a DriftGuard field, and
-        is never logged or echoed into an error message.
-        """
-        try:
-            import anthropic  # imported lazily: optional dependency
-        except ImportError as exc:  # pragma: no cover - environment dependent
-            raise ClaudeProviderError(
-                "the anthropic SDK is not installed; `pip install anthropic` "
-                "or inject a client explicitly"
-            ) from exc
-
-        kwargs: dict = {}
-        if api_key is not None:
-            kwargs["api_key"] = api_key
-        if timeout is not None:
-            kwargs["timeout"] = timeout
-        return anthropic.Anthropic(**kwargs)
+        self.assessment_id = assessment_id
+        self._target = target
+        if target is None:
+            from driftguard_platform.ai_runtime import readiness
+            ready = readiness()
+            if not ready["ready"]:
+                need = ", ".join(ready["missing"]) or ready["reason"]
+                raise ClaudeProviderError(f"AI provider not ready ({need}): set DRIFTGUARD_AI_PROVIDER, DRIFTGUARD_AI_MODEL and the provider key")
+            self.model, self.provider = ready["model"], ready["provider"]
+        else:
+            self.model, self.provider = getattr(target, "model", "") or "", getattr(target, "name", "") or ""
 
     # -- prompt construction -------------------------------------------------
     @staticmethod
     def build_payload(request: SemanticEvaluationRequest) -> dict:
-        """The exact object sent to the provider: the request, and only it.
-
-        request.to_dict() is already limited to the grounded fields
-        (condition_id, question_id, indicates_finding, source_condition,
-        fires_when, expected_elements, answer_text). No other knowledge is
-        added here.
-        """
+        """The exact object sent to the provider: the request, and only it (grounded fields only)."""
         return request.to_dict()
 
-    def build_create_kwargs(self, request: SemanticEvaluationRequest) -> dict:
-        return {
-            "model": self.model,
-            "max_tokens": self.max_tokens,
-            "system": SYSTEM_PROMPT,
-            "messages": [
-                {
-                    "role": "user",
-                    "content": json.dumps(
-                        self.build_payload(request), sort_keys=True, ensure_ascii=False
-                    ),
-                }
-            ],
-            "output_config": {"format": {"type": "json_schema", "schema": RESPONSE_SCHEMA}},
-        }
+    def build_ai_request(self, request: SemanticEvaluationRequest):
+        from driftguard_platform.ai import AIOperation, AIRequest
+        return AIRequest(
+            AIOperation.SEMANTIC_EVALUATE,
+            json.dumps(self.build_payload(request), sort_keys=True, ensure_ascii=False),
+            {}, (request.condition_id,),
+            schema=RESPONSE_SCHEMA, system=SYSTEM_PROMPT, max_output_tokens=self.max_tokens,
+        )
 
     # -- the contract method -------------------------------------------------
     def evaluate(self, request: SemanticEvaluationRequest) -> SemanticEvaluationResult:
-        """Run one semantic evaluation. Output is untrusted until CP003 validates it."""
+        """Run one semantic evaluation. Output is untrusted until validate_semantic_result accepts it."""
         if not isinstance(request, SemanticEvaluationRequest):
             raise ClaudeProviderError(
                 f"request must be a SemanticEvaluationRequest, got {type(request).__name__}"
             )
-
-        try:
-            response = self._client.messages.create(**self.build_create_kwargs(request))
-        except SemanticError:
-            raise
-        except Exception as exc:  # noqa: BLE001 - any provider fault fails closed
-            raise ClaudeProviderError(
-                f"Claude request failed: {type(exc).__name__}: {exc}"
-            ) from exc
-
-        text = self._extract_text(response)
-        payload = self._parse_json_object(text)
-        return self._to_result(payload, request)
+        from driftguard_platform.ai_runtime import run_with
+        outcome = run_with(self._target, self.build_ai_request(request), self.assessment_id)
+        if not outcome.ok:
+            cls = ClaudeOutputError if outcome.reason_code == "UNUSABLE_OUTPUT" else ClaudeProviderError
+            raise cls(f"AI request failed ({outcome.reason_code}): {outcome.detail}")
+        return self._to_result(dict(outcome.result.data), request)
 
     # -- response handling ---------------------------------------------------
-    @staticmethod
-    def _extract_text(response: Any) -> str:
-        stop_reason = _attr(response, "stop_reason")
-        if stop_reason in {"max_tokens", "refusal"}:
-            raise ClaudeOutputError(
-                f"Claude did not return a complete answer (stop_reason={stop_reason!r})"
-            )
-
-        blocks = _attr(response, "content")
-        if not isinstance(blocks, (list, tuple)) or not blocks:
-            raise ClaudeOutputError("Claude returned an empty response")
-
-        parts = [t for t in (_block_text(b) for b in blocks) if t]
-        text = "".join(parts).strip()
-        if not text:
-            raise ClaudeOutputError("Claude returned no text content")
-        return text
-
-    @staticmethod
-    def _parse_json_object(text: str) -> dict:
-        try:
-            payload = json.loads(text)
-        except (ValueError, TypeError) as exc:
-            raise ClaudeOutputError(f"Claude output is not valid JSON: {exc}") from exc
-        if not isinstance(payload, dict):
-            raise ClaudeOutputError(
-                f"Claude output must be a JSON object, got {type(payload).__name__}"
-            )
-        return payload
-
     @staticmethod
     def _to_result(
         payload: dict, request: SemanticEvaluationRequest
@@ -321,22 +244,49 @@ class ClaudeSemanticEvaluator:
         )
 
 
+class ClaudeSemanticEvaluator(GatewaySemanticEvaluator):
+    """Backward-compatible Claude entry point, now a thin wrapper over the gateway path.
+
+    With client/model given it runs one bare AnthropicProvider through run_with (the SDK client is
+    injectable, as before). Model id: model=, else DRIFTGUARD_AI_MODEL, else the deprecated
+    DRIFTGUARD_CLAUDE_MODEL.
+    """
+
+    def __init__(self, client: Any = None, *, api_key: Optional[str] = None, model: Optional[str] = None,
+                 max_tokens: int = DEFAULT_MAX_TOKENS, timeout: Optional[float] = None) -> None:
+        resolved = model or os.environ.get("DRIFTGUARD_AI_MODEL") or os.environ.get(ENV_MODEL)
+        if not resolved:
+            raise ClaudeProviderError(
+                f"no Claude model configured: set DRIFTGUARD_AI_MODEL (deprecated: {ENV_MODEL}) to a model id "
+                f"your Anthropic account/SDK supports, or pass model= explicitly"
+            )
+        from driftguard_platform.ai import AnthropicProvider
+        provider = AnthropicProvider(
+            api_key=api_key, model=resolved, max_output_tokens=max_tokens,
+            client=client if client is not None else self._build_client(api_key, timeout),
+        )
+        super().__init__(provider, max_tokens=max_tokens)
+        self.model, self.provider = resolved, "anthropic"
+
+    @staticmethod
+    def _build_client(api_key: Optional[str], timeout: Optional[float]) -> Any:
+        """Construct a real Anthropic client. Credentials are never hard-coded, logged or echoed."""
+        try:
+            import anthropic  # imported lazily: optional dependency
+        except ImportError as exc:  # pragma: no cover - environment dependent
+            raise ClaudeProviderError(
+                "the anthropic SDK is not installed; `pip install anthropic` "
+                "or inject a client explicitly"
+            ) from exc
+        kwargs: dict = {}
+        if api_key is not None:
+            kwargs["api_key"] = api_key
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+        return anthropic.Anthropic(**kwargs)
+
+
 # ------------------------------------------------------------------- helpers
-def _attr(obj: Any, name: str) -> Any:
-    """Read a field from an SDK model object or from a plain dict."""
-    if isinstance(obj, dict):
-        return obj.get(name)
-    return getattr(obj, name, None)
-
-
-def _block_text(block: Any) -> Optional[str]:
-    """Return the text of a text content block, or None for any other block."""
-    if _attr(block, "type") != "text":
-        return None
-    text = _attr(block, "text")
-    return text if isinstance(text, str) else None
-
-
 def _string_tuple(value: Any, field: str) -> tuple[str, ...]:
     if not isinstance(value, list) or not all(isinstance(v, str) for v in value):
         raise ClaudeOutputError(f"{field!r} must be an array of strings")

@@ -1,0 +1,17 @@
+{
+  "record_type": "mapping_profile",
+  "framework": "SOC2",
+  "registry_version": "2017",
+  "description": "Which questions the deterministic evidence-to-question mapping evaluates. Questions not listed stay NOT_EVALUATED. Q02 needs explicit authentication-path enumeration, not a keyword match.",
+  "questionnaires": {
+    "QN-ACCESS-001": {
+      "evaluated_questions": [
+        "QN-ACCESS-001-Q01",
+        "QN-ACCESS-001-Q03",
+        "QN-ACCESS-001-Q04",
+        "QN-ACCESS-001-Q05",
+        "QN-ACCESS-001-Q06"
+      ]
+    }
+  }
+}

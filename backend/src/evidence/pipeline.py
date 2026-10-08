@@ -46,15 +46,18 @@ def analyze_evidence_file(
     filename: str,
     data: bytes,
     extractor: Optional[extractor_registry.EvidenceExtractor] = None,
-    *, as_of=None,
+    *, as_of=None, workbook=None,
 ) -> StructuredEvidenceResult:
-    """Run the full pipeline over one tabular upload. Never raises on bad input."""
+    """Run the full pipeline over one tabular upload. Never raises on bad input.
+
+    `workbook` lets a caller that already parsed the file (the job's classify stage) skip the re-read."""
     if not is_tabular(filename):
         return _unreadable(filename, f"{filename} is not an XLSX or CSV file")
-    try:
-        workbook = read_tabular(filename, data)
-    except TabularError as exc:
-        return _unreadable(filename, str(exc))
+    if workbook is None:
+        try:
+            workbook = read_tabular(filename, data)
+        except TabularError as exc:
+            return _unreadable(filename, str(exc))
 
     classification = classify(workbook)
     if not classification.supported:
@@ -113,11 +116,12 @@ def analyze_evidence_file(
 
 def analyze_evidence(
     files: Iterable[tuple[str, bytes]],
-    *, as_of=None,
+    *, as_of=None, workbooks=None,
 ) -> list[StructuredEvidenceResult]:
     """Analyse every tabular upload; non-tabular files are left to CP006."""
+    workbooks = workbooks or {}
     return [
-        analyze_evidence_file(filename, data, as_of=as_of)
+        analyze_evidence_file(filename, data, as_of=as_of, workbook=workbooks.get(filename))
         for filename, data in files
         if is_tabular(filename)
     ]

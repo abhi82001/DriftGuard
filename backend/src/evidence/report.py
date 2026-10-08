@@ -397,6 +397,15 @@ _KIND = {
     "NOT_EVALUATED": "NOT_ASSESSED",
 }
 
+GAP_KIND_LABELS = {
+    "EVIDENCE_MISSING": "Evidence missing",
+    "PROVIDED_BUT_INSUFFICIENT": "Provided but insufficient",
+    "PROVIDED_BUT_CONFLICTING": "Conflicting",
+    "UNREADABLE_FILE": "Unreadable file",
+    "SUPPORTED": CUSTOMER_STATUS_LABELS["ESTABLISHED"],
+    "NOT_ASSESSED": CUSTOMER_STATUS_LABELS["NOT_EVALUATED"],
+}
+
 NOTHING_FURTHER = "Nothing further requested for this question."
 
 

@@ -9,7 +9,7 @@ GOOD = {'role': 'BACKUP_JOB_REPORT', 'map': {'system': 'job label', 'scheduled':
 
 
 class Fake:
-    name = 'fake'
+    name = 'fake'; model = 'm'
     def __init__(self, data, confidence=0.93): self.data, self.confidence, self.calls = data, confidence, 0
     def execute(self, request):
         self.calls += 1
@@ -17,6 +17,18 @@ class Fake:
 
 
 def book(): return read_tabular(*CSV)
+
+
+def use_fake_via_env(monkeypatch, tmp_path):
+    """Select the fake provider through env; the process gateway needs a capability entry for it."""
+    import json
+    from driftguard_platform.ai_runtime import reset_gateway
+    caps = tmp_path / 'caps.json'
+    caps.write_text(json.dumps({'models': {'fake:m': {'json_mode': True, 'context_tokens': 100000, 'tool_use': False}}}))
+    registry.register('fake', lambda **_: Fake(GOOD))
+    monkeypatch.setenv('DRIFTGUARD_AI_PROVIDER', 'fake'); monkeypatch.setenv('DRIFTGUARD_AI_MODEL', 'm')
+    monkeypatch.setenv('DRIFTGUARD_AI_CAPABILITIES_FILE', str(caps))
+    reset_gateway(); monkeypatch.setattr('driftguard_platform.ai_runtime._gateway', None)
 
 
 def test_ai_disabled_by_default_stays_unclassified():
@@ -28,8 +40,8 @@ def test_valid_mapping_accepted_and_flagged_unconfirmed():
     assert inf.role == 'BACKUP_JOB_REPORT' and AI_SIGNAL in inf.signals
 
 
-def test_recognize_uses_ai_through_existing_pipeline(monkeypatch):
-    registry.register('fake', lambda **_: Fake(GOOD)); monkeypatch.setenv('DRIFTGUARD_AI_PROVIDER', 'fake')
+def test_recognize_uses_ai_through_existing_pipeline(monkeypatch, tmp_path):
+    use_fake_via_env(monkeypatch, tmp_path)
     spec, sheet = recognize(book())
     assert spec.kind == 'BACKUP_JOB_REPORT' and 'system' in sheet.headers and AI_SIGNAL in spec.classification_signals
 
@@ -80,9 +92,9 @@ def test_classify_requires_source_ids():
         validate_result(AIResult(AIOperation.CLASSIFY, {'role': None}, 'f', 'm', (), .9))
 
 
-def test_unconfirmed_ai_result_needs_review_with_note(monkeypatch):
+def test_unconfirmed_ai_result_needs_review_with_note(monkeypatch, tmp_path):
     from evidence.pipeline import analyze_evidence_file
-    registry.register('fake', lambda **_: Fake(GOOD)); monkeypatch.setenv('DRIFTGUARD_AI_PROVIDER', 'fake')
+    use_fake_via_env(monkeypatch, tmp_path)
     r = analyze_evidence_file(*CSV)
     assert r.evidence_type == 'BACKUP_JOB_REPORT' and r.needs_review
     assert any('suggested by AI' in n for n in r.notes) and AI_SIGNAL in r.matched_signals

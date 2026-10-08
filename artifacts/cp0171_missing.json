@@ -3,6 +3,907 @@
   "files_processed": 1,
   "files_rejected": 0,
   "errors": [],
+  "extraction": [
+    {
+      "filename": "context.txt",
+      "status": "EXTRACTED",
+      "detail": "",
+      "remediation": "",
+      "sha256": "09d34cc7c5681bbc622f7e86c389512528769dc20a09f1b6693a2198f2a3502d",
+      "duplicate_of": "",
+      "note": "Unread material is not evidence of a missing or failed control."
+    }
+  ],
+  "explainability": {
+    "questions": [
+      {
+        "question_id": "QN-ACCESS-001-Q01",
+        "area": "Access Management",
+        "question": "Is a second authentication factor enforced for all human access to in-scope production systems, the identity provider, the cloud management console, and the source code repository?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Multi-Factor Authentication Enforcement Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Multi-Factor Authentication Enforcement Configuration) that states: Evidence of the type: Multi-Factor Authentication Enforcement Configuration."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q02",
+        "area": "Access Management",
+        "question": "List every authentication path into the in-scope environment that is NOT governed by the identity provider's policy, including direct application logins, VPN, SSH or bastion access, cloud CLI, long-lived API tokens, break-glass accounts, and vendor support portals.",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Multi-Factor Authentication Enforcement Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Multi-Factor Authentication Enforcement Configuration) that states: Evidence of the type: Multi-Factor Authentication Enforcement Configuration."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q03",
+        "area": "Access Management",
+        "question": "How frequently are user access reviews performed, and does that match the cadence stated in your access control policy?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: User Access Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example User Access Review Record) that states: Evidence of the type: User Access Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q04",
+        "area": "Access Management",
+        "question": "Which identity populations are included in the access review: employees, contractors, service accounts, shared accounts, and privileged or administrative roles?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: User Access Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example User Access Review Record) that states: Evidence of the type: User Access Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q05",
+        "area": "Access Management",
+        "question": "When an access review flags an entitlement for removal, how is the removal tracked, and how is it confirmed in the underlying system?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: User Access Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example User Access Review Record) that states: Evidence of the type: User Access Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q06",
+        "area": "Access Management",
+        "question": "What is your committed timeframe for revoking system access after an employee or contractor is terminated, and how is actual revocation time measured against it?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: User Access Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example User Access Review Record) that states: Evidence of the type: User Access Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q07",
+        "area": "Access Management",
+        "question": "Before system credentials are issued, what record is created showing who approved the specific entitlement being granted, and where is that record kept?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Access Provisioning Authorization Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Access Provisioning Authorization Record) that states: Evidence of the type: Access Provisioning Authorization Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q08",
+        "area": "Access Management",
+        "question": "Is administrative or production-data privilege held on a standing basis, or requested and time-bounded at the point of use?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Privileged Access Inventory and Elevation Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Privileged Access Inventory and Elevation Record) that states: Evidence of the type: Privileged Access Inventory and Elevation Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q09",
+        "area": "Access Management",
+        "question": "Which storage holding protected information is encrypted at rest, and who can both read that data and administer the encryption keys?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Encryption at Rest and Key Management Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Encryption at Rest and Key Management Configuration) that states: Evidence of the type: Encryption at Rest and Key Management Configuration."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q10",
+        "area": "Access Management",
+        "question": "Are any accounts shared between individuals, or used generically, such that an action cannot be attributed to one person?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Privileged Access Inventory and Elevation Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Privileged Access Inventory and Elevation Record) that states: Evidence of the type: Privileged Access Inventory and Elevation Record."
+        ]
+      },
+      {
+        "question_id": "QN-ACCESS-001-Q11",
+        "area": "Access Management",
+        "question": "How do you demonstrate that a security-relevant configuration, such as the authentication policy or encryption settings, remained in place for the whole examination period rather than only on the date it was captured?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Configuration Change History and Drift Record) that states: Evidence of the type: Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q01",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "Which administrative or management interfaces in your environment are reachable from the public internet, and for each, is that exposure intended?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Network Boundary Configuration Export"
+        ],
+        "remediation": [
+          "Provide a document (for example Network Boundary Configuration Export) that states: Evidence of the type: Network Boundary Configuration Export."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q02",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "Is there an approved baseline for your boundary rules, and how would you learn that the live configuration had deviated from it?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Network Boundary Configuration Export, Configuration Change History and Drift Record) that states: Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q03",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "When a boundary rule is opened temporarily for troubleshooting or a migration, what causes it to be closed again?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Configuration Change History and Drift Record) that states: Evidence of the type: Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q04",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "What is your minimum accepted transport protocol version, and how do you verify that deployed endpoints actually enforce it rather than merely being configured for it?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Transport Encryption Configuration and Validation"
+        ],
+        "remediation": [
+          "Provide a document (for example Transport Encryption Configuration and Validation) that states: Evidence of the type: Transport Encryption Configuration and Validation."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q05",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "By what routes can protected information leave your environment \u2014 bulk export, integrations, email, removable media, endpoint sync \u2014 and which of those are restricted, logged, or monitored?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report"
+        ],
+        "remediation": [
+          "Provide a document (for example Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report) that states: Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report."
+        ]
+      },
+      {
+        "question_id": "QN-NETSEC-001-Q06",
+        "area": "Boundary, Transmission, and Endpoint Protection",
+        "question": "On which asset classes is protective software deployed, what does coverage measure against, and who acts on a detection?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record) that states: Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q01",
+        "area": "System Operations",
+        "question": "How would you learn that a security-relevant configuration had changed, and how do you assess whether a newly disclosed vulnerability affects technology you actually run?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Configuration Change History and Drift Record) that states: Evidence of the type: Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q02",
+        "area": "System Operations",
+        "question": "Which components send security logs to a central store, what is that coverage measured against, and how long are the logs kept?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Security Log Source Coverage and Retention Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Log Source Coverage and Retention Configuration) that states: Evidence of the type: Security Log Source Coverage and Retention Configuration."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q03",
+        "area": "System Operations",
+        "question": "When an alert fires, who looks at it, within what timeframe, and what record is left of what they concluded?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Security Alert and Event Evaluation Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Alert and Event Evaluation Record) that states: Evidence of the type: Security Alert and Event Evaluation Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q04",
+        "area": "System Operations",
+        "question": "What written criteria determine that a security event is an incident, who may declare one, and how do events reported by customers or researchers enter that process?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Security Incident Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Incident Record) that states: Evidence of the type: Security Incident Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q05",
+        "area": "System Operations",
+        "question": "When was your incident response plan last exercised, what did the exercise reveal, and what changed as a result?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Incident Response Plan Test Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Incident Response Plan Test Record) that states: Evidence of the type: Incident Response Plan Test Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q06",
+        "area": "System Operations",
+        "question": "After an incident is closed, what triggers a root-cause review, and where do the actions arising from it live?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Security Incident Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Incident Record) that states: Evidence of the type: Security Incident Record."
+        ]
+      },
+      {
+        "question_id": "QN-OPS-001-Q07",
+        "area": "System Operations",
+        "question": "What defines the scope of your vulnerability scanning, and what happens when a finding passes the remediation timeframe you have set for its severity?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Vulnerability Scan Result and Remediation Tracking"
+        ],
+        "remediation": [
+          "Provide a document (for example Vulnerability Scan Result and Remediation Tracking) that states: Evidence of the type: Vulnerability Scan Result and Remediation Tracking."
+        ]
+      },
+      {
+        "question_id": "QN-PHYSEC-001-Q01",
+        "area": "Physical Security and Asset Disposal",
+        "question": "Which facilities do you operate yourself where protected information assets or endpoints with access to them are present, and which are operated by a hosting or colocation provider?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report"
+        ],
+        "remediation": [
+          "Provide a document (for example Physical Access Roster and Review Record, Subservice Organization Assurance Report) that states: Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report."
+        ]
+      },
+      {
+        "question_id": "QN-PHYSEC-001-Q02",
+        "area": "Physical Security and Asset Disposal",
+        "question": "When someone leaves or changes role, what triggers removal of their physical access, and is it the same trigger that removes their logical access?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Physical Access Roster and Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Physical Access Roster and Review Record) that states: Evidence of the type: Physical Access Roster and Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-PHYSEC-001-Q03",
+        "area": "Physical Security and Asset Disposal",
+        "question": "How often is the physical access roster reviewed, who reviews it, and what happened to the access identified for removal in the most recent review?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Physical Access Roster and Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Physical Access Roster and Review Record) that states: Evidence of the type: Physical Access Roster and Review Record."
+        ]
+      },
+      {
+        "question_id": "QN-PHYSEC-001-Q04",
+        "area": "Physical Security and Asset Disposal",
+        "question": "When a device or storage medium holding protected information leaves your control \u2014 destroyed, returned to a lessor, resold, or transferred \u2014 what record is created showing the data was rendered unrecoverable first?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Media Sanitization and Asset Disposal Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Media Sanitization and Asset Disposal Record) that states: Evidence of the type: Media Sanitization and Asset Disposal Record."
+        ]
+      },
+      {
+        "question_id": "QN-PHYSEC-001-Q05",
+        "area": "Physical Security and Asset Disposal",
+        "question": "Where you rely on cryptographic erasure or on a cloud provider's deletion commitment instead of physically destroying media, how do you evidence that the data is genuinely unrecoverable?",
+        "status": "NOT_ESTABLISHED",
+        "status_label": "Evidence not yet provided",
+        "gap_kind": "EVIDENCE_MISSING",
+        "why": "Not evidenced by the supplied material. This is missing material, not a control failure.",
+        "facts_used": [],
+        "files_used": [],
+        "context_only_sources": [],
+        "rejected_sources": [],
+        "scoped_observations": [],
+        "conflict_details": [],
+        "missing": [
+          "Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration) that states: Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration."
+        ]
+      }
+    ],
+    "evidence_missing": [
+      {
+        "document_type": "Configuration Change History and Drift Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q11",
+          "QN-NETSEC-001-Q02",
+          "QN-NETSEC-001-Q03",
+          "QN-OPS-001-Q01"
+        ],
+        "items": [
+          "Evidence of the type: Configuration Change History and Drift Record",
+          "Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Configuration Change History and Drift Record) that states: Evidence of the type: Configuration Change History and Drift Record.",
+          "Provide a document (for example Network Boundary Configuration Export, Configuration Change History and Drift Record) that states: Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "document_type": "User Access Review Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q03",
+          "QN-ACCESS-001-Q04",
+          "QN-ACCESS-001-Q05",
+          "QN-ACCESS-001-Q06"
+        ],
+        "items": [
+          "Evidence of the type: User Access Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example User Access Review Record) that states: Evidence of the type: User Access Review Record."
+        ]
+      },
+      {
+        "document_type": "Physical Access Roster and Review Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-PHYSEC-001-Q01",
+          "QN-PHYSEC-001-Q02",
+          "QN-PHYSEC-001-Q03"
+        ],
+        "items": [
+          "Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report",
+          "Evidence of the type: Physical Access Roster and Review Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Physical Access Roster and Review Record, Subservice Organization Assurance Report) that states: Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report.",
+          "Provide a document (for example Physical Access Roster and Review Record) that states: Evidence of the type: Physical Access Roster and Review Record."
+        ]
+      },
+      {
+        "document_type": "Encryption at Rest and Key Management Configuration",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q09",
+          "QN-PHYSEC-001-Q05"
+        ],
+        "items": [
+          "Evidence of the type: Encryption at Rest and Key Management Configuration",
+          "Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Encryption at Rest and Key Management Configuration) that states: Evidence of the type: Encryption at Rest and Key Management Configuration.",
+          "Provide a document (for example Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration) that states: Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration."
+        ]
+      },
+      {
+        "document_type": "Endpoint and Workload Protection Coverage Report",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-NETSEC-001-Q05",
+          "QN-NETSEC-001-Q06"
+        ],
+        "items": [
+          "Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report",
+          "Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report) that states: Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report.",
+          "Provide a document (for example Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record) that states: Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record."
+        ]
+      },
+      {
+        "document_type": "Media Sanitization and Asset Disposal Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-PHYSEC-001-Q04",
+          "QN-PHYSEC-001-Q05"
+        ],
+        "items": [
+          "Evidence of the type: Media Sanitization and Asset Disposal Record",
+          "Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Media Sanitization and Asset Disposal Record) that states: Evidence of the type: Media Sanitization and Asset Disposal Record.",
+          "Provide a document (for example Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration) that states: Evidence of the type: Media Sanitization and Asset Disposal Record, Encryption at Rest and Key Management Configuration."
+        ]
+      },
+      {
+        "document_type": "Multi-Factor Authentication Enforcement Configuration",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q01",
+          "QN-ACCESS-001-Q02"
+        ],
+        "items": [
+          "Evidence of the type: Multi-Factor Authentication Enforcement Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Multi-Factor Authentication Enforcement Configuration) that states: Evidence of the type: Multi-Factor Authentication Enforcement Configuration."
+        ]
+      },
+      {
+        "document_type": "Network Boundary Configuration Export",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-NETSEC-001-Q01",
+          "QN-NETSEC-001-Q02"
+        ],
+        "items": [
+          "Evidence of the type: Network Boundary Configuration Export",
+          "Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Network Boundary Configuration Export) that states: Evidence of the type: Network Boundary Configuration Export.",
+          "Provide a document (for example Network Boundary Configuration Export, Configuration Change History and Drift Record) that states: Evidence of the type: Network Boundary Configuration Export, Configuration Change History and Drift Record."
+        ]
+      },
+      {
+        "document_type": "Privileged Access Inventory and Elevation Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q08",
+          "QN-ACCESS-001-Q10"
+        ],
+        "items": [
+          "Evidence of the type: Privileged Access Inventory and Elevation Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Privileged Access Inventory and Elevation Record) that states: Evidence of the type: Privileged Access Inventory and Elevation Record."
+        ]
+      },
+      {
+        "document_type": "Security Incident Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-OPS-001-Q04",
+          "QN-OPS-001-Q06"
+        ],
+        "items": [
+          "Evidence of the type: Security Incident Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Incident Record) that states: Evidence of the type: Security Incident Record."
+        ]
+      },
+      {
+        "document_type": "Transport Encryption Configuration and Validation",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-NETSEC-001-Q04",
+          "QN-NETSEC-001-Q05"
+        ],
+        "items": [
+          "Evidence of the type: Transport Encryption Configuration and Validation",
+          "Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report"
+        ],
+        "remediation": [
+          "Provide a document (for example Transport Encryption Configuration and Validation) that states: Evidence of the type: Transport Encryption Configuration and Validation.",
+          "Provide a document (for example Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report) that states: Evidence of the type: Transport Encryption Configuration and Validation, Endpoint and Workload Protection Coverage Report."
+        ]
+      },
+      {
+        "document_type": "Access Provisioning Authorization Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-ACCESS-001-Q07"
+        ],
+        "items": [
+          "Evidence of the type: Access Provisioning Authorization Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Access Provisioning Authorization Record) that states: Evidence of the type: Access Provisioning Authorization Record."
+        ]
+      },
+      {
+        "document_type": "Incident Response Plan Test Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-OPS-001-Q05"
+        ],
+        "items": [
+          "Evidence of the type: Incident Response Plan Test Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Incident Response Plan Test Record) that states: Evidence of the type: Incident Response Plan Test Record."
+        ]
+      },
+      {
+        "document_type": "Malicious Software Detection and Triage Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-NETSEC-001-Q06"
+        ],
+        "items": [
+          "Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record) that states: Evidence of the type: Endpoint and Workload Protection Coverage Report, Malicious Software Detection and Triage Record."
+        ]
+      },
+      {
+        "document_type": "Security Alert and Event Evaluation Record",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-OPS-001-Q03"
+        ],
+        "items": [
+          "Evidence of the type: Security Alert and Event Evaluation Record"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Alert and Event Evaluation Record) that states: Evidence of the type: Security Alert and Event Evaluation Record."
+        ]
+      },
+      {
+        "document_type": "Security Log Source Coverage and Retention Configuration",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-OPS-001-Q02"
+        ],
+        "items": [
+          "Evidence of the type: Security Log Source Coverage and Retention Configuration"
+        ],
+        "remediation": [
+          "Provide a document (for example Security Log Source Coverage and Retention Configuration) that states: Evidence of the type: Security Log Source Coverage and Retention Configuration."
+        ]
+      },
+      {
+        "document_type": "Subservice Organization Assurance Report",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-PHYSEC-001-Q01"
+        ],
+        "items": [
+          "Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report"
+        ],
+        "remediation": [
+          "Provide a document (for example Physical Access Roster and Review Record, Subservice Organization Assurance Report) that states: Evidence of the type: Physical Access Roster and Review Record, Subservice Organization Assurance Report."
+        ]
+      },
+      {
+        "document_type": "Vulnerability Scan Result and Remediation Tracking",
+        "kind": "EVIDENCE_MISSING",
+        "questions": [
+          "QN-OPS-001-Q07"
+        ],
+        "items": [
+          "Evidence of the type: Vulnerability Scan Result and Remediation Tracking"
+        ],
+        "remediation": [
+          "Provide a document (for example Vulnerability Scan Result and Remediation Tracking) that states: Evidence of the type: Vulnerability Scan Result and Remediation Tracking."
+        ]
+      }
+    ],
+    "provided_but_insufficient_or_conflicting": [],
+    "unread_material": [],
+    "duplicates": [],
+    "status_labels": {
+      "ESTABLISHED": "Supported by supplied evidence",
+      "PARTIALLY_ESTABLISHED": "Partly supported",
+      "NOT_ESTABLISHED": "Evidence not yet provided",
+      "CLARIFICATION_REQUIRED": "Needs clarification",
+      "CONFLICT": "Sources disagree",
+      "NOT_EVALUATED": "Not assessed"
+    }
+  },
   "semantic_status": "NEEDS_REVIEW",
   "questionnaire_counts": {
     "documents_analyzed": 1,
@@ -19,203 +920,319 @@
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q02",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q03",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q04",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q05",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q06",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q07",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q08",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q09",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q10",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-ACCESS-001-Q11",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q01",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q02",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q03",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q04",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q05",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-NETSEC-001-Q06",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q01",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q02",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q03",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q04",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q05",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q06",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-OPS-001-Q07",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-PHYSEC-001-Q01",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-PHYSEC-001-Q02",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-PHYSEC-001-Q03",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-PHYSEC-001-Q04",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     },
     {
       "question_id": "QN-PHYSEC-001-Q05",
       "status": "NOT_ESTABLISHED",
       "reason": "Not evidenced by the supplied material. This is missing material, not a control failure.",
       "missing_facts": [],
-      "provenance": []
+      "provenance": [],
+      "scoped_observations": [],
+      "context_sources": [],
+      "rejected_sources": [],
+      "conflict_details": []
     }
   ],
   "evidence_results": [],

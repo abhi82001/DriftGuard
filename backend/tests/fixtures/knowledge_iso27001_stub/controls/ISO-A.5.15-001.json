@@ -1,0 +1,13 @@
+{
+  "record_type": "control",
+  "control_id": "ISO-A.5.15-001",
+  "control_name": "Stub control A.5.15",
+  "criterion": "A.5.15",
+  "questionnaire_questions": [
+    "QN-ISO-STUB-001-Q01"
+  ],
+  "status": "test_stub",
+  "notes": [
+    "TEST STUB: placeholder identifiers only, not ISO/IEC 27001 content. Proves a framework needs knowledge files only."
+  ]
+}

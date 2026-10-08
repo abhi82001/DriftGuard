@@ -69,6 +69,24 @@ def ocr_missing_requirements() -> list[str]:
     return [m for m in ("pytesseract", "pypdfium2") if importlib.util.find_spec(m) is None]
 
 
+_TESSERACT_WINDOWS_PATHS = (
+    r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+    r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+)
+
+
+def find_tesseract() -> str | None:
+    """Tesseract executable: TESSERACT_CMD, then PATH, then the standard Windows install folders."""
+    import shutil
+    explicit = os.getenv("TESSERACT_CMD", "").strip().strip('"')
+    if explicit and os.path.isfile(explicit):
+        return explicit
+    on_path = shutil.which("tesseract")
+    if on_path:
+        return on_path
+    return next((p for p in _TESSERACT_WINDOWS_PATHS if os.path.isfile(p)), None)
+
+
 @dataclass(frozen=True)
 class Chunk:
     filename: str
@@ -311,6 +329,9 @@ def _ocr_or_raise(filename: str, data: bytes) -> list[Chunk]:
     try:
         import pypdfium2
         import pytesseract
+        binary = find_tesseract()
+        if binary:
+            pytesseract.pytesseract.tesseract_cmd = binary
         pdf = pypdfium2.PdfDocument(data)
         out = []
         for n in range(len(pdf)):

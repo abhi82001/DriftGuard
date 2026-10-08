@@ -37,15 +37,21 @@ $env:DRIFTGUARD_DEMO_MODE=1; uvicorn backend.src.app:app --reload
 Semantic results are then produced by a local deterministic stub and labelled
 `DEMO` — they are not model output.
 
-## Run against real Claude
+## Run against a real model
+
+One configuration drives all AI use (semantic evaluation, grounded fact extraction, mapping assistance):
 
 ```bash
-$env:ANTHROPIC_API_KEY="<your key>"; $env:DRIFTGUARD_CLAUDE_MODEL="<model id>"; uvicorn backend.src.app:app --reload
+$env:DRIFTGUARD_AI_PROVIDER="anthropic"; $env:DRIFTGUARD_AI_MODEL="<model id>"; $env:ANTHROPIC_API_KEY="<your key>"; uvicorn backend.src.app:app --reload
 ```
 
-`DRIFTGUARD_CLAUDE_MODEL` is required (no model id is assumed). If the key, model
-or SDK is missing, semantic items degrade to `NEEDS_REVIEW` and the assessment
-still completes. Never commit an API key.
+Providers: `anthropic` (`ANTHROPIC_API_KEY`), `openai` (`OPENAI_API_KEY`), `openrouter` (`OPENROUTER_API_KEY`).
+The model must be listed in `backend/src/driftguard_platform/ai_models.json` (or a file named by
+`DRIFTGUARD_AI_CAPABILITIES_FILE`). If the provider, model, key or SDK is missing, semantic items degrade to
+`NEEDS_REVIEW` and the assessment still completes; `/health` names what is missing. Never commit an API key.
+
+`DRIFTGUARD_SEMANTIC_PROVIDER=claude`, `DRIFTGUARD_CLAUDE_MODEL`, `DRIFTGUARD_SEMANTIC_TIMEOUT_SECONDS` and
+`DRIFTGUARD_SEMANTIC_MAX_RETRIES` still work as **deprecated** fallbacks for one release (the new variables win).
 
 ## Browser
 

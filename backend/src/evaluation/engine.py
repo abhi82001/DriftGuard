@@ -227,19 +227,19 @@ class QuestionEvaluation:
 
 
 # --------------------------------------------------------------- knowledge base
-def resolve_knowledge_root(start: Optional[Path] = None) -> Path:
-    """Locate knowledge/soc2 by walking up from ``start`` (default: this file).
+def resolve_knowledge_root(start: Optional[Path] = None, framework: str = "soc2") -> Path:
+    """Locate knowledge/<framework> by walking up from ``start`` (default: this file).
 
     No hard-coded absolute or sandbox paths: the root is discovered relative to
     the package location, or supplied explicitly by the caller.
     """
     here = (start or Path(__file__)).resolve()
     for base in [here, *here.parents]:
-        candidate = base / "knowledge" / "soc2"
+        candidate = base / "knowledge" / framework
         if candidate.is_dir():
             return candidate
     raise KnowledgeError(
-        "could not locate knowledge/soc2 relative to "
+        f"could not locate knowledge/{framework} relative to "
         f"{here}; pass knowledge_root explicitly"
     )
 

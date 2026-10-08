@@ -1,4 +1,4 @@
-"""CP017 production guardrails for grounded semantic evidence extraction."""
+"""CP017 limits for grounded semantic evidence extraction. Provider/model/key come from the unified AI config (DRIFTGUARD_AI_*)."""
 from __future__ import annotations
 from dataclasses import dataclass
 import os
@@ -23,9 +23,11 @@ class SemanticRuntimeConfig:
             try: value=float(os.getenv(name,str(default)))
             except ValueError: value=default
             return max(lo,min(hi,value))
+        from driftguard_platform.byoai import resolve_provider_and_model
+        provider,model,_legacy=resolve_provider_and_model()
         return cls(
-            provider=os.getenv("DRIFTGUARD_SEMANTIC_PROVIDER","").strip().lower(),
-            model=os.getenv("DRIFTGUARD_CLAUDE_MODEL","").strip(),
+            provider="" if provider=="disabled" else provider,
+            model=model,
             timeout_seconds=_float("DRIFTGUARD_SEMANTIC_TIMEOUT_SECONDS",30,5,120),
             max_retries=_int("DRIFTGUARD_SEMANTIC_MAX_RETRIES",1,0,3),
             max_tokens=_int("DRIFTGUARD_SEMANTIC_MAX_TOKENS",1800,256,4096),
@@ -34,16 +36,9 @@ class SemanticRuntimeConfig:
         )
 
     def readiness(self):
-        if not self.provider:
-            return False,"SEMANTIC_UNAVAILABLE","provider not configured"
-        if self.provider != "claude":
-            return False,"SEMANTIC_UNAVAILABLE",f"unsupported provider: {self.provider}"
-        if not self.model:
-            return False,"SEMANTIC_UNAVAILABLE","DRIFTGUARD_CLAUDE_MODEL is not configured"
-        if not os.getenv("ANTHROPIC_API_KEY","").strip():
-            return False,"SEMANTIC_UNAVAILABLE","ANTHROPIC_API_KEY is not configured"
-        try:
-            import anthropic  # noqa:F401
-        except ImportError:
-            return False,"SEMANTIC_UNAVAILABLE","anthropic SDK is not installed"
-        return True,"SEMANTIC_ACTIVE","configured real Claude provider"
+        """Delegates to the unified AI path: DRIFTGUARD_AI_PROVIDER / DRIFTGUARD_AI_MODEL / provider key."""
+        from driftguard_platform.ai_runtime import readiness
+        r=readiness()
+        if r["ready"]:
+            return True,"SEMANTIC_ACTIVE",f"configured {r['provider']} provider"
+        return False,"SEMANTIC_UNAVAILABLE",r["reason"]

@@ -13,10 +13,12 @@ from .claude import (
     ClaudeOutputError,
     ClaudeProviderError,
     ClaudeSemanticEvaluator,
+    GatewaySemanticEvaluator,
 )
 
 __all__ = [
     "ClaudeOutputError",
     "ClaudeProviderError",
     "ClaudeSemanticEvaluator",
+    "GatewaySemanticEvaluator",
 ]
