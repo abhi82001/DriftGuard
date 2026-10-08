@@ -6,8 +6,10 @@ a directive."""
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, asdict
 from typing import Iterable
 from production_hardening import neutralize_formula
 
@@ -19,8 +21,52 @@ SUPPORTED = (".pdf", ".docx", ".xlsx", ".csv", ".json", ".txt", ".md")
 POLICY_WORDS = ("policy", "standard", "procedure", "charter", "guideline", "plan")
 
 
+# Typed extraction statuses. All of them describe *unread material*; none is
+# "missing evidence" or a negative control result.
+EXTRACTED = "EXTRACTED"
+UNREADABLE_SCAN_NEEDS_OCR = "UNREADABLE_SCAN_NEEDS_OCR"
+ENCRYPTED_OR_DEPENDENCY_MISSING = "ENCRYPTED_OR_DEPENDENCY_MISSING"
+CORRUPT = "CORRUPT"
+UNSUPPORTED = "UNSUPPORTED"
+DUPLICATE = "DUPLICATE"
+EXTRACTION_STATUSES = (EXTRACTED, UNREADABLE_SCAN_NEEDS_OCR, ENCRYPTED_OR_DEPENDENCY_MISSING,
+                       CORRUPT, UNSUPPORTED, DUPLICATE)
+
+_PIP_NAMES = {"docx": "python-docx", "cryptography": "cryptography", "openpyxl": "openpyxl", "pypdf": "pypdf"}
+
+
 class IngestionError(Exception):
-    pass
+    def __init__(self, message: str = "", status: str = CORRUPT, remediation: str = ""):
+        super().__init__(message)
+        self.status = status
+        self.remediation = remediation
+
+
+@dataclass(frozen=True)
+class ExtractionResult:
+    filename: str
+    status: str
+    detail: str = ""
+    remediation: str = ""
+    sha256: str = ""
+    duplicate_of: str = ""
+    note: str = "Unread material is not evidence of a missing or failed control."
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    def message(self) -> str:
+        return f"{self.status}: {self.detail}" + (f" Next step: {self.remediation}" if self.remediation else "")
+
+
+def ocr_enabled() -> bool:
+    return os.getenv("DRIFTGUARD_OCR", "").strip().lower() in ("1", "true", "yes", "on")
+
+
+def ocr_missing_requirements() -> list[str]:
+    """Optional OCR libraries not importable here (the Tesseract binary is checked at use)."""
+    import importlib.util
+    return [m for m in ("pytesseract", "pypdfium2") if importlib.util.find_spec(m) is None]
 
 
 @dataclass(frozen=True)
@@ -59,11 +105,13 @@ def _kind(filename: str, text: str, ext: str) -> str:
 def extract(filename: str, data: bytes) -> Document:
     ext = _ext(filename)
     if ext not in SUPPORTED:
-        raise IngestionError(f"unsupported file type {ext or filename!r}")
+        raise IngestionError(f"unsupported file type {ext or filename!r}", UNSUPPORTED,
+                             "Convert to one of: " + ", ".join(SUPPORTED) + ".")
     if not data:
-        raise IngestionError(f"{filename} is empty")
+        raise IngestionError(f"{filename} is empty", CORRUPT, "Re-export the file; it contains no bytes.")
     if len(data) > MAX_BYTES:
-        raise IngestionError(f"{filename} exceeds {MAX_BYTES // (1024 * 1024)} MB")
+        raise IngestionError(f"{filename} exceeds {MAX_BYTES // (1024 * 1024)} MB", UNSUPPORTED,
+                             "Split or reduce the file below the size limit.")
 
     try:
         if ext in (".txt", ".md"):
@@ -80,27 +128,63 @@ def extract(filename: str, data: bytes) -> Document:
             chunks = _pdf(filename, data)
     except IngestionError:
         raise
+    except ModuleNotFoundError as exc:
+        pkg = _PIP_NAMES.get((exc.name or "").split(".")[0], exc.name or "the missing package")
+        raise IngestionError(f"could not read {filename}: optional dependency {pkg!r} is not installed",
+                             ENCRYPTED_OR_DEPENDENCY_MISSING, f"pip install {pkg}") from exc
     except Exception as exc:  # noqa: BLE001 - malformed upload must not crash
-        raise IngestionError(f"could not read {filename}: {type(exc).__name__}") from exc
+        if type(exc).__name__ == "DependencyError":      # pypdf: AES-encrypted PDF needs cryptography
+            raise IngestionError(
+                f"could not read {filename}: encrypted PDF needs the optional 'cryptography' package",
+                ENCRYPTED_OR_DEPENDENCY_MISSING, "pip install cryptography") from exc
+        raise IngestionError(f"could not read {filename}: {type(exc).__name__}", CORRUPT,
+                             "Re-export or re-download the file; it could not be parsed.") from exc
 
     chunks = [c for c in chunks if c.text.strip()][:MAX_CHUNKS_PER_FILE]
+    if not chunks and ext == ".pdf":
+        chunks = _ocr_or_raise(filename, data)
     if not chunks:
-        raise IngestionError(f"no extractable text in {filename}")
+        raise IngestionError(f"no extractable text in {filename}", UNSUPPORTED,
+                             "The file has no readable content; supply a text-bearing export.")
     doc_text = "\n".join(c.text for c in chunks)
     return Document(filename, _kind(filename, doc_text, ext), tuple(chunks))
 
 
-def extract_many(files: Iterable[tuple[str, bytes]]) -> tuple[list[Document], list[str]]:
+def extract_many_detailed(files: Iterable[tuple[str, bytes]]):
+    """Return (documents, errors, per-file ExtractionResult list, unique payloads).
+
+    Byte-identical files are de-duplicated by SHA-256 and reported once as
+    DUPLICATE; a duplicate is not an error and is not processed twice.
+    """
     docs: list[Document] = []
     errors: list[str] = []
+    records: list[ExtractionResult] = []
+    unique: list[tuple[str, bytes]] = []
+    seen: dict[str, str] = {}
     for i, (filename, data) in enumerate(files):
         if i >= MAX_FILES:
             errors.append(f"only the first {MAX_FILES} files were processed")
             break
+        digest = hashlib.sha256(data).hexdigest()
+        if digest in seen:
+            records.append(ExtractionResult(
+                filename, DUPLICATE, f"{filename} is byte-identical to {seen[digest]}; processed once.",
+                "No action needed; remove the duplicate upload.", digest, seen[digest]))
+            continue
+        seen[digest] = filename
+        unique.append((filename, data))
         try:
             docs.append(extract(filename, data))
+            records.append(ExtractionResult(filename, EXTRACTED, "", "", digest))
         except IngestionError as exc:
-            errors.append(str(exc))
+            rec = ExtractionResult(filename, exc.status, str(exc), exc.remediation, digest)
+            records.append(rec)
+            errors.append(rec.message())
+    return docs, errors, records, unique
+
+
+def extract_many(files: Iterable[tuple[str, bytes]]) -> tuple[list[Document], list[str]]:
+    docs, errors, _records, _unique = extract_many_detailed(files)
     return docs, errors
 
 
@@ -200,7 +284,44 @@ def _pdf(filename: str, data: bytes) -> list[Chunk]:
     logging.getLogger("pypdf").setLevel(logging.CRITICAL)
 
     reader = PdfReader(io.BytesIO(data))
+    if reader.is_encrypted:
+        # The empty user password covers owner-restricted PDFs; a real password is never guessed.
+        if not reader.decrypt(""):
+            raise IngestionError(f"could not read {filename}: password-protected PDF",
+                                 ENCRYPTED_OR_DEPENDENCY_MISSING,
+                                 "Supply an unencrypted copy; DriftGuard does not guess passwords.")
     return [
         Chunk(filename, f"page {n}", (page.extract_text() or "").strip(), segment_type="page")
         for n, page in enumerate(reader.pages, start=1)
     ]
+
+
+def _ocr_or_raise(filename: str, data: bytes) -> list[Chunk]:
+    """Image-only PDF: OCR behind DRIFTGUARD_OCR=1 when libraries exist, else a typed status."""
+    steps = ("pip install pytesseract pypdfium2, install the Tesseract OCR binary yourself "
+             "(DriftGuard does not install system binaries), then set DRIFTGUARD_OCR=1")
+    if not ocr_enabled():
+        raise IngestionError(f"no extractable text in {filename}: image-only scan", UNREADABLE_SCAN_NEEDS_OCR,
+                             f"Provide a text-searchable copy, or enable OCR: {steps}.")
+    missing = ocr_missing_requirements()
+    if missing:
+        raise IngestionError(f"no extractable text in {filename}: image-only scan; OCR requested but "
+                             f"{', '.join(missing)} not installed", UNREADABLE_SCAN_NEEDS_OCR,
+                             f"pip install {' '.join(missing)} and install the Tesseract OCR binary.")
+    try:
+        import pypdfium2
+        import pytesseract
+        pdf = pypdfium2.PdfDocument(data)
+        out = []
+        for n in range(len(pdf)):
+            text = pytesseract.image_to_string(pdf[n].render(scale=2).to_pil()).strip()
+            if text:
+                out.append(Chunk(filename, f"page {n + 1} (OCR)", text, segment_type="ocr_page"))
+    except Exception as exc:  # noqa: BLE001 - OCR engine/binary failure must not crash ingestion
+        raise IngestionError(f"no extractable text in {filename}: OCR failed ({type(exc).__name__})",
+                             UNREADABLE_SCAN_NEEDS_OCR,
+                             f"Check the Tesseract binary is installed and on PATH ({steps}).") from exc
+    if not out:
+        raise IngestionError(f"no extractable text in {filename}: OCR found no text", UNREADABLE_SCAN_NEEDS_OCR,
+                             "Provide a clearer or text-searchable copy.")
+    return out

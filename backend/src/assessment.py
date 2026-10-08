@@ -37,6 +37,7 @@ ENV_DEMO = "DRIFTGUARD_DEMO_MODE"
 
 STATUS_NO_GAP = "NO_GAP_SIGNAL"
 STATUS_GAP = "GAP_SIGNAL"
+STATUS_NOT_EVALUATED = "NOT_EVALUATED"
 STATUS_NEEDS_REVIEW = "NEEDS_REVIEW"
 STATUS_SKIPPED = "NOT_ANSWERED"
 
@@ -319,13 +320,21 @@ def _evaluate_one(
             view["condition"] = f"semantic condition {result.condition_id}"
             findings.append(view)
     missing = ", ".join(result.missing_elements) or "none"
+    # A finding the model did not report is an omission, not a negative result: "no gap"
+    # needs an affirmative SUPPORTED verdict with elements present and none missing.
+    affirmed = (result.assessment == SemanticVerdict.SUPPORTED.value
+                and bool(result.present_elements) and not result.missing_elements)
+    omitted = not findings and not affirmed
+    status = STATUS_GAP if findings else (STATUS_NO_GAP if affirmed else STATUS_NOT_EVALUATED)
     return QuestionResult(
         qn_id, q_id, text, answer, "semantic",
-        STATUS_GAP if findings else STATUS_NO_GAP,
-        f"elements missing: {missing}",
+        status,
+        (f"elements missing: {missing}" if not omitted else
+         f"no finding reported and support not affirmed (elements missing: {missing}); "
+         "an omission is not a negative result"),
         verdict=result.assessment,
         confidence=result.confidence,
         reason_codes=result.reason_codes,
-        needs_review=True if result.needs_human_review else False,
+        needs_review=True if (result.needs_human_review or omitted) else False,
         findings=findings, source=source,
     )

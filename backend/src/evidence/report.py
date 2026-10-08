@@ -372,3 +372,101 @@ def fact_display(fact: EvidenceFact) -> Any:
     if fact.unit == "breakdown" and fact.value:
         return ", ".join(f"{name} {count}" for name, count in fact.value)
     return fact.value
+
+
+# ------------------------------------------------- assessment-level explanations
+# CP019: question-level explainability. Pure re-wording of what the document
+# assessment already decided (statuses, reasons, facts, rejected sources). No
+# analysis happens here and no verdict words are produced.
+
+CUSTOMER_STATUS_LABELS = {
+    "ESTABLISHED": "Supported by supplied evidence",
+    "PARTIALLY_ESTABLISHED": "Partly supported",
+    "NOT_ESTABLISHED": "Evidence not yet provided",
+    "CLARIFICATION_REQUIRED": "Needs clarification",
+    "CONFLICT": "Sources disagree",
+    "NOT_EVALUATED": "Not assessed",
+}
+
+_KIND = {
+    "ESTABLISHED": "SUPPORTED",
+    "PARTIALLY_ESTABLISHED": "PROVIDED_BUT_INSUFFICIENT",
+    "CLARIFICATION_REQUIRED": "PROVIDED_BUT_INSUFFICIENT",
+    "CONFLICT": "PROVIDED_BUT_CONFLICTING",
+    "NOT_ESTABLISHED": "EVIDENCE_MISSING",
+    "NOT_EVALUATED": "NOT_ASSESSED",
+}
+
+NOTHING_FURTHER = "Nothing further requested for this question."
+
+
+def status_label(status: str) -> str:
+    return CUSTOMER_STATUS_LABELS.get(status, status.replace("_", " ").capitalize())
+
+
+def _missing_items(area) -> list[str]:
+    items = [m for m in (getattr(area, "missing_facts", None) or []) if str(m).strip() and str(m).strip() != "—"]
+    if items or area.status == "ESTABLISHED":
+        return items or [NOTHING_FURTHER]
+    if area.status == "NOT_EVALUATED":
+        return ["This question is outside the checks DriftGuard can run; answer it through human assessment."]
+    needed = list(getattr(area, "evidence_needed", None) or [])
+    return [f"Evidence of the type: {', '.join(needed)}"] if needed else [
+        "Evidence that states what this question asks, with source and period."]
+
+
+def _remediation(area, item: str) -> str:
+    needed = list(getattr(area, "evidence_needed", None) or [])
+    doc = f" (for example {', '.join(needed)})" if needed else ""
+    if item == NOTHING_FURTHER:
+        return NOTHING_FURTHER
+    if item.startswith("resolve conflict:"):
+        return f"Confirm which source applies and supply a single current statement for {item.split(':', 1)[1].strip()}."
+    return f"Provide a document{doc} that states: {item}."
+
+
+def build_question_reports(areas, extraction=()) -> dict:
+    """Per-question explanations plus gap requests grouped by document type."""
+    questions = []
+    gaps: dict[tuple, dict] = {}
+    for a in areas:
+        kind = _KIND.get(a.status, "NOT_ASSESSED")
+        missing = _missing_items(a)
+        used = [dict(statement=f.statement, filename=f.source_file, locator=f.source_locator,
+                     excerpt=f.snippet, scope=getattr(f, "scope", ""),
+                     report_type=getattr(f, "report_type", ""), audit_period=getattr(f, "audit_period", ""))
+                for f in a.known_facts]
+        questions.append(dict(
+            question_id=a.question_id, area=a.area, question=a.question, status=a.status,
+            status_label=status_label(a.status), gap_kind=kind, why=a.reason,
+            facts_used=used,
+            files_used=sorted({u["filename"] for u in used}),
+            context_only_sources=[dict(filename=c["filename"], kind=c.get("authority", ""), why=c.get("reason", ""))
+                                  for c in getattr(a, "context_sources", [])],
+            rejected_sources=[dict(filename=c["filename"], kind=c.get("authority", ""), scope=c.get("scope", ""),
+                                   why=c.get("reason", "")) for c in getattr(a, "rejected_sources", [])],
+            scoped_observations=list(getattr(a, "scoped_observations", [])),
+            conflict_details=list(getattr(a, "conflict_details", [])),
+            missing=missing,
+            remediation=[_remediation(a, m) for m in missing]))
+        if a.status == "ESTABLISHED" or a.status == "NOT_EVALUATED":
+            continue
+        doc_types = list(getattr(a, "evidence_needed", None) or ["Supporting evidence (type not specified)"])
+        for doc in doc_types:
+            g = gaps.setdefault((doc, kind), dict(document_type=doc, kind=kind, questions=[], items=[], remediation=[]))
+            if a.question_id not in g["questions"]:
+                g["questions"].append(a.question_id)
+            for item, rem in zip(missing, questions[-1]["remediation"]):
+                if item not in g["items"]:
+                    g["items"].append(item)
+                    g["remediation"].append(rem)
+    grouped = sorted(gaps.values(), key=lambda g: (-len(g["questions"]), g["document_type"], g["kind"]))
+    for g in grouped:
+        g["questions"].sort()
+    return dict(
+        questions=questions,
+        evidence_missing=[g for g in grouped if g["kind"] == "EVIDENCE_MISSING"],
+        provided_but_insufficient_or_conflicting=[g for g in grouped if g["kind"] != "EVIDENCE_MISSING"],
+        unread_material=[dict(e) for e in extraction if e.get("status") not in ("EXTRACTED", "DUPLICATE")],
+        duplicates=[dict(e) for e in extraction if e.get("status") == "DUPLICATE"],
+        status_labels=dict(CUSTOMER_STATUS_LABELS))

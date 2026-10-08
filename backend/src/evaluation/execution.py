@@ -48,6 +48,17 @@ class SemanticExecutionError(SemanticError):
     """
 
 
+def ai_provenance(request: SemanticEvaluationRequest, evaluator) -> dict:
+    """Mark a semantic result as model-derived and name what grounds it.
+
+    Every result that goes through the runner is evaluator-produced (never the
+    deterministic engine), so it is always marked ai_derived with source ids
+    pointing at the question answer and the knowledge condition it was judged on.
+    """
+    source_ids = (f"{request.question_id}#answer", request.condition_id)
+    return {"ai_derived": True, "evaluator": type(evaluator).__name__, "source_ids": source_ids}
+
+
 class SemanticEvaluationRunner:
     """Runs one provider-independent evaluator against real knowledge.
 
@@ -75,6 +86,8 @@ class SemanticEvaluationRunner:
             set(known_finding_ids) if known_finding_ids is not None
             else set(knowledge.finding_ids)
         )
+        # Model-derived results are marked, never silent: result_id -> provenance.
+        self.provenance: dict[str, dict] = {}
 
     # -- the single execution path ------------------------------------------
     def run(
@@ -119,9 +132,11 @@ class SemanticEvaluationRunner:
             )
 
         # Untrusted until this returns. No repair, no fallback verdict.
-        return validate_semantic_result(
+        validated = validate_semantic_result(
             raw, request, known_finding_ids=self.known_finding_ids
         )
+        self.provenance[validated.result_id] = ai_provenance(request, self.evaluator)
+        return validated
 
 
 def run_semantic_evaluation(

@@ -46,7 +46,7 @@ from evidence import (  # noqa: E402
     build_report,
     fact_display,
 )
-from ingestion import SUPPORTED, extract_many  # noqa: E402
+from ingestion import SUPPORTED, extract_many, extract_many_detailed  # noqa: E402
 from evidence.backbone import analyze_artifacts  # noqa: E402
 from evidence.mapping import map_questionnaire  # noqa: E402
 from evidence.intelligence import build_intelligence  # noqa: E402
@@ -684,8 +684,10 @@ def _apply_graph_question_results(result):
 def analyze_payloads(vendor: str, payloads, *, assessment_date=None):
     """Shared CP016 orchestration used by web and offline pack runner."""
     safe_event("assessment_started", file_count=len(payloads))
-    documents, errors = extract_many(payloads)
-    if not payloads:
+    received = len(payloads)
+    received_payloads = list(payloads)
+    documents, errors, extraction, payloads = extract_many_detailed(payloads)   # duplicates processed once
+    if not received:
         errors.append("no files were uploaded")
     evidence = analyze_evidence(payloads, as_of=assessment_date)
     result = ANALYZER.analyze(vendor[:200], documents, errors, demo_mode_enabled(), evidence, assessment_date=assessment_date)
@@ -707,7 +709,10 @@ def analyze_payloads(vendor: str, payloads, *, assessment_date=None):
     _apply_structured_evidence_results(result, frozenset(q for q, _ in cross))
     _apply_cross_file_findings(result, cross)
     _apply_graph_question_results(result)
-    result.files_received = len(payloads)
+    result.files_received = received
+    result.extraction = [r.to_dict() for r in extraction]
+    from evidence.reproducibility import run_stamp
+    result.run_stamp = run_stamp(received_payloads, assessment_date, result.semantic_status)
     safe_event("assessment_completed", assessment_id=result.assessment_id, files_received=len(payloads), files_parsed=len(documents), parse_errors=len(errors))
     return result
 
@@ -1109,6 +1114,8 @@ def export_assessment(assessment_id: str, request: Request = None):
         "semantic_status": a.semantic_status, "semantic_rejections": a.semantic_rejections, "semantic_conflicts": list(a.semantic_conflicts), "files_received": a.files_received or len(a.documents),
         "files_parsed": len(a.documents), "documents": list(a.documents), "errors": list(a.errors),
         "counts": a.counts, "contract_coverage": a.contract_coverage,
+        "extraction": list(a.extraction), "run_stamp": dict(a.run_stamp),
+        "explainability": __import__("evidence.report", fromlist=["build_question_reports"]).build_question_reports(a.areas, a.extraction),
         "questions": [{
             "questionnaire_id": x.questionnaire_id, "question_id": x.question_id, "area": x.area,
             "question": x.question, "status": x.status, "why": x.reason,
